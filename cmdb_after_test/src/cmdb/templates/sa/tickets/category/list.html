@@ -1,0 +1,61 @@
+{% extends "public/sa_layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>工单分类</span>
+    <a id="add" href="javascript:void(0);" class="button radius right tiny">+ 添加分类</a>
+</h5>
+<hr>
+{% if data %}
+<table style="width: 100%">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>名称</th>
+        <th>标签分类</th>
+        <th>负责人</th>
+        <th>时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+    <tr title="{{ item.template }}">
+        <td>{{ item.idx }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.label }}</td>
+        <td>{{ item.manage_cname }}</td>
+        <td>{{ item.created }}</td>
+        <td><a href="javascript:void(0);" class="mod" data="{{ item.id }}">修改</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<div id="ticket_cat" class="reveal-modal small" data-reveal>
+    <h3>添加分类</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;"></div>
+    <div class="row">
+        <input type="text" id="name" placeholder="请输入分类名称">
+        <input type="text" id="label" placeholder="请输入分类标签">
+        <input type="text" id="manage_cname" placeholder="请输入此分类处理人">
+        <input type="hidden" id="manage_uid" value="0">
+        <input type="hidden" id="id" value="0">
+        <textarea id="template" placeholder="请输入模板,如果没有此处为空即可" style="resize: none;" rows="5"></textarea>
+        <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    </div>
+    <a class="close-reveal-modal" id="closebtn">&#215;</a>
+</div>
+{% endblock %}
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+    <style type="text/css">
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+    </style>
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/sa/tickets/category/list.js","js/kindeditor/kindeditor.js","js/sa/tickets/category/list.js", "js/jquery-ui.min.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

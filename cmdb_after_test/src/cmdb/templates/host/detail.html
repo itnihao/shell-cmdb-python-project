@@ -1,0 +1,211 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+    <style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .load_table>tbody>tr:hover{
+            background:#ffffff;
+            color: #ffffff;
+        }
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+        .margin_custom {
+            margin-right: 8px;
+            float: right;
+        }
+    </style>
+{% endblock %}
+{% block main %}
+    <h5 class="content_title">
+        <span>主机详情:{{ data.hostname }}</span>
+        {% if data.deleted == 0 %}
+            {% if data.followed %}
+                <a data-options='{"id":{{ data.id }}, "type":"2", "act":"unfollow"}' href='javascript:void(0);'
+                   class="button radius right tiny " style="margin-left: 5px;">取消关注</a>
+            {% else %}
+                <a data-options='{"id":{{ data.id }}, "type":"2"}' href='javascript:void(0);'  class="button radius right tiny" style="margin-left: 5px;">
+                    关注
+                </a>
+            {% endif%}
+            {% if current_user.department_id == 160 or current_user.department_id == 562 or flag == 0 %}
+            <a href="{{ url_for('bastion.index',id= data.id)+'?type=1' }}" name="apply" class="button radius right tiny" style="margin-left: 5px;">申请权限</a>
+            {% endif %}
+            {% if show.host_modify %}
+                <a href="javascript:void(0)" host_id="{{ data.id }}" class="button radius right tiny" name="host_modify" style="margin-left: 5px;">修改</a>
+                <a href="javascript:void(0)" data="{{ data.id }}" class="button radius right tiny host_del_btn">删除</a>
+            {% endif %}
+        {% endif %}
+    </h5>
+    <table style="width: 100%;margin-top: 20px" class="load_table">
+        <tr>
+            <td width='20%' colspan="1">当前满载率: <a data-tooltip aria-haspopup="true"
+                   class="has-tip link_blue" title="采集时间:{{ load.host_load[1] }}" href="{{ url_for('monitor.details',host_id=load.id)}}">
+                {{ load.host_load[0] }}%</a></td>
+        </tr>
+        <tr>
+            <td width="15%"></td>
+            <td width='65%'>
+            今日最高满载率:  <span data-tooltip aria-haspopup="true" class="has-tip" title="采集时间:{{ load.max_host_load[1] }}">
+            {{ load.max_host_load[0] }}%</span>&nbsp;&nbsp;
+            昨日最高满载率: <span data-tooltip aria-haspopup="true" class="has-tip" title="采集标准:95线">
+            {{ load.yes_host_load[0] }}%</span>
+        </td>
+            <td width="20%">
+                {% if data.deleted == 0 %}
+                    {% if data.alarmed %}
+                        <a title="取消报警之后无法接到Zabbix的报警" data-option='{"id":{{ data.id }}, "type":"2", "act":"unalarm"}' href='javascript:void(0);' class="button radius right tiny" style="margin-left: 5px;">取消接警</a>
+                    {% else %}
+                        <a title="订阅报警之后就可以接到Zabbix的报警" data-option='{"id":{{ data.id }}, "type":"2"}' href='javascript:void(0);'  class="button radius right tiny" style="margin-left: 5px;">订阅接警</a>
+                    {% endif%}
+                {% endif%}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <table style="width: 100%;" class="load_table">
+        <tr>
+            <th colspan="3">配置信息</th>
+        </tr>
+        <tr>
+            <td width="33%">名称:  {{ data.hostname }} {{ data.detail_vir_desc }}</td>
+            <td width="33%">类型:  {{ data.type_descri }}</td>
+            <td width="33%">状态:  {{ status }}</td>
+        </tr>
+        <td width="33%">CPU:  {{ data.cpu_descri }}</td>
+        <td width="33%">内存:  {{ data.memory_descri }}</td>
+        <td width="33%">硬盘:  {{ data.storage_descri }}</td>
+        </tr>
+        {% for i in ip %}
+            <tr>
+                {% for item in i %}
+                    <td width="33%">{{ item['name'] }}:  {{ item['ip']}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    {% if data.pools %}
+        <table style="width: 100%;" class="load_table">
+            <tr>
+                <th colspan="5">POOL 信息</th>
+            </tr>
+            <tr>
+                <td>名称</td>
+                <td>pool负责人</td>
+                <td>业务负责人</td>
+                <td>运维负责人</td>
+            </tr>
+            {% for item in data.pools %}
+                <tr>
+                    <td><a href="{{ url_for('pool.detail',id=item.id) }}">{{ item.source_desc }} &nbsp;{{ item.name }}</a></td>
+                    <td>{{ item.team_owner_name }}</td>
+                    <td>{{ item.biz_owner_name }}</td>
+                    <td>{{ item.ops_owner_name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    {% if alarmusers %}
+    <table style="width: 100%;" class="load_table">
+            <tr>
+                <th colspan="2">接警用户</th>
+            </tr>
+        <tr>
+            <td style="width: 8%">&nbsp;</td>
+            <td style="width: 92%">{{ alarmusers }}</td>
+        </tr>
+    </table>
+    {% endif %}
+    {% if bastion_users['root'] or bastion_users['evans'] or bastion_users['readonly'] %}
+    <table style="width: 100%;" class="load_table">
+            <tr>
+                <th colspan="2">主机用户</th>
+            </tr>
+        <tr>
+            {% if bastion_users['root'] %}
+            <td style="width: 8%">root</td>
+            <td style="width: 92%">{{ bastion_users['root'] }}</td>
+            {% endif %}
+        </tr>
+        <tr>
+            {% if bastion_users['evans'] %}
+            <td style="width: 8%">evans</td>
+            <td style="width: 92%">{{ bastion_users['evans'] }}</td>
+            {% endif %}
+        </tr>
+        <tr>
+            {% if bastion_users['readonly'] %}
+            <td style="width: 8%">readonly</td>
+            <td style="width: 92%">{{ bastion_users['readonly'] }}</td>
+            {% endif %}
+        </tr>
+    </table>
+    {% endif %}
+    <table style="width: 100%;" class="load_table">
+        <tr>
+            <th colspan="3">资产信息</th>
+        </tr>
+        <tr>
+            <td width="33%">资产编号:
+                {% if data.device.id %}
+                    <a href="{{ url_for('device.detail',id=data.device.id)}}">{{data.device.device_label}}</a>
+                {% else %}
+                    未知
+                {% endif %}
+            </td>
+            <td width="33%">序列号:  {{ data.device.sn }}</td>
+            <td width="33%">服务器型号:  {{ data.device.model }}</td>
+        </tr>
+        <tr>
+            {% if data.rack_info.rack_id  %}
+                <td width="33%">机架位:
+                    <a href="{{ url_for('host.index') }}?rack_id={{ data.rack_info.rack_id }}">
+                        {{ data.rack_info.idc }}/{{ data.rack_info.name }}/{{ data.device.rack_offsets() }}
+                    </a>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="机房/机柜/机架位">
+                        <img src="{{ url_for('static', filename='img/tooltip.png') }}" width="15" height="15">
+                    </span>
+                </td>
+            {% else %}
+                <td width="33%">机架位: {{ data.rack_info.name }}</td>
+            {% endif %}
+            <td width="33%">应用业务:  {{ dp }}</td>
+            <td width="33%">购买时间:  {{data.device.buy_time}}</td>
+        </tr>
+        <tr>
+           {% if data.len > 17 %}
+                <td width="33%">描述: <span data-tooltip aria-haspopup="true" class="has-tip" style="font-size: 15px; font-weight:normal" title="应用业务:{{ data.note_info}}">
+                   {{ data.short }}... </span>&nbsp;&nbsp;</td>
+                    {% else %}
+                <td width="33%">描述: {{ data.note_info }}</td>
+            {% endif %}
+        </tr>
+    </table>
+    {% if data.history %}
+    <ul class="pricing-table">
+        <li class="price" style="font-size: 14px;">变更历史<a href="{{ url_for('host.history',id=data.id)}}" class="right">更多</a></li>
+        {% for item in data.history %}
+            <li class="bullet-item">{{ item.created }}  {{ item.username }}  {% autoescape false %} {{ item.content }} {% endautoescape %}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+<div id="modify-virtual-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.modify') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="modify-entity-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.modify') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/host_detail.js","js/host.js","js/jquery-ui.min.js","js/follow.js", "js/alarm.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

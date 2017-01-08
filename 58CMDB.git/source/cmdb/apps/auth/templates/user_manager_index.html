@@ -1,0 +1,284 @@
+{%extends "admin_bases.html"%}
+{% block extra_head %}
+
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/dropzone.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/chosen.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.custom.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/proj/common.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/select2/select2.css"/>
+
+<script type="text/javascript" src="{{STATIC_URL}}plugin/select2/select2.min.js">  </script>
+<script src="{{STATIC_URL}}js/dropzone.min.js"></script>
+<script src="{{STATIC_URL}}js/bootbox.min.js"></script>
+<script src="{{STATIC_URL}}js/fuelux.tree.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.tableTools.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.colVis.min.js"></script>
+<script src="{{STATIC_URL}}plugin/sweetalert/sweet-alert.min.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+
+
+{% endblock %}
+{% block Hometitle %}权限管理{% endblock %}
+{% block actiontitle %}<a href="{% url 'busline.index' %}"> 用户管理 </a>{% endblock %}
+{% block pagetitle %}用户管理{% endblock %}
+{% block pagecontent %}
+
+<div class="main-container" id="main-container">
+  <div class="page-content">
+    <!-- 顶部搜索框 -->
+    <div class="widget-box collapsed">
+      <div class="widget-header">
+        <h4 class="widget-title ace-icon fa fa-hand-o-right">高级搜索</h4>
+        <div class="widget-toolbar">
+          <a data-action="collapse" href="#">
+            <i id="arrow" class="ace-icon fa fa-chevron-up"></i>
+          </a>
+          <a data-action="close" href="#">
+            <i class="ace-icon fa fa-times"></i>
+          </a>
+        </div>
+      </div>
+      <div class="widget-body">
+        <div class="widget-main">
+          <div class="row">
+            <div class="col-sm-4">
+              <label for="InputID">姓名</label>
+              <textarea class="form-control" id="name" placeholder="姓名;多行用,隔开" style="margin: 0px -2.6875px 0px 0px; width: 350px; height: 35px;"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-4">
+              <label for="InputID">账号</label>
+              <textarea class="form-control" id="account" placeholder="账号;多行用,隔开" style="margin: 0px -2.6875px 0px 0px; width: 350px; height: 35px;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="widget-toolbox padding-4 clearfix">
+          <div class="col-md-offset-3 col-md-9">
+            <button class="btn btn-sm btn-success btn-white btn-round"  onclick=SearchUser() type="button">
+              <i class="ace-icon fa fa-check bigger-110"></i>
+              查询
+            </button>
+            &nbsp; &nbsp; &nbsp;
+            <button class="btn btn-sm btn-danger btn-white btn-round" onclick=ResetUserSearchLabel() type="reset">
+              <i class="ace-icon fa fa-undo bigger-110"></i>
+              重置
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 顶部搜索匡结束 -->
+
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="clearfix">
+          <div class="pull-right tableTools-container"></div>
+        </div>
+        <div class="table-header" id="buslineListHeader">
+          用户列表
+          <input type="text" onchange="SelectChanged()" style="margin: 0px -2.6875px 0px 0px; width: 200px; height: 35px;" id="selectGroup" value="用户"></input>
+        </div>
+        <div>
+          <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th style="text-align:center;">姓名</th>
+                <th style="text-align:center;">账号</th>
+                <th style="text-align:center;">部门</th>
+                <th style="text-align:center;">上级</th>
+                <th style="text-align:center;">组</th>
+                <th style="text-align:center;">
+                  <i class="ace-icon fa fa-cog bigger-110 hidden-480"></i>
+                  分配
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+      <div class="space-12"></div>
+    </div>
+  </div>
+</div>
+
+
+        <!-- Modal -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="myModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">设置组</h4>
+      </div>
+      <div class="list-group">
+        <input type="text" style="width:10%; border-left:0px; border-top:0px; border-right:0px; border-bottom:1px;"></input>
+        <input type="text" onchange="SelectNewGroup()" style="width:80%;" id="selectGroup_modal" value="用户"></input>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveChange">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+      var userDataUrl = "/api/cluster/getbspuser/";
+      var selectID = '';
+
+			jQuery(function($) {
+				var oTable1 =
+				$('#dynamic-table')
+        .dataTable( {
+            "bLengthChange": false,
+            "bFilter": false,
+            "bSort": false,
+            "bInfo": true,
+            "bProcessing": true, // 加载条
+            "iDisplayLength": 10,
+            "bProcessing": false, // 是否显示取数据时的那个等待提示
+            "bServerSide": true,//这个用来指明是通过服务端来取数据
+            "sAjaxSource": userDataUrl,//这个是请求的地址
+            "fnServerData": retrieveData, // 获取数据的处理函数
+            "oLanguage": {
+              "sProcessing": "正在加载中......",
+              "sLengthMenu": "每页显示 _MENU_ 条记录",
+              "sZeroRecords": "对不起，查询不到相关数据！",
+              "sEmptyTable": "表中无数据存在！",
+              "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+              "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
+              "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页",
+                  },
+                },
+          bStateSave: true,
+          sScrollX: "100%",
+          bAutoWidth: true,
+
+          "aoColumns": [
+            { "mData": "name"},
+            { "mData": "account"},
+            { "mData": "org"},
+            { "mData": "leader"},
+            { "mData": "group"},
+            { "mDataProp": null,
+                "sClass": "center",
+                "mRender": function(fields,type,full){
+                  // var str = 'a'+full.id;
+                  return "<a class='tooltip-error' onclick='ShowAllocationModel(" + JSON.stringify(full) + ")'>分配</a>"
+              },
+                "bSortable":false
+            },
+          ],
+          "aaSorting": [],
+          // "aaData": data,
+          });
+
+          // 3个参数的名字可以随便命名,但必须是3个参数,少一个都不行
+          function retrieveData(sSource, aoData, fnCallback ) {
+            var startnum=aoData[3]['value'];
+            var range=aoData[4]['value'];
+            token = GetToken();
+            if(token == 'error'){
+              sweetAlert("O NO !", "TOKEN 失效!", "error");
+              return false;
+            }
+            token = token.data.token;
+
+            var names = $('#name').val();
+            var accounts = $('#account').val();
+
+            datas = {
+              'token':token,
+              'startnum':startnum,
+              'range':range,
+              'groupid':selectID,
+              'name':names,
+              'account':accounts
+              };
+            datas = JSON.stringify(datas);
+              $.ajax({
+                  url : userDataUrl,//这个就是请求地址对应sAjaxSource
+                  data : datas,//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
+                  type : 'post',
+                  dataType : 'json',
+                  async : false,
+                  success : function(result) {
+                    console.log(result);
+                    result['iTotalRecords'] = result.data.length;
+                    result['iTotalDisplayRecords']=result.data.length*range;
+                      fnCallback(result);//把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+                  },
+                  error : function(msg) {
+                  }
+              });
+
+          }
+
+          var data = GetUserGroupList().data;
+          data.push({'text':'全部', 'id':'-1'});
+          $('#selectGroup').select2({
+            data:data,
+            initSelection: function(element, callback){
+              dic = data[data.length-1];
+              callback(dic);
+            }
+          });
+
+			});
+
+      var userid;
+      function ShowAllocationModel(full){
+        $('#myModal').modal('show');
+        userid = full.id;
+        var data = GetUserGroupList().data;
+        console.log(data);
+        $('#selectGroup_modal').select2({
+          data:data,
+        });
+      }
+
+      function SelectChanged(){
+        var groupid = $('#selectGroup').select2('data').id;
+        selectID = groupid;
+        // console.log(groupid);
+        if (parseInt(groupid) != -1) {
+          userDataUrl = "/api/auth/getusergroup/";
+        }else {
+          userDataUrl = "/api/cluster/getbspuser/";
+        }
+        ResetUserTable();
+      }
+
+      function SelectNewGroup(){
+
+      }
+
+      $('#saveChange').on('click', function(){
+
+        var groupid = $('#selectGroup_modal').select2('data').id;
+        if (!groupid) {
+          alert('请选择分组');
+          return;
+        }
+        SaveUserGroup(userid, groupid);
+        userid = '';
+
+      });
+
+      function SearchUser(){
+        userDataUrl = '/api/auth/searchuser/';
+        ResetUserTable();
+      }
+
+</script>
+{% endblock %}

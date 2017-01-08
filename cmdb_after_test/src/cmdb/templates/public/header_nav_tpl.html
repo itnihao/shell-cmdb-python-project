@@ -1,0 +1,60 @@
+{% block nav %}
+<ul class="title-area">
+    <li class="name"><h1><a href="/">OPS</a></h1></li>
+    <li class="toggle-topbar menu-icon "><a href="javascript:void(0);"><span>Menu</span></a></li>
+</ul>
+<section class="top-bar-section">
+    <ul class="right">
+        <li class="has-form" style="max-width: 250px;width: 300px;">
+                <div class="row collapse postfix-round">
+                        <input type="text" class="large-12 columns" id="juhesearch">
+                </div>
+            </li>
+        <li class="divider"></li>
+        {% if current_user and current_user.is_authenticated() %}
+        <li class="has-dropdown not-click">
+            <a href="javascript:void(0);" id="popmsg">Hi，{{ current_user.name }}<span name="msg" style="display: none; padding: 0.1rem 0.3rem;" class="round alert label"></span></a>
+            <ul id="drop" class="dropdown" data-dropdown-content>
+                <li><a href="{{ url_for('user.ucenter') }}">用户信息</a></li>
+                <li><a href="{{ url_for('user.tickets') }}">我的工单</a></li>
+                <li><a href="{{ url_for('user.mypapply') }}">我的申请</a></li>
+{#                {% if current_user.hasAuthority %}#}
+                <li><a id="myapproval" href="{{ url_for('user.papproval') }}">我的审批<span name="msg" style="display: none" class="round alert label"></span></a></li>
+{#                {% endif %}#}
+                <li><a href="{{ url_for('user.follow') }}">我的关注</a></li>
+                <li><a href="{{ url_for('user.alarm') }}">我的订阅</a></li>
+                {% if current_user.is_admin %}
+                <li><a href="{{ url_for('user.permission') }}">权限管理</a></li>
+                {% endif %}
+            </ul>
+        </li>
+        <li class="active"><a href="{{ url_for('user.logout') }}">Logout</a></li>
+        {% else %}
+        <li class="active"><a href="{{ url_for('user.login') }}">Login</a></li>
+        {% endif %}
+    </ul>
+    <!-- Left Nav Section -->
+    <ul class="left">
+        <li id="tabcmdb"><a href="/">CMDB</a></li>
+        <li id="tabmonitor"><a href="{{ url_for('monitor.index') }}">监控</a></li>
+        <li id="tabLogger"><a href="{{ url_for('logger.index')}}">日志</a></li>
+        <li id="tabpuv"><a href="{{ url_for('puv.index')}}">PUV</a></li>
+{#        <li id="tabansible"><a href="{{ url_for('ansible.index')}}">ansible</a></li>#}
+        {% if current_user.is_sa %}
+        <li id="tabsa"><a href="{{ url_for('tickets.task_my')}}">SA<span name="sa_msg" style="display: none; padding: 0.1rem 0.3rem;" class="round alert label"></span></a></li>
+        {% endif %}
+{#        {% if current_user.is_admin %}#}
+            <li><a href="{{ url_for('tools.jobplat') }}">自动化Job平台</a></li>
+{#        {% endif %}#}
+        <li id="tickets"> {% if current_user.identity=='noGroup' %}<a onClick="return confirm('提示：您的域账号没有添加到对应的部门，请联系ops人员！')" href="/">
+                           {% else %}<a href="{{ url_for('orders.index') }}">{% endif %}工单系统</a></li>
+    </ul>
+</section>
+<ul  id="search_ul" >
+
+</ul>
+    <script>
+
+    </script>
+{% endblock %}
+

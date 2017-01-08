@@ -1,0 +1,17 @@
+$ORIGIN .
+$TTL 5
+{{zone}} IN SOA  ns.{{zone}}. root.{{zone}}. (
+    {{date}} ; serial time()
+    10800      ; refresh (3 hours)
+    900        ; retry (15 minutes)
+    604800     ; expire (1 week)
+    86400      ; minimum (1 day)
+)
+
+$ORIGIN {{zone}}.
+
+ns              A       10.249.6.100
+@               NS      ns.{{zone}}.
+
+{%for item in domain%}
+{{item.prefix}} {{item.type}} {{item.value}}{%endfor%}

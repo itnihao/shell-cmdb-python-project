@@ -1,0 +1,459 @@
+{%extends base%}
+{% block extra_head %}
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/proj/common.css" />
+
+<script src="{{STATIC_URL}}plugin/sweetalert/sweet-alert.min.js"></script>
+<script src="{{STATIC_URL}}js/dpt/cluster.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+
+<link rel="stylesheet" href="{{STATIC_URL}}css/dropzone.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/chosen.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.custom.min.css" />
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.tableTools.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.colVis.min.js"></script>
+<script src="{{STATIC_URL}}js/dropzone.min.js"></script>
+<script src="{{STATIC_URL}}js/bootbox.min.js"></script>
+
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/select2/select2.css"/>
+<script type="text/javascript" src="{{STATIC_URL}}plugin/select2/select2.min.js">  </script>
+
+<script src="{{STATIC_URL}}js/bootstrap-treeview.js"></script>
+
+
+
+<!-- page specific plugin scripts -->
+{% endblock %}
+{% block Hometitle %}组织信息管理{% endblock %}
+{% block actiontitle %} <a href="{% url 'cluster.index' %}"> 集群管理 </a>{% endblock %}
+{% block pagetitle %}集群管理{% endblock %}
+{% block pagecontent %}
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">增加集群信息</h4>
+      </div>
+      <div class="modal-body">
+        <!-- 表单信息开始-->
+		      <form>
+            <!-- <div class="form-group">
+              <label for="cluster_name">集群ID</label>
+              <input type="text" class="form-control" id="cluster_id" placeholder="运维平台部">
+            </div> -->
+            <div class="form-group">
+              <label for="cluster_name">集群名称</label>
+              <input type="text" class="form-control" id="cluster_name" placeholder="集群名称">
+            </div>
+            <div class="form-group">
+              <label for="cluster_code">代码</label>
+              <input type="text" class="form-control" id="cluster_code" placeholder="代码">
+            </div>
+            <div class="form-group">
+              <label for="input_parent">业务线</label>
+              <input type="text" class="form-control" id="input_parent" onclick="ClickBusline()" readonly value="" placeholder="">
+              </input>
+              <div id="parentDiv" class="treeview">
+                <!-- <ul class="list-group" id="treeULTap">
+                </ul> -->
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="input_buslineowner">业务线负责人</label>
+              <input type="text" style="width:100%;" id="input_buslineowner" placeholder="">
+              </input>
+            </div>
+            <div class="form-group">
+              <label for="input_opowner">运维负责人</label>
+              <input type="text" style="width:100%;" id="input_opowner" placeholder="">
+              </input>
+            </div>
+
+
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" id="activate_box"> 是否激活
+              </label>
+            </div>
+          </form>
+		  <!-- 表单信息结束-->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="add_cluster">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--模拟框结束-->
+
+<div class="main-container" id="main-container">
+
+      <div class="page-content">
+
+        <div class="widget-box">
+          <div class="table-header">
+              查询条件
+          </div>
+          <div class="widget-header">
+          <!--  <h4 class="widget-title ace-icon fa fa-hand-o-right">查询条件</h4>
+
+            <div class="widget-toolbar">
+              <a data-action="collapse" href="#">
+                <i id="arrow" class="ace-icon fa fa-chevron-up"></i>
+              </a>
+
+              <a data-action="close" href="#">
+                <i class="ace-icon fa fa-times"></i>
+              </a>
+            </div> -->
+          </div>
+
+          <div class="widget-body">
+        	<div class="widget-main">
+        		<div class="row">
+              <div class="col-sm-4">
+                  <div class="row row-in">
+                      <label for="codeSearch" class="col-sm-3 lable-tip">代码:</label>
+                      <textarea class="search-area col-sm-8" id="codeSearch"
+                                placeholder="代码"></textarea>
+                  </div>
+              </div>
+              <div class="col-sm-4">
+                  <div class="row row-in">
+                      <label for="buslineSearch" class="col-sm-3 lable-tip">业务线:</label>
+                      <textarea class="search-area col-sm-8" id="buslineSearch"
+                                placeholder="业务线"></textarea>
+                  </div>
+              </div>
+        		</div>
+        	</div>
+        	<div class="widget-toolbox padding-4 clearfix">
+        		<div class="col-md-offset-3 col-md-9">
+        			<button class="btn btn-sm btn-success btn-white btn-round"  onclick=ClusterSearchWithBusline() type="button">
+        			<i class="ace-icon fa fa-check bigger-110"></i>
+        				查询
+        			</button>
+        			&nbsp; &nbsp; &nbsp;
+        			<button class="btn btn-sm btn-danger btn-white btn-round" onclick=ClusterReset() type="reset">
+        			<i class="ace-icon fa fa-undo bigger-110"></i>
+        			重置
+        			</button>
+        		</div>
+        	</div>
+        	</div>
+        </div>
+
+              <div class="row">
+								<div class="col-xs-12">
+										<div class="clearfix">
+											<div class="pull-right tableTools-container"></div>
+										</div>
+										<div class="table-header" id="buslineListHeader">
+											集群
+										</div>
+										<div>
+											<table id="dynamic-table" class="table table-striped table-bordered table-hover">
+												<thead>
+													<tr>
+														<th style="text-align:center;">代码</th>
+                            <th style="text-align:center;">名称</th>
+														<th style="text-align:center;">
+                              业务线
+														</th>
+                            <th style="text-align:center;">
+                              业务线管理员
+														</th>
+                            <th style="text-align:center;">
+                              运维管理员
+														</th>
+														<th style="text-align:center;">
+                              创建时间
+														</th>
+														<th style="text-align:center;">更新时间</th>
+														<th style="text-align:center;">
+                              状态
+														</th>
+														<th style="text-align:center;">
+  														操作
+														</th>
+													</tr>
+												</thead>
+											</table>
+                      <div class="table-footer">
+                        <button id="addBtn">添加</button>
+                      </div>
+										</div>
+									</div>
+                  <div class="space-12"></div>
+                </div>
+              </div>
+        </div>
+
+
+        <script type="text/javascript">
+
+              var requestUrl;
+              // var dataUrl = "/api/cluster/getcluster/";
+              var searchUrl = "/api/cluster/clustersearchwithbusline/";
+
+        			jQuery(function($) {
+
+                // data = GetCluster().data
+                // console.log(data);
+                var oTable1 =
+                $('#dynamic-table')
+                .dataTable( {
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bSort": false,
+                    "bInfo": true,
+                    "bProcessing": true, // 加载条
+                    "iDisplayLength": 10,
+                    "bProcessing": false, // 是否显示取数据时的那个等待提示
+                    "bServerSide": true,//这个用来指明是通过服务端来取数据
+                    "sAjaxSource": "/api/cluster/clustersearchwithbusline/",//这个是请求的地址
+                    "fnServerData": retrieveData, // 获取数据的处理函数
+                    "oLanguage": {
+                      "sProcessing": "正在加载中......",
+                      "sLengthMenu": "每页显示 _MENU_ 条记录",
+                      "sZeroRecords": "对不起，查询不到相关数据！",
+                      "sEmptyTable": "表中无数据存在！",
+                      "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                      "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
+                      "oPaginate": {
+                            "sFirst": "首页",
+                            "sPrevious": "上一页",
+                            "sNext": "下一页",
+                            "sLast": "末页",
+                          },
+                        },
+                  bStateSave: true,
+                  sScrollX: "100%",
+        					bAutoWidth: true,
+
+        					"aoColumns": [
+        					  { "mData": "cluster_code" },
+                    { "mData": "cluster_name"},
+                    { "mData": "busline_name" },
+                    { "mData": "busline_owner" },
+                    { "mData": "op_owner" },
+                    { "mData": "create_time" },
+                    { "mData": "update_time" },
+                    { "mData": "cluster_state" },
+                    { "mDataProp": null,
+        					  		"sClass": "center",
+        						  	"mRender": function(fields,type,full){
+        							return "<a class='tooltip-error' onclick='showModel(" + full.cluster_id + ")'>编辑</a>\
+                              <a class='tooltip-error' id='toUser' onclick='JumpToUserView(" + full.cluster_id + ")'>授权用户</a>"
+        							},
+        						  	//"sWidth":"5%",
+        						  	"bSortable":false
+        					  },
+        					],
+        					"aaSorting": [],
+        					// "aaData": data,
+        			    } );
+
+              })
+
+              var bsporgList;
+              var selectClusterID;
+              function showModel(clusterid){
+                $('#myModal').modal('show');
+
+                var name = '';
+                var code = '';
+                var busline = '';
+                var buslineid = '';
+
+                if (clusterid) {
+                  data = GetCurrentCluster(clusterid).data[0];
+                  // console.log(data);
+                  selectClusterID = data.cluster_id.toString();
+                  name = data.cluster_name.toString();
+                  code = data.cluster_code.toString();
+                  busline = data.busline_name.toString();
+                  buslineid = data.busline_id.toString();
+                }else {
+                  selectClusterID = '';
+                  name = '';
+                  code = '';
+                  busline = '';
+                  buslineid = '';
+                }
+
+                // console.log(buslineid);
+
+                function resultFormatResult(medata) {
+
+                    return medata.text;
+                }
+
+                function resultFormatSelection(medata) {
+                    return medata.text;
+                }
+
+                function chooseParm(urls, placehold){
+                        var choosebusline ={
+                          allowClear:true,
+                          model:true,
+                          data:[],
+                          placeholder: placehold,
+                          minimumInputLength: 1,
+                          separator:',,',
+                          ajax: {
+                            url:urls,
+                            data: function (term, page) {
+                                    $("#select2-chosen-2").empty();
+                                    var token = GetToken();
+                                    if (token == 'error') {
+                                        alert('Token过期');
+                                        return false;
+                                    }
+                                    token = token.data.token;
+                                    var buslineid = document.getElementById('input_parent').placeholder;
+                                    var postData = {
+                                        'token': token,
+                                        'buslineid':buslineid,
+                                        'page_limit': 10,
+                                        'uname':term,
+                                    };
+                                    postData = JSON.stringify(postData);
+                                    return postData;
+                            },
+                            type: 'POST',
+                            dataType: 'json',
+                            results: function (data, page) {
+                              console.log(data);
+                                return { results: data.data };
+                            },
+                            formatResult: resultFormatResult,
+                            formatSelection: resultFormatSelection,
+                            dropdownCssClass: "bigdrop",
+                            escapeMarkup: function (m) { return m; }
+                        }
+                    };
+                    // console.log(choosebusline);
+                      return choosebusline;
+                  };
+                // console.log(bsporg);
+                $.fn.modal.Constructor.prototype.enforceFocus = function() {};//此句作用是使在model上的select2可以获取焦点
+                $('#input_buslineowner').select2(chooseParm("/api/cluster/searchbspuser/","请输入名称"));
+                $('#input_opowner').select2(chooseParm("/api/cluster/searchbspuser/","请输入名称"));
+
+                // console.log(code);
+                $('#cluster_name').val(name);
+                $('#cluster_code').val(code);
+                $('#input_parent').val(busline);
+                $('#input_parent').attr('placeholder',buslineid);
+                if (parseInt(data.cluster_state) == 1) {
+                  $('#activate_box').attr('checked','checked');
+                }
+
+              }
+
+              $('#add_cluster').on('click', function(){
+
+                var code = $('#cluster_code').val();
+                if (code.length<=0) {
+                  code = "code";
+                }
+                var op_owner = $('#input_opowner').select2('data').id;
+                var busline_owner = $('#input_buslineowner').select2('data').id;
+                console.log(op_owner);
+                console.log(busline_owner);
+                dic = {
+                  'cluster_id':selectClusterID,
+                  'cluster_name':$('#cluster_name').val(),
+                  'busline_id':$('#input_parent').attr('placeholder'),
+                  'cluster_code':code,
+                  'cluster_state':'1',
+                  'op_owner':op_owner,
+                  'busline_owner':busline_owner
+                }
+                console.log("dic:",dic);
+                SaveCluster(dic);
+
+              });
+
+              $('#addBtn').on('click', function(){
+
+                // $('#myModal').modal('show');
+                showModel();
+
+                var id = '请填写集群ID';
+                var name = '请填写集群名称';
+                var busline = '请选择业务线';
+
+                selectClusterID = '';
+                $('#cluster_name').val('');
+                $('#input_parent').val('');
+                $('#cluster_code').val('')
+                $('#cluster_name').attr('placeholder',name);
+                $('#input_parent').attr('placeholder',busline);
+
+                $('#activate_box').attr('checked',false);
+
+              });
+
+              function JumpToUserView(clusterID){
+                var link = '/cluster/user/assoc/?id=' + clusterID.toString();
+                window.location.href=link;
+              }
+
+              // 3个参数的名字可以随便命名,但必须是3个参数,少一个都不行
+
+              function retrieveData(sSource, aoData, fnCallback ) {
+                var startnum=aoData[3]['value'];
+                var range=aoData[4]['value'];
+                var name = $('#codeSearch').val();
+                var busline = $('#buslineSearch').val();
+                console.log(busline);
+                token = GetToken();
+                if(token == 'error'){
+                  sweetAlert("O NO !", "TOKEN 失效!", "error");
+                  return false;
+                }
+                token = token.data.token;
+                datas = {
+                  'token':token,
+                  'startnum':startnum,
+                  'range':range,
+                  'name':name,
+                  'busline':busline
+                  };
+                datas = JSON.stringify(datas);
+                  $.ajax({
+                      url : sSource,//这个就是请求地址对应sAjaxSource
+                      data : datas,//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
+                      type : 'post',
+                      dataType : 'json',
+                      async : false,
+                      success : function(result) {
+                        result['iTotalRecords'] = result.data.length;
+                        if(result['iTotalRecords'] != 0){
+                          result['iTotalDisplayRecords']= result.data[0].data_count;
+                        }else{
+                          result['iTotalDisplayRecords']=0;
+                        }
+                          fnCallback(result);//把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+                      },
+                      error : function(msg) {
+                      }
+                  });
+              }
+
+              function ClickBusline(){
+                AddBuslineTreeview();
+              }
+</script>
+
+
+{% endblock %}

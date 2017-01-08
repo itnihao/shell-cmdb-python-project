@@ -1,0 +1,378 @@
+{%extends "base.html"%}
+{% block extra_head %}
+<!-- page specific plugin scripts -->
+<script src="{{STATIC_URL}}js/fuelux.tree.min.js"></script>
+<script src="{{STATIC_URL}}js/select2.min.js"></script>
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/select2.min.css" />
+{% endblock %}
+{% block Hometitle %}<a href="{% url 'home' %}"> 业务资源管理 </a>{% endblock %}
+{% block actiontitle %} <a href="#"> 主机管理 </a> {% endblock %}
+
+{% block pagetitle %} <a href="{% url 'assign.server.index' %}"> 服务器资源分配 </a>{% endblock %}
+
+{% block pagecontent %}
+
+
+
+<form action="/assignserver/" method="post"  name="search_info">
+<div class="row">
+  <div class="col-sm-2">
+    <label for="cpu_type">CPU规格</label>
+    <select class="form-control" id="cpu_type" name="cpu_type">
+        <option value="">请选择</option>
+        {% for cpu in cpu_capacity%}
+         {% ifequal cpu.cpu_capacity  cpu_info %}
+        <option value="{{cpu.cpu_capacity}}" selected="selected" >{{cpu.cpu_capacity}}</option>
+            {% else %}
+        <option value="{{cpu.cpu_capacity}}"  >{{cpu.cpu_capacity}}</option>
+            {%endifequal%}
+        {% endfor %}
+    </select>
+  </div>
+
+      <div class="col-sm-2">
+    <label for="hard_type">hard规格</label>
+    <select class="form-control" id="hard_type" name="hard_type">
+        <option value="">请选择</option>
+        {% for disk in disk_capacity%}
+            {% ifequal disk.disk_capacity  disk_info %}
+          <option value="{{disk.disk_capacity}}" selected="selected" >{{disk.disk_capacity}}</option>
+            {% else %}
+        <option value="{{disk.disk_capacity}}"  >{{disk.disk_capacity}}</option>
+            {%endifequal%}
+        {% endfor %}
+
+    </select>
+  </div>
+
+
+      <div class="col-sm-2">
+    <label for="mem_type">mem规格</label>
+    <select class="form-control" id="mem_type" name="mem_type">
+        <option value="">请选择</option>
+        {% for mem in memory_capacity%}
+            {% ifequal mem.memory_capacity  mem_info %}
+          <option value="{{mem.memory_capacity}}" selected="selected" >{{mem.memory_capacity}}</option>
+            {% else %}
+        <option value="{{mem.memory_capacity}}"  >{{mem.memory_capacity}}</option>
+            {%endifequal%}
+        {% endfor %}
+    </select>
+  </div>
+
+
+
+
+
+
+
+
+  <div class="col-sm-2">
+      <!--<input type="hidden" class="token" value="" />-->
+      <!--<input type="submit" class="btn btn-sm btn-success btn-white btn-round  btn-search">-->
+
+      <input type="submit"  class="btn btn-sm btn-success btn-white btn-round  btn-search" />
+  </a>
+  </div>
+
+</div>
+</form>
+
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="widget-box widget-color-blue2">
+      <div class="widget-header">
+        <h4 class="widget-title lighter smaller">请选择服务器</h4>
+      </div>
+
+      <div class="widget-body">
+        <div class="widget-main padding-8 tree_p">
+          <ul id="tree1"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="form-group">
+      <label class="control-label col-xs-12 col-sm-3 no-padding-right">请选择分配给业务线</label>
+
+      <div class=" col-sm-6">
+                <input   id="cluster" style="width:80%;" name="cluster"/>
+           <a class="btn btn-xs btn-info  " id="add_assoc">
+               <i class="ace-icon fa fa-bolt bigger-110 "></i>
+               确认
+               <i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+           </a>
+
+      </div>
+
+  </div>
+
+
+
+
+</div>
+
+<script src="{{STATIC_URL}}plugin/sweetalert/sweet-alert.min.js"></script>
+
+<script type="text/javascript">
+  var $assets = "dist";//this will be used in fuelux.tree-sampledata.js
+</script>
+
+<!-- PAGE CONTENT ENDS -->
+</div><!-- /.col -->
+</div><!-- /.row -->
+
+
+
+<script type="text/javascript">
+
+function resultFormatResult(medata) {
+
+    return medata.text;
+}
+
+function resultFormatSelection(medata) {
+    return medata.text;
+}
+
+var chooseParm ={
+    allowClear:true,
+    data:[],
+    placeholder: "请输入业务线名称",
+    minimumInputLength: 2,
+    separator:',,',
+    ajax: {
+        url:"/api/busline/list/",// /api/dptopt/adddpt/
+        data: function (term, page) {
+            return {
+                q: term,
+                page_limit: 5
+            };
+        },
+        dataType: 'json',
+        results: function (data, page) {
+            return { results: data.data };
+        },
+        formatResult: resultFormatResult,
+        formatSelection: resultFormatSelection,
+        dropdownCssClass: "bigdrop",
+        escapeMarkup: function (m) { return m; }
+    }
+};
+
+$('#cluster').select2(chooseParm);
+
+/**
+ *  start    tree
+ */
+
+
+
+
+
+
+jQuery(function() {
+    //  初始化获取所有的idc信息
+    var remoteUrl = '/api/idc/getidcinfoall/';
+    var cpu_info = $('#cpu_type').val();
+    var hard_info = $('#hard_type').val();
+    var mem_info = $('#mem_type').val();
+
+
+    var remoteDateSource = function (options, callback) {
+        var parent_id = null
+        if (!('text' in options || 'type' in options)) {
+            parent_id = 0; //load first level data
+        }
+        else if ('type' in options && options['type'] == 'folder') {
+            if ('additionalParameters' in options && 'children' in options.additionalParameters) {
+                parent_id = options.additionalParameters['type_id'];
+            }
+
+        }
+
+        if (parent_id !== null) {
+            /**
+             * tooken start
+             */
+            var token = GetToken();
+            if (token == 'error') {
+                alert('Token过期');
+                return false;
+            }
+            token = token.data.token;
+            var postData = {
+                'token': token,
+                'type_id': parent_id,
+                'cpu_type': cpu_info,
+                'mem_type': mem_info,
+                'disk_type': hard_info
+            };
+
+            postData = JSON.stringify(postData);
+
+
+
+
+
+
+            $.ajax({
+                url: remoteUrl,
+                type: 'POST',
+                data: postData,
+                dataType: 'json',
+                success: function (response) {
+                    var data = eval(response.data);
+                    var res = {}, tmp_key, tmp_data;
+                    var len = data.length;
+                    if (len > 0) {
+                        if (data[0].data_type) {
+                            var data_type = data[0].data_type;
+                            var data = data[1];
+                            len = data.length;
+                            if (data_type == 'idc') {
+                                for (var i = 0; i < len; i++) {
+                                    tmp_key = [parent_id, data[i].rack_code].join('_');
+                                    tmp_data = {"text": data[i].rack_code, "type": "folder", "value": tmp_key};
+                                    tmp_data['additionalParameters'] = {'type_id': tmp_key, 'children': null};
+                                    res[tmp_key] = tmp_data;
+                                }
+                                remoteUrl = '/api/idc/getrackbufferbyidc/';
+                            } else if (data_type == 'rack') {
+                                for (var i = 0; i < len; i++) {
+                                    tmp_key = [parent_id, data[i].position_num].join('_');
+                                    tmp_data = {"text": data[i].position_num, "type": "folder", "value": tmp_key};
+                                    tmp_data['additionalParameters'] = {'type_id': tmp_key, 'children': null};
+                                    res[tmp_key] = tmp_data;
+                                }
+                                remoteUrl = '/api/idc/getrackbufferbyidc/'
+                            } else if (data_type == 'position') {
+                                for (var i = 0; i < len; i++) {
+                                    tmp_key = [parent_id, data[i].sn].join('_');
+                                    tmp_data = {"text": data[i].sn, "type": "item", "value": tmp_key};
+                                    res[tmp_key] = tmp_data;
+                                }
+                                remoteUrl = '/api/idc/getrackbufferbyidc/'
+                            }
+                        } else {
+                            if ((data[0].model) && (data[0].model == 'idc.tidc')) {
+                                for (var i = 0; i < len; i++) {
+                                    tmp_key = data[i].pk;
+                                    tmp_data = {"text": data[i].fields.idc_name, "type": "folder", "value": tmp_key};
+                                    tmp_data['additionalParameters'] = {'type_id': tmp_key, 'children': null};
+                                    res[tmp_key] = tmp_data;
+                                }
+                                remoteUrl = '/api/idc/getrackbufferbyidc/';
+
+                            }
+                        }
+
+
+                    }
+
+                    if (response.code == 0) {
+                        callback({data: res})
+                    }
+
+                },
+                error: function (response) {
+                    //console.log(response);
+                }
+            });
+        }
+    }
+
+
+
+    var params = {
+        dataSource: remoteDateSource,
+        multiSelect: true,
+        loadingHTML: '<div class="tree-loading"><i class="ace-icon fa fa-refresh fa-spin blue"></i></div>',
+        'open-icon': 'ace-icon tree-minus',
+        'close-icon': 'ace-icon tree-plus',
+        'selectable': true,
+        'selected-icon': 'ace-icon fa fa-check',
+        'unselected-icon': 'ace-icon fa fa-times',
+        cacheItems: true,
+        folderSelect: false
+    };
+
+    var tree = $('#tree1').ace_tree(params);
+
+});
+
+
+
+
+
+// ajax remote server end
+
+
+// search
+$('#add_assoc').on('click', function(event){
+    //  关联的业务线id
+    var busline_id = $('#cluster').val();
+    //  关联的机器信息
+    var items = $('#tree1' ).tree('selectedItems');
+    var vals = [];
+    var len = items.length;
+    for(var i=0; i<len; i++){
+        vals.push(items[i].text);
+    }
+
+
+    vals = vals.join(',');
+    var token = GetToken();
+    if (token == 'error') {
+        alert('Token过期');
+        return false;
+    }
+    token = token.data.token;
+    var postData = {'busline_id':busline_id, 'server_items':vals, 'token':token};
+    postData = JSON.stringify(postData);
+
+    $.ajax({
+        url: '/api/buslineserver/addbuslinserver/',
+        type: 'POST',
+        data: postData,
+        dataType: 'json',
+        success:function(data){
+            var data = data.data;
+            var len = data.length;
+            if(len == 0){
+                swal({
+                    title:  '关联成功',
+                    type: "success",
+                    showCancelButton: true,
+                    cancelButtonText: 'cancel',
+                    confirmButtonClass: "btn-info",
+                    closeOnConfirm: true
+                }, function(){
+                    location.href='/assignserver/';
+                    return false
+                });
+            }else if(len > 1){
+                swal({
+                    title: data.join(',') + "部分保存失败"  ,
+                    type: "warning",
+                    showCancelButton: true,
+                    cancelButtonText: 'cancel',
+                    confirmButtonClass: "btn-info",
+                    closeOnConfirm: false
+                });
+            }
+        }
+    });
+});
+
+
+
+
+
+</script>
+{% endblock %}

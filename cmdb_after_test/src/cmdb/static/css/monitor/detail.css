@@ -1,0 +1,41 @@
+#app_status_bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9990;
+    height: 40px;
+    background: #444;
+    opacity: .85;
+}
+
+.charts {
+    height: 160px;
+}
+/*.charts.loading:after {*/
+    /*content: '';*/
+    /*width: 125px;*/
+    /*height: 125px;*/
+    /*position: absolute;*/
+    /*background: url('../../img/loading.png') no-repeat center center;*/
+    /*-moz-animation: spin 2s infinite linear;*/
+    /*-webkit-animation: spin 2s infinite linear;*/
+    /*animation: spin 2s infinite linear;*/
+    /*left: 50%;*/
+    /*top: 50%;*/
+    /*margin-left: -62px;*/
+    /*margin-top: -62px*/
+/*}*/
+.charts.loading:before {
+    font-size: 14px;
+    font-size: 1rem;
+    line-height: 18px;
+    line-height: 1.28571rem;
+    position: absolute;
+    content: 'Loading...';
+    left: 50%;
+    margin-left: -2em;
+    top: 50%;
+    margin-top: -9px;
+    color: #888
+}

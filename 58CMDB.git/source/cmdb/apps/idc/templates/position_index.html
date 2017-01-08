@@ -1,0 +1,528 @@
+{%extends base%}
+{% block extra_head %}
+<!-- page specific plugin scripts -->
+<link rel="stylesheet" href="{{STATIC_URL}}css/dropzone.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/chosen.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.custom.min.css" />
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.tableTools.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.colVis.min.js"></script>
+<script src="{{STATIC_URL}}js/dropzone.min.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+{% endblock %}
+{% block Hometitle %}<a href="{% url 'home' %}"> 基础资源管理 </a>{% endblock %}
+{% block actiontitle %} <a href="{% url 'idc.index' %}">IDC资源 </a> > 机架信息管理 > 机架信息管理{% endblock %}
+
+{% block pagetitle %}机位详细信息{% endblock %}
+
+{% block pagecontent %}
+	<div class="page-content">
+		<div class="row">
+			<div class="col-xs-12">
+			<!-- PAGE CONTENT BEGINS -->
+								<div class="row">
+									<div class="col-xs-4 col-sm-3 pricing-span-header">
+										<div class="widget-box transparent">
+											{% for position in position_obj %}
+												{%if forloop.first%}
+													<div class="widget-header">
+														<h5 class="widget-title bigger lighter">{{position.rack_id.rack_name }}-{{position.rack_id.rack_code}}机位分布模拟
+														<span class="badge badge-warning badge-pink">共{{ forloop.revcounter }}个机位</span>
+														</h5>
+													</div>
+											<div class="widget-body">
+												<div class="widget-main no-padding">
+												<ul class="list-unstyled list-striped pricing-table-header">			{%endif%}
+												<li>{{forloop.revcounter}}</li>
+												{%if forloop.last%}
+												</ul>
+												</div>
+											</div>
+												{%endif%}
+								{% empty %}
+							<div class="alert alert-danger">
+								<button class="close" data-dismiss="alert">
+									<i class="ace-icon fa fa-times"></i>
+								</button>
+								<i class="ace-icon fa fa-hand-o-down"></i>
+								没有该数据,请倒入!
+								</div>
+											{%endfor%}
+										</div>
+									</div>
+
+									<div class="col-xs-8 col-sm-9 pricing-span-body">
+										<div class="pricing-span">
+											<div class="widget-box pricing-box-small widget-color-red3">
+												<div class="widget-header">
+													<h5 class="widget-title bigger lighter">机位号</h5>
+												</div>
+											{% for position in position_obj reversed %}
+												{%if forloop.first%}
+												<div class="widget-body">
+													<div class="widget-main no-padding">
+														<ul class="list-unstyled list-striped pricing-table">
+												{%endif%}
+												<li> {{ position.position_num }} </li>
+												{%if forloop.last%}
+														</ul>
+													</div>
+												{%endif%}
+								{% empty %}
+							<div class="alert alert-danger">
+								<button class="close" data-dismiss="alert">
+									<i class="ace-icon fa fa-times"></i>
+								</button>
+								<i class="ace-icon fa fa-hand-o-down"></i>
+								没有该数据,请倒入!
+								</div>
+											{%endfor%}
+												</div>
+											</div>
+										</div>
+
+										<div class="pricing-span">
+											<div class="widget-box pricing-box-small widget-color-orange">
+												<div class="widget-header">
+													<h5 class="widget-title bigger lighter">机位状态</h5>
+												</div>
+											{% for position in position_obj reversed%}
+												{%if forloop.first%}
+												<div class="widget-body">
+													<div class="widget-main no-padding">
+														<ul class="list-unstyled list-striped pricing-table">
+												{%endif%}
+												<li>
+												{% if position.get_position_status_display == "空闲" %}
+													<i class="ace-icon fa fa-check green"></i>
+												{% else %}
+													<i class="ace-icon fa fa-times bigger-110 red"></i>
+												{% endif %}
+												{{ position.get_position_status_display }}
+												</i>
+												</li>
+												{%if forloop.last%}
+													</ul>
+												</div>
+												{%endif%}
+								{% empty %}
+							<div class="alert alert-danger">
+								<button class="close" data-dismiss="alert">
+									<i class="ace-icon fa fa-times"></i>
+								</button>
+								<i class="ace-icon fa fa-hand-o-down"></i>
+								没有该数据,请倒入!
+								</div>
+											{%endfor%}
+												</div>
+											</div>
+										</div>
+
+										<div class="pricing-span">
+											<div class="widget-box pricing-box-small widget-color-blue">
+												<div class="widget-header">
+													<h5 class="widget-title bigger lighter">机位规格高度</h5>
+												</div>
+											{% for position in position_obj reversed%}
+												{%if forloop.first%}
+												<div class="widget-body">
+													<div class="widget-main no-padding">
+														<ul class="list-unstyled list-striped pricing-table">
+												{%endif%}
+												<li>
+												<i class="ace-icon fa fa-circle green"></i>
+												{{ position.position_spec_height }}
+												</i>
+												</li>
+												{%if forloop.last%}
+														</ul>
+													</div>
+												{%endif%}
+								{% empty %}
+							<div class="alert alert-danger">
+								<button class="close" data-dismiss="alert">
+									<i class="ace-icon fa fa-times"></i>
+								</button>
+								<i class="ace-icon fa fa-hand-o-down"></i>
+								没有该数据,请倒入!
+								</div>
+											{%endfor%}
+												</div>
+											</div>
+										</div>
+
+										<div class="pricing-span">
+											<div class="widget-box pricing-box-small widget-color-green">
+												<div class="widget-header">
+													<h5 class="widget-title bigger lighter">机位起始U位</h5>
+												</div>
+											{% for position in position_obj reversed%}
+												{%if forloop.first%}
+												<div class="widget-body">
+													<div class="widget-main no-padding">
+														<ul class="list-unstyled list-striped pricing-table">
+												{%endif%}
+												<li>
+												<i class="ace-icon fa fa-circle green"></i>
+												{{ position.start_spec_height }}
+												</i>
+												</li>
+												{%if forloop.last%}
+														</ul>
+													</div>
+												{%endif%}
+									{% empty %}
+									<div class="alert alert-danger">
+										<button class="close" data-dismiss="alert">
+										<i class="ace-icon fa fa-times"></i>
+										</button>
+										<i class="ace-icon fa fa-hand-o-down"></i>
+										没有该数据,请倒入!
+									</div>
+									{%endfor%}
+												</div>
+											</div>
+										</div>
+
+										<div class="pricing-span">
+											<div class="widget-box pricing-box-small widget-color-dark">
+												<div class="widget-header">
+													<h5 class="widget-title bigger lighter">资产SN</h5>
+												</div>
+											{% for position in position_obj reversed%}
+												{%if forloop.first%}
+												<div class="widget-body">
+													<div class="widget-main no-padding">
+														<ul class="list-unstyled list-striped pricing-table">
+												{%endif%}
+												<li>
+												{% if position.get_position_status_display == "已用" %}
+													{% if position.tasset_set.all.0.asset_sn %}
+												<a href="{% url 'server.index' %}?asset_sn={{position.tasset_set.all.0.asset_sn }}"> {{ position.tasset_set.all.0.asset_sn }} </a>
+												 {% else %}
+												   请录入!
+												 {%endif%}
+											{%else%}
+											   空闲
+											{%endif%}
+												</i>
+												</li>
+												{%if forloop.last%}
+														</ul>
+													</div>
+												{%endif%}
+									{% empty %}
+									<div class="alert alert-danger">
+										<button class="close" data-dismiss="alert">
+										<i class="ace-icon fa fa-times"></i>
+										</button>
+										<i class="ace-icon fa fa-hand-o-down"></i>
+										没有该数据,请倒入!
+									</div>
+									{%endfor%}
+												</div>
+											</div>
+										</div>
+
+										<div class="pricing-span">
+											<div class="widget-box pricing-box-small widget-color-grey">
+												<div class="widget-header">
+													<h5 class="widget-title bigger lighter">备注</h5>
+												</div>
+											{% for position in position_obj reversed%}
+												{%if forloop.first%}
+												<div class="widget-body">
+													<div class="widget-main no-padding">
+														<ul class="list-unstyled list-striped pricing-table">
+												{%endif%}
+												<li>
+												<i class="ace-icon fa fa-circle green"></i>
+												{{ position.position_comment }}
+												</i>
+												</li>
+												{%if forloop.last%}
+														</ul>
+													</div>
+												{%endif%}
+								{% empty %}
+							<div class="alert alert-danger">
+								<button class="close" data-dismiss="alert">
+									<i class="ace-icon fa fa-times"></i>
+								</button>
+								<i class="ace-icon fa fa-hand-o-down"></i>
+								没有该数据,请倒入!
+								</div>
+											{%endfor%}
+												</div>
+											</div>
+										</div>
+									</div>
+							</div>
+		</div>
+
+								<div class="space-12"></div>
+								<div class="row">
+		 								<div class="col-xs-12">
+										<form role="form" class="form-horizontal" action="/api/upload/idc/position/" enctype="multipart/form-data" method="post">
+
+											<hr>
+											<div class="row">
+												<div class="col-sm-12">
+													<div class="widget-box collapsed">
+														<div class="widget-header">
+															<h4 class="widget-title ace-icon fa fa-hand-o-right">批量导入请通过Excel文件上传方式导入</h4>
+
+															<div class="widget-toolbar">
+																<a data-action="collapse" href="#">
+																	<i id="arrow" class="ace-icon fa fa-chevron-up"></i>
+																</a>
+
+																<a data-action="close" href="#">
+																	<i class="ace-icon fa fa-times"></i>
+																</a>
+															</div>
+														</div>
+
+														<div class="widget-body">
+															<div class="widget-main">
+
+
+																<div class="form-group">
+																	<div class="col-xs-12">
+																		<input multiple="" type="file" id="id-input-file-3" name="title">
+																	</div>
+																</div>
+
+																<label>
+																	  <button class="btn btn-app btn-grey btn-xs ">
+																		<i class="ace-icon fa fa-floppy-o bigger-160"></i>
+
+																		保存
+																		<span class="badge badge-transparent">
+
+													          </span>
+												            </button>
+																</label>
+
+																<label>
+																	<a class="btn btn-app btn-primary btn-xs" href="#">
+																		<i class="ace-icon fa fa-pencil-square-o bigger-160"></i>
+																	  模板下载
+																</a>
+																</label>
+															</div>
+														</div>
+													</div>
+												</div>
+
+											</div>
+
+										</form>
+									</div>
+								</div>
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+
+						<script type="text/javascript">
+							jQuery(function($) {
+
+
+
+								$( "#input-size-slider" ).css('width','200px').slider({
+									value:1,
+									range: "min",
+									min: 1,
+									max: 8,
+									step: 1,
+									slide: function( event, ui ) {
+										var sizing = ['', 'input-sm', 'input-lg', 'input-mini', 'input-small', 'input-medium', 'input-large', 'input-xlarge', 'input-xxlarge'];
+										var val = parseInt(ui.value);
+										$('#form-field-4').attr('class', sizing[val]).val('.'+sizing[val]);
+									}
+								});
+
+								$( "#input-span-slider" ).slider({
+									value:1,
+									range: "min",
+									min: 1,
+									max: 12,
+									step: 1,
+									slide: function( event, ui ) {
+										var val = parseInt(ui.value);
+										$('#form-field-5').attr('class', 'col-xs-'+val).val('.col-xs-'+val);
+									}
+								});
+
+
+
+								//"jQuery UI Slider"
+								//range slider tooltip example
+								$( "#slider-range" ).css('height','200px').slider({
+									orientation: "vertical",
+									range: true,
+									min: 0,
+									max: 100,
+									values: [ 17, 67 ],
+									slide: function( event, ui ) {
+										var val = ui.values[$(ui.handle).index()-1] + "";
+
+										if( !ui.handle.firstChild ) {
+											$("<div class='tooltip right in' style='display:none;left:16px;top:-6px;'><div class='tooltip-arrow'></div><div class='tooltip-inner'></div></div>")
+											.prependTo(ui.handle);
+										}
+										$(ui.handle.firstChild).show().children().eq(1).text(val);
+									}
+								}).find('span.ui-slider-handle').on('blur', function(){
+									$(this.firstChild).hide();
+								});
+
+
+								$( "#slider-range-max" ).slider({
+									range: "max",
+									min: 1,
+									max: 10,
+									value: 2
+								});
+
+								$( "#slider-eq > span" ).css({width:'90%', 'float':'left', margin:'15px'}).each(function() {
+									// read initial values from markup and remove that
+									var value = parseInt( $( this ).text(), 10 );
+									$( this ).empty().slider({
+										value: value,
+										range: "min",
+										animate: true
+
+									});
+								});
+
+								$("#slider-eq > span.ui-slider-purple").slider('disable');//disable third item
+
+								$('#id-input-file-1 , #id-input-file-2').ace_file_input({
+									no_file:'No File ...',
+									btn_choose:'Choose',
+									btn_change:'Change',
+									droppable:false,
+									onchange:null,
+									thumbnail:false //| true | large
+									//whitelist:'gif|png|jpg|jpeg'
+									//blacklist:'exe|php'
+									//onchange:''
+									//
+								});
+								//pre-show a file name, for example a previously selected file
+								//$('#id-input-file-1').ace_file_input('show_file_list', ['myfile.txt'])
+
+
+								$('#id-input-file-3').ace_file_input({
+									style:'well',
+									btn_choose:'点击上传文件',
+									btn_change:null,
+									no_icon:'ace-icon fa fa-cloud-upload',
+									droppable:true,
+									thumbnail:'small'//large | fit
+									//,icon_remove:null//set null, to hide remove/reset button
+									/**,before_change:function(files, dropped) {
+										//Check an example below
+										//or examples/file-upload.html
+										return true;
+									}*/
+									/**,before_remove : function() {
+										return true;
+									}*/
+									,
+									preview_error : function(filename, error_code) {
+										//name of the file that failed
+										//error_code values
+										//1 = 'FILE_LOAD_FAILED',
+										//2 = 'IMAGE_LOAD_FAILED',
+										//3 = 'THUMBNAIL_FAILED'
+										//alert(error_code);
+									}
+
+								}).on('change', function(){
+									//console.log($(this).data('ace_input_files'));
+									//console.log($(this).data('ace_input_method'));
+								});
+
+
+								//$('#id-input-file-3')
+								//.ace_file_input('show_file_list', [
+									//{type: 'image', name: 'name of image', path: 'http://path/to/image/for/preview'},
+									//{type: 'file', name: 'hello.txt'}
+								//]);
+
+
+
+
+								//dynamically change allowed formats by changing allowExt && allowMime function
+								$('#id-file-format').removeAttr('checked').on('change', function() {
+									var whitelist_ext, whitelist_mime;
+									var btn_choose
+									var no_icon
+									if(this.checked) {
+										btn_choose = "Drop images here or click to choose";
+										no_icon = "ace-icon fa fa-picture-o";
+
+										whitelist_ext = ["jpeg", "jpg", "png", "gif" , "bmp"];
+										whitelist_mime = ["image/jpg", "image/jpeg", "image/png", "image/gif", "image/bmp"];
+									}
+									else {
+										btn_choose = "Drop files here or click to choose";
+										no_icon = "ace-icon fa fa-cloud-upload";
+
+										whitelist_ext = null;//all extensions are acceptable
+										whitelist_mime = null;//all mimes are acceptable
+									}
+									var file_input = $('#id-input-file-3');
+									file_input
+									.ace_file_input('update_settings',
+									{
+										'btn_choose': btn_choose,
+										'no_icon': no_icon,
+										'allowExt': whitelist_ext,
+										'allowMime': whitelist_mime
+									})
+									file_input.ace_file_input('reset_input');
+
+									file_input
+									.off('file.error.ace')
+									.on('file.error.ace', function(e, info) {
+										//console.log(info.file_count);//number of selected files
+										//console.log(info.invalid_count);//number of invalid files
+										//console.log(info.error_list);//a list of errors in the following format
+
+										//info.error_count['ext']
+										//info.error_count['mime']
+										//info.error_count['size']
+
+										//info.error_list['ext']  = [list of file names with invalid extension]
+										//info.error_list['mime'] = [list of file names with invalid mimetype]
+										//info.error_list['size'] = [list of file names with invalid size]
+
+
+										/**
+										if( !info.dropped ) {
+											//perhapse reset file field if files have been selected, and there are invalid files among them
+											//when files are dropped, only valid files will be added to our file array
+											e.preventDefault();//it will rest input
+										}
+										*/
+
+
+										//if files have been selected (not dropped), you can choose to reset input
+										//because browser keeps all selected files anyway and this cannot be changed
+										//we can only reset file field to become empty again
+										//on any case you still should check files with your server side script
+										//because any arbitrary file can be uploaded by user and it's not safe to rely on browser-side measures
+									});
+
+								});
+							})
+						</script>
+
+
+	</div><!-- /.page-content -->
+
+
+{% endblock %}

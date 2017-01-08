@@ -1,0 +1,79 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+ </style>
+{% endblock %}
+{% block main %}
+<div id="permission-breadcrumbs">
+    <ul class="breadcrumbs">
+        <li><a href={{ url_for('user.role') }}>角色编辑</a></li>
+        <li><a href={{ url_for('user.urllist') }} class="unavailable" style="color:#d35400" >资源管理</a></li>
+        <li><a href={{ url_for('user.permission') }}>用户角色</a></li>
+    </ul>
+</div>
+<h5 class="content_title">
+    <a id="addbtn" data-reveal-id="edit" href="javascript:void(0);" class="button radius right tiny">+ 添加资源</a>
+</h5>
+{% with messages = get_flashed_messages(1) %}
+{% if messages %}
+{% for message in messages %}
+<div data-alert
+     class="alert-box {% if message[0] == 1 %}info{% else %}warning{% endif %}">{{ message[1] }}<a
+        href="#" class="close">&times;</a></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th>序号</th>
+        <th >资源</th>
+        <th >备注</th>
+        <th >业务</th>
+        <th >方法</th>
+        <th >操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for list in lists %}
+    <tr>
+        <td>{{list.flag}}</td>
+        <td>{{list.url}}</td>
+        <td>{{list.content}}</td>
+        <td>{{list.tag}}</td>
+        <td>{{list.method}}</td>
+        <td>
+            <a href="javascript:getUrlDetail({{list.id}});void(0);">修改</a>
+            <a href="javascript:DeleteUrl({{list.id}});void(0);">删除</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div id="edit" class="reveal-modal small" data-reveal>
+    <h4>添加URL</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="#" class="close">&times;</a>
+    </div>
+    <input type="text" id="url" placeholder="请输入URL,比如:/cmdb/host/add"/>
+    <select id="method">
+        <option selected="selected" value="0">请选URL对应的方法</option>
+        <option value="1">POST</option>
+        <option value="2">GET</option>
+        <option value="3">DELETE</option>
+    <input type="hidden" id="type"/>
+    <input type="text" id="tag" placeholder="请输入此URL的业务"/>
+    <input type="text" id="content" placeholder="备注"/>
+    <a href="javascript:void(0);" id="doadd" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/url.js","js/url.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

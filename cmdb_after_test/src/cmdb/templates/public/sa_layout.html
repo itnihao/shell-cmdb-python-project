@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}CMDB{% endblock %}</title>
+    {% assets "layout_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+    {% assets "layout_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% block customstyle %}{% endblock %}
+    <link rel="stylesheet" href="/static/plugins/footable/css/footable.core.css"/>
+</head>
+<body>
+<nav class="top-bar" data-topbar>
+      {% include 'public/header_nav_tpl.html' %}
+</nav>
+<div class="row">
+    <div class="medium-2 columns">
+        <ul class="side-nav">
+            <li class="heading">工单管理</li>
+            <li><a href="{{ url_for('tickets_category.index') }}">工单分类</a></li>
+            <li><a href="{{ url_for('tickets.index') }}">工单列表</a></li>
+            <li class="divider"></li>
+            <li class="heading">域名管理</li>
+            <li><a href="{{ url_for('dns_category.index') }}">域名ZONE</a></li>
+            <li><a href="{{ url_for('dns.index') }}">域名列表</a></li>
+            <li class="divider"></li>
+            <li class="heading">任务管理</li>
+            <li><a href="{{ url_for('tickets.task_my') }}">工单任务</a></li>
+            {% if current_user.dns_approvaler %}
+            <li><a href="{{ url_for('dns.task_my') }}">域名任务</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="medium-10 columns">
+        <div class="content">
+            {% block main %}{% endblock %}
+        </div>
+    </div>
+
+</div>
+{% include 'public/footer.html' %}
+{% block customscript %}{% endblock %}
+<script type="text/javascript">
+    $(document).foundation();
+    $(function(){
+        var path = location.pathname;
+        $(".side-nav >li >a").each(function(){
+            var href = $(this).attr("href");
+            var pos = href.lastIndexOf('/');
+            var basepath = href.substr(0,pos);
+            var idx = path.indexOf(basepath);
+            if((/tickets\/category/).test(path)){
+                $(".side-nav >li").find("a[href='/sa/tickets/category/']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/tickets\/task\/my/).test(path)){
+                $(".side-nav >li").find("a[href='/sa/tickets/task/my/']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/tickets/).test(path)){
+                $(".side-nav >li").find("a[href='/sa/tickets/']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/dns\/task\/my/).test(path)){
+                $(".side-nav >li").find("a[href='/sa/dns/task/my/']").parent().addClass("active-nav");
+                return false;
+            }
+            if(idx>=0){
+                $(this).parent().addClass("active-nav");
+                return false;
+            }
+        });
+    });
+    $(function () {
+        $(".side-nav").css("min-height", $(document.body).height() - 73);
+    })
+</script>
+</body>
+</html>

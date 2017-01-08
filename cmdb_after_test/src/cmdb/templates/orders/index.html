@@ -1,0 +1,16 @@
+{% extends "orders/layout.html" %}
+{% block url %}
+    <ol class="breadcrumb">
+    <li><a href="#" style="color: #62ab00; font-size: 18px;">任务中心</a></li>
+    <li class="active">我的待领任务</li>
+    </ol>
+{% endblock %}
+{% block main %}
+    <div class="row">
+    <div class="col-md-10">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="工单号">
+        </div>
+    </div>
+    </div>
+{% endblock %}

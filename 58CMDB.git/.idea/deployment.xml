@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="10.249.6.30 cloud_front">
+    <serverData>
+      <paths name="10.249.6.30 cloud_front">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/root/PycharmProjects/cloud_front" local="$PROJECT_DIR$/../cloud_front" web="/" />
+            <mapping deploy="/root/PycharmProjects/cmdb_test" local="$PROJECT_DIR$/../cmdb_after_test" />
+            <mapping deploy="/root/PycharmProjects/cmdb.git" local="$PROJECT_DIR$/../cmdb.git" />
+            <mapping deploy="/root/PycharmProjects/python-oca" local="$PROJECT_DIR$/../python-oca" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="cloud_web">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

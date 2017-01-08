@@ -1,0 +1,145 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .load_table>tbody>tr:hover{
+            background:#ffffff;
+            color: #ffffff;
+        }
+    </style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title" style="margin-bottom: 20px">
+    <span style="font-size:1.5rem;">POOL详细:{{ poolinfo.name }}
+        {% if poolinfo.source != 0 %}
+            ,{{ poolinfo.source_desc }}
+        {% endif %}
+       <input type="hidden" value="{{ poolinfo.id }}" id="pool_id"/>
+    </span>
+    {% if poolinfo.followed %}
+        <a data-options='{"id":{{ poolinfo.id }}, "type":"1", "act":"unfollow"}' href='javascript:void(0);' class="button radius right tiny" style="margin-left: 5px;">取消关注</a>
+    {% else %}
+        <a data-options='{"id":{{ poolinfo.id }}, "type":"1"}' href='javascript:void(0);'  class="button radius right tiny" style="margin-left: 5px;">关注</a>
+    {% endif%}
+    {% if show.host_add %}
+        <a href="{{ url_for('pool.pickhost',id=poolinfo.id) }}" class="button radius right tiny" style="margin-left: 5px;">+ 添加主机</a>
+    {% endif %}
+    {% if current_user.department_id == 160 or current_user.department_id == 562 or flag == 0 %}
+    <a href="{{ url_for('bastion.index',id= poolinfo.id)+'?type=2' }}" name="apply" class="button radius right tiny">申请权限</a>
+    {% endif %}
+</h5>
+<table style="width: 100%;margin-top: 20px" class="load_table">
+        <tr>
+            <td width='15%' colspan="1">当前满载率: <a data-tooltip aria-haspopup="true" class="has-tip link_blue" title="采集时间:{{ load.pool_load[1] }}" href="{{ url_for('monitor.index',pool_id=poolinfo.id,type='follow_pool')}}">{{ load.pool_load[0] }}%</a></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td width='70%'>
+                今日最高满载率:  <span data-tooltip aria-haspopup="true" class="has-tip" title="采集时间:{{ load.max_pool_load[1] }}">{{ load.max_pool_load[0] }}%</span>&nbsp;&nbsp;
+                今日单机最高满载率: <span data-tooltip aria-haspopup="true" class="has-tip" title="采集时间:{{ load.max_host_load[1] }}">{{ load.max_host_load[0] }}%</span>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td width='70%' >
+                昨日最高满载率: <span data-tooltip aria-haspopup="true" class="has-tip" title="采集标准:95线">{{ load.yes_pool_load }}%</span>  &nbsp;&nbsp;
+                昨日单机最高满载率:<span data-tooltip aria-haspopup="true" class="has-tip" title="采集标准:95线">{{ load.yes_host_load }}%</span>
+            </td>
+            <td width='15%'>
+                {% if poolinfo.alarmed %}
+                    <a title="取消报警之后无法接到Zabbix的报警" data-option='{"id":{{ poolinfo.id }}, "type":"1", "act":"unalarm"}' href='javascript:void(0);' class="button radius right tiny" style="margin-left: 5px;margin-bottom: 1px">取消接警</a>
+                {% else %}
+                    <a title="订阅报警之后就可以接到Zabbix的报警"  data-option='{"id":{{ poolinfo.id }}, "type":"1"}' href='javascript:void(0);'  class="button radius right tiny" style="margin-left: 5px;margin-bottom: 1px">订阅接警</a>
+                {% endif%}
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div id="add-host" class="reveal-modal small" data-reveal>
+    <div class="pool">
+    </div>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{% if pool_host_list %}
+<table style="width: 100%;margin-top: 20px" class="load_table">
+        <tbody>
+        <tr>
+            <th colspan="10">主机列表</th>
+        </tr>
+        <tr>
+            <td>序号</td>
+            <td>名称</td>
+            <td>CPU</td>
+            <td>内存</td>
+            <td>硬盘</td>
+            {% if poolinfo.source>0 %}
+            <td>端口</td>
+            <td>权重</td>
+            {% endif %}
+            <td>满载率</td>
+            <td>更新时间</td>
+            {% if show.host_delete %}
+            <td>操作</td>
+            {% endif %}
+        </tr>
+        {% for item in pool_host_list %}
+        <tr>
+            <td>{{ item.idx }}</td>
+            <td><a href="{{ url_for('host.host_detail',id=item.host_id)}}">{{ item.hostname }}</a></td>
+            <td>{{ item.cpu }}</td>
+            <td>{{ item.memory }}</td>
+            <td>{{ item.storage }}</td>
+            {% if poolinfo.source>0 %}
+                <td>{{ item.port }}</td>
+            <td>{{ item.weight }}({{ item.weight_ratio }})</td>
+            {% endif %}
+             <td><a href="{{ url_for('monitor.details',host_id=item.host_id)}}">{{ item.load }}</a></td>
+            <td>{{ item.updatetime }}</td>
+            {% if show.host_delete %}
+                <td><a href="javascript:void(0);" id="{{ item.host_id }}_{{ item.id}}_{{ item.pool_id }}" class="host_remove">移除主机</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+</table>
+{% endif %}
+<table style="width: 100%;margin-top: 20px" class="load_table">
+        <tr>
+            <th colspan="3">基本信息</th>
+        </tr>
+        <tr>
+            <td>pool负责人:{{ poolinfo.team_owner_name }}</td>
+            <td>业务负责人:{{ poolinfo.biz_owner_name }}</td>
+            <td>运维负责人:{{ poolinfo.ops_owner_name }}</td>
+        </tr>
+        {% if poolinfo.content %}
+        <tr>
+            <td>备注:{{ poolinfo.content }}</td>
+            <td>部门:{{ poolinfo.department }}</td>
+        </tr>
+        {% endif %}
+    <tbody>
+    </tbody>
+</table>
+{% if alarmusers %}
+    <table style="width: 100%;" class="load_table">
+            <tr>
+                <th colspan="2">接警用户</th>
+            </tr>
+        <tr>
+            <td style="width: 8%">&nbsp;</td>
+            <td style="width: 92%">{{ alarmusers }}</td>
+        </tr>
+    </table>
+    {% endif %}
+{% endblock %}
+
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/pooldetail.js","js/pooldetail.js","js/jquery-ui.min.js", "js/follow.js", "js/alarm.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+

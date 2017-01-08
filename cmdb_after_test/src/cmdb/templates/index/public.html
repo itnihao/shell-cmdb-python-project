@@ -1,0 +1,243 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<h5 class="content_title" style="margin-bottom: 20px">
+    欢迎使用 CMDB 运维一体化管理工具V1.7.1
+    <input type="hidden" id="stat" data="{{ extend['device_count'] }}#{{ extend['host_count'] }}#{{ extend['pool_count'] }}"/>
+    <span class="right" id="ubuntu_tips"></span>
+</h5>
+<hr/>
+<ul class="small-block-grid-2">
+    {% if extend['applying_info'] %}
+    <li>
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th>
+                    处理进度
+                </th>
+            </tr>
+            </thead>
+            <tr>
+                <td style="padding: 0 0;">
+                    <table id="applying">
+                        <tbody>
+                            {% for applying_item in extend['applying_info'] %}
+                            <tr>
+                                <td>
+                                    <a href="{{ applying_item['href'] }}">{{ applying_item['type'] }}
+                                        {{ applying_item['desc'] }}
+
+                                    {% if applying_item.approvings %}
+                                    <span data-tooltip aria-haspopup="true" class="has-tip right" title='<div style="clear:both;margin:0 0 10px 0;padding:2px;font-size:12px;font-weight:normal"> 
+                                    <span style="float:left;margin-right:10px;min-width:100px"> 
+                                    <font color="#0099cc"><b>审批人</b></font></span> 
+                                    <span style="margin-left:10px"> 
+                                    <font color="#0099cc"><b>状态</b></font></span> </div>
+                                    {% for item in applying_item.approvings %}
+                                        <div style="clear:both;margin:0 0 10px 0;padding:2px;font-size:12px;font-weight:normal">
+                                            <span style="float:left;margin-right:10px;min-width:100px"><font color="#0099cc">  <b>{{item.approve_name}}</b></font></span>  
+                                          {% if item.status == "已审批" %}
+                                          <span class="right  success round info label" style="margin-left:10px">  <b>{{item.status}}</b></span> 
+                                          {% else %}
+                                          <span class="right  round info label" style="margin-left:10px">  <b>{{item.status}}</b></span> 
+                                          {% endif %}
+                                       </div>
+                                    {% endfor %}
+                                    '>
+                                    <span class="right round info label" >{{ applying_item['process'] }}</span>
+                                    </span>
+                                      {% else %}
+                                        <span class="right round info label" >{{ applying_item['process'] }}</span>
+                                    {% endif %}
+                                </a></td>
+                            </tr>
+                            {% endfor %}
+                            {% if count(extend['applying_info'])<6 %}
+                                {% for i in range(0,6-count(extend['applying_info'])) %}
+                                <tr>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </li>
+    {% endif %}
+    {% if extend['approving_info'] %}
+    <li>
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th>
+                    我的任务
+                </th>
+            </tr>
+            </thead>
+            <tr>
+                <td style="padding: 0 0;">
+                    <table id="approving">
+                        <tbody>
+                            {% for approving_item in extend['approving_info'] %}
+                            <tr>
+                                <td
+                                        {% if approving_item.title %}
+                                        data-tooltip aria-haspopup="true" class="has-tip" title="{{ approving_item.title }}"
+                                        {% endif %}
+                                >
+                                    <a href="{{ approving_item['href'] }}">{{ approving_item['type'] }}
+                                        {{ approving_item['desc'] }}
+                                    </a>
+                                    {% if approving_item.approvings %}
+                                    <span class="tooltip-display right" data='<div style="clear:both;margin:0 0 10px 0;padding:2px;font-size:12px;font-weight:normal"> 
+                                    <span style="float:left;margin-right:10px;min-width:100px"> 
+                                    <font color="#0099cc"><b>审批人</b></font></span> 
+                                    <span style="margin-left:10px"> 
+                                    <font color="#0099cc"><b>状态</b></font></span> </div>
+                                    {% for item in approving_item.approvings %}
+                                        <div style="clear:both;margin:0 0 10px 0;padding:2px;font-size:12px;font-weight:normal">
+                                            <span style="float:left;margin-right:10px;min-width:100px"><font color="#0099cc">  <b>{{item.approve_name}}</b></font></span>  
+                                          {% if item.status == "已审批" %}
+                                          <span class="left  success round info label" style="margin-left:10px">  <b>{{item.status}}</b></span> 
+                                          {% else %}
+                                          <span class="left  round info label" style="margin-left:10px">  <b>{{item.status}}</b></span> 
+                                          {% endif %}
+                                       </div>
+                                    {% endfor %}
+                                    '>
+                                        <span class="right round info label">{{ approving_item['process'] }}</span>
+                                    </span>
+                                        {% else %}
+                                    <span class="right round info label">{{ approving_item['process'] }}</span>
+                                        {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if count(extend['approving_info'])<6 %}
+                                {% for i in range(0,6-count(extend['approving_info'])) %}
+                                <tr>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </li>
+    {% endif %}
+    {% if extend['entrance'] %}
+    <li>
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th>
+                    常用入口
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for entrance_item in extend['entrance'] %}
+                    <tr>
+                        <td>
+                        {{ entrance_item['desc'] }}
+                        <span class="right"><a href="{{ entrance_item['href'] }}">{{ entrance_item['type'] }}</a></span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% if count(extend['entrance'])<6 %}
+                    {% for i in range(0,6-count(extend['entrance'])) %}
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </li>
+    {% endif %}
+    <li>
+        <table style="width: 100%;" id="draw_stat"><tr><td>
+            <span class="row draw_stat"></span>
+        </td></tr></table>
+
+    </li>
+</ul>
+<ul class="small-block-grid-1" id="zabbixBox">
+    <li>
+        <table style="width: 100%;" id="draw_triggers">
+            <thead>
+            <tr>
+                <th width="12%">主机告警</th>
+                <th width="47%">告警描述</th>
+                <th width="13%">历时</th>
+                <th width="18%">Pool</th>
+                <th width="10%">负责人</th>
+            </tr>
+            </thead>
+            <tbody id="zabbixMsg">
+            </tbody>
+        </table>
+    </li>
+</ul>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/index/index.js","js/index/jquery.tablescroll.js","js/index/cmd.js","js/highcharts.js","js/index/index.js" %}
+
+<script type="text/javascript" src="/static/js/index/index.js"></script>
+<script type="text/javascript" src="/static/js/index/jquery.tablescroll.js"></script>
+<script type="text/javascript" src="/static/js/index/cmd.js"></script>
+<script type="text/javascript" src="/static/js/highcharts.js"></script>
+{% endassets %}
+{% endblock %}
+{% block customstyle %}
+<style type="text/css">
+    table tr.even, table tr.alt, table tr:nth-of-type(even) {
+        background: #ffffff;
+    }
+
+    table thead {
+        /*background-color: #ffffff;*/
+    }
+
+    table thead tr th {
+        border-bottom: 1px solid #eee;
+    }
+
+    table {
+        border-radius: 3px;
+    }
+
+    [class*="block-grid-"] > li {
+        padding: 0 0.625rem;
+    }
+
+    #applying, #approving {
+        width: 100%;
+        overflow: auto;
+        margin: 0 0;
+        border-radius: 0px;
+        border: 0px solid #eee;
+    }
+    .has-tip,.has-tip:hover,.has-tip:focus{
+        border-bottom:none;
+        font-weight: normal;
+    }
+    .row span.row{
+        margin: 0 0 ;
+    }
+    table#draw_stat{
+        margin:  0 0;
+    }
+    table#draw_stat>tbody>tr:hover{
+            background:#ffffff;
+            color: #ffffff;
+    }
+    table#draw_stat tr th, table#draw_stat tr td{
+        padding: 0 0;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 权限申请 {% endblock %}
+{% block customstyle %}
+    {% assets filters="cssmin", output="asset/bastion.css", "css/token-input.css", "css/token-input-facebook.css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+<style type="text/css" >
+    table tr.even, table tr.alt, table tr:nth-of-type(even) {
+        background: #ffffff; }
+    table>tbody>tr:hover {
+        background-color: #ffffff;
+    }
+    #token-input-select_host{
+        box-shadow: none;
+        box-sizing: none;
+    }
+    #token-input-select_host:focus{
+        background:none;
+    }
+    button.secondary:hover, button.secondary:focus, .button.secondary:hover, .button.secondary:focus {
+      background-color: #e7e7e7;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>申请权限</span>
+</h5>
+<hr>
+{% if extend_info['haskey'] == 1 %}
+<form action="{{ url_for('bastion.addbastion') }}" method="post" id="apply_bastion">
+    <div data-alert class="alert-box alert" id="msgtip" style="display: none;">
+        <span class="content">This is an alert - alert that is rounded.</span>
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+<table style="border: none; width: 100% " class="table">
+    <tr>
+        <td style="text-align: right; ">选择主机</td>
+        <td>
+            <label id="label">
+               <input type="text" name="hosts" placeholder="" value="" id="select_host" >
+               <input type="hidden" name="host_id" id="host_id" value={{extend_info['host_id']}}>
+               <input type="hidden" name="host_name" id="hostname" value={{extend_info['hostname']}}>
+               <input type="hidden" name="type" id="type" value={{extend_info['type']}}>
+               <span id="select_host_hidden"></span>
+            </label>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: right">选择权限</td>
+        <td>
+          <input type="radio" name="role" class="authority" value="1" id="root" >
+          <label class="url_label" for="root" style="font-size: 14px">root &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <input type="radio" name="role" class="authority" value="2" id="evans">
+          <label class="url_label" for="evans" style="font-size: 14px">evans &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+          <input type="radio" name="role" class="authority" value="3" id="readonly">
+          <label class="url_label" for="readonly" style="font-size: 14px">readonly</label>
+          <input type="hidden" name="roles" value="" id="roles">
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: right">申请期限</td>
+        <td>
+            <ul class="button-group">
+              <li><a data="1"  href="javascript:void(0);" class="small button secondary days">1天</a></li>
+              <li><a data="7"  href="javascript:void(0);" class="small button secondary days">7天</a></li>
+              <li><a data="30"  href="javascript:void(0);" class="small button secondary days">1个月</a></li>
+              {% if extend_info['department'] == 160 %}
+              <li><a data="365"  href="javascript:void(0);" class="small button secondary days">1年</a></li>
+              {% endif %}
+            </ul>
+            <input name="days" value="" id="days" type="hidden">
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align: right">申请描述</td>
+        <td><textarea id="content" name="content" rows="6" {% if approval['uid']>0 %} placeholder="将由{{approval['name']}}审核您的申请，请填写详细申请描述" {% else %} placeholder="您的申请不需要审批，但是请填写详细申请描述" {% endif %} style="width:50%"></textarea></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>
+           <a href="javascript:void(0);" id="doadd" class="button radius tiny ">确定</a>
+           {% if extend_info['tipmsg'] %}
+                <span style="color:red;">({{ extend_info['tipmsg'] }})</span>
+           {% endif %}
+        </td>
+    </tr>
+</table>
+</form>
+{% else %}
+        <span id="no_key">您还没有添加公钥，请在<a href="{{ url_for('user.ucenter') }}?type=sshkey">用户信息-我的公钥</a>中添加自己的公钥，<span>5</span>秒后将自动跳转</span>
+{% endif %}
+{% endblock %}
+
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/bastion.js", "js/jquery.tokeninput.js", "js/bastion.js"%}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

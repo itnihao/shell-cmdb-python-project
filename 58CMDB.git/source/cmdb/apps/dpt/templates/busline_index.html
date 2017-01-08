@@ -1,0 +1,1003 @@
+{%extends base%}
+{% block extra_head %}
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/proj/common.css" />
+
+<script src="{{STATIC_URL}}plugin/sweetalert/sweet-alert.min.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+
+<link rel="stylesheet" href="{{STATIC_URL}}css/dropzone.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/chosen.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.custom.min.css" />
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.tableTools.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.colVis.min.js"></script>
+<script src="{{STATIC_URL}}js/dropzone.min.js"></script>
+<script src="{{STATIC_URL}}js/bootbox.min.js"></script>
+
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/select2/select2.css"/>
+<script type="text/javascript" src="{{STATIC_URL}}plugin/select2/select2.min.js">  </script>
+<script src="{{STATIC_URL}}js/bootstrap-treeview.js"></script>
+<script src="{{STATIC_URL}}js/fuelux.tree.min.js"></script>
+
+
+
+{% endblock %}
+{% block Hometitle %}组织信息管理{% endblock %}
+{% block actiontitle %}<a href="{% url 'busline.index' %}"> 业务线管理 </a>{% endblock %}
+{% block pagetitle %}业务线{% endblock %}
+{% block pagecontent %}
+
+<div class="main-container" id="main-container">
+
+      <div class="page-content">
+
+        <!-- <div class="widget-box">
+          <div class="table-header">
+              查询条件
+          </div>
+          <div class="widget-header">
+          </div>
+
+          <div class="widget-body">
+        	<div class="widget-main">
+        		<div class="row">
+              <div class="col-sm-4">
+                  <div class="row row-in">
+                      <label for="InputName" class="col-sm-3 lable-tip">名称:</label>
+                      <textarea class="search-area col-sm-8" id="InputName"
+                                placeholder="业务线名称;多行用,隔开"></textarea>
+                  </div>
+              </div>
+              <div class="col-sm-4">
+                  <div class="row row-in">
+                      <label for="InputOP" class="col-sm-3 lable-tip">部门:</label>
+                      <textarea class="search-area col-sm-8" id="InputOP"
+                                placeholder="所属部门;多行用,隔开"></textarea>
+                  </div>
+              </div>
+              <div class="col-sm-4">
+                  <div class="row row-in">
+                      <label for="InputManager" class="col-sm-3 lable-tip">部门负责人:</label>
+                      <textarea class="search-area col-sm-8" id="InputManager"
+                                placeholder="所属部门;多行用,隔开"></textarea>
+                  </div>
+              </div>
+        		</div>
+        	</div>
+        	<div class="widget-toolbox padding-4 clearfix">
+        		<div class="col-md-offset-3 col-md-9">
+        			<button class="btn btn-sm btn-success btn-white btn-round"  onclick=SearchBusline() type="button">
+        			<i class="ace-icon fa fa-check bigger-110"></i>
+        				查询
+        			</button>
+        			&nbsp; &nbsp; &nbsp;
+        			<button class="btn btn-sm btn-danger btn-white btn-round" onclick=BuslineReset() type="reset">
+        			<i class="ace-icon fa fa-undo bigger-110"></i>
+        			重置
+        			</button>
+        		</div>
+        	</div>
+        	</div>
+        </div> -->
+
+                <div class="row">
+								<div class="col-xs-12">
+                <!--
+                		<div class="clearfix">
+											<div class="pull-right tableTools-container"></div>
+										</div>
+                -->
+										<div class="table-header" id="buslineListHeader">
+											业务线列表
+                      <button type="button" class="btn btn-primary" id="addBusline">创建业务线</button>
+                      <button type="button" class="btn btn-primary" onclick="goBackToLastLevel()">返回上一级</button>
+										</div>
+										<div>
+											<table id="dynamic-table" class="table table-striped table-bordered table-hover">
+												<thead>
+													<tr>
+														<!-- <th style="text-align:center;">ID</th> -->
+														<th style="text-align:center;">名称</th>
+														<!-- <th style="text-align:center;">代码</th> -->
+														<th style="text-align:center;">
+                              研发负责人
+														</th>
+														<th style="text-align:center;">
+                              运维负责人
+														</th>
+                            <th style="text-align:center;">
+                              部门
+														</th>
+                            <th style="text-align:center;">
+                              父级业务线
+														</th>
+														<th style="text-align:center;">
+                              等级
+														</th>
+														<th style="text-align:center;">是否是叶子节点</th>
+														<th style="text-align:center;">
+                              全路径
+														</th>
+														<th style="text-align:center;">描述</th>
+														<th style="text-align:center;">
+														状态
+														</th>
+														<!-- <th style="text-align:center;">
+                              bsp_org_id
+														</th> -->
+                            <!-- <th style="text-align:center;">
+                              父ID
+                            </th> -->
+														<th style="text-align:center;">
+														<i class="ace-icon fa fa-cog bigger-110 hidden-480"></i>
+														详情
+														</th>
+													</tr>
+												</thead>
+											</table>
+										</div>
+									</div>
+                  <div class="space-12"></div>
+                </div>
+
+                <!-- <div class="row">
+     								<div class="col-xs-12">
+    								<form role="form" class="form-horizontal" action="/api/upload/server/serverasset/" enctype="multipart/form-data" method="post">
+                      <hr>
+    									<div class="row">
+    										<div class="col-sm-12">
+    											<div class="widget-box collapsed">
+    												<div class="widget-header">
+    													<h4 class="widget-title ace-icon fa fa-hand-o-right">批量导入请通过Excel文件上传方式导入</h4>
+
+    													<div class="widget-toolbar">
+    														<a data-action="collapse" href="#">
+    															<i id="arrow" class="ace-icon fa fa-chevron-up"></i>
+    														</a>
+
+    														<a data-action="close" href="#">
+    															<i class="ace-icon fa fa-times"></i>
+    														</a>
+    													</div>
+    												</div>
+
+    												<div class="widget-body">
+    													<div class="widget-main">
+
+
+    														<div class="form-group">
+    															<div class="col-xs-12">
+    																<input multiple="" type="file" id="id-input-file-3" name="title">
+    															</div>
+    														</div>
+
+    														<label>
+    															  <button class="btn btn-app btn-grey btn-xs ">
+    																<i class="ace-icon fa fa-floppy-o bigger-160"></i>
+
+    																保存
+    																<span class="badge badge-transparent">
+
+    											          </span>
+    										            </button>
+    														</label>
+
+    														<label>
+    															<a class="btn btn-app btn-primary btn-xs" href="#">
+    																<i class="ace-icon fa fa-pencil-square-o bigger-160"></i>
+    															  模板下载
+    														</a>
+    														</label>
+    													</div>
+    												</div>
+    											</div>
+    										</div>
+
+    									</div>
+
+
+    								</form>
+    							</div>
+    						</div> -->
+
+              </div>
+        </div>
+
+
+        <!-- 编辑Modal -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="myModal_edit">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">编辑</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-md-3">
+            <label for="name_model">业务线名称</label>
+            <input type="text" class="form-control" id="name_model" placeholder="业务线名称">
+          </div>
+          <div class="col-md-3" hidden="hidden">
+            <label for="fullpath_model">全路径</label>
+            <input type="text" class="form-control" id="fullpath_model" placeholder="全路径">
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-md-3">
+            <label for="code_model">代码</label>
+            <input type="text" class="form-control" id="code_model" placeholder="代码">
+          </div>
+          <!-- <div class="col-md-3">
+            <label for="level_model">等级</label>
+            <input type="text" class="form-control" id="level_model" placeholder="等级">
+          </div> -->
+          <div class="col-md-3">
+            <label for="desc_model">描述</label>
+            <input type="text" class="form-control" id="desc_model" placeholder="描述">
+          </div>
+          <div class="col-md-3">
+            <label for="state_model">状态</label>
+            <input type="text" class="form-control" id="state_model" placeholder="状态">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label for="op_owner_model">部门负责人</label>
+            <input style="width:100%;" id="op_owner_model" value="部门负责人">
+          </div>
+          <div class="col-md-6">
+            <label for="biz_owner_model">运维负责人</label>
+            <input style="width:100%;" id="biz_owner_model" value="业务线负责人">
+          </div>
+          <div class="col-md-6">
+            <label for="op_model">部门</label>
+            <!-- <input style="width:100%;" id="op_model" value="部门"> -->
+            <input type="text" style="width:100%;" id="input_bsporg" onclick="ClickBspOrg()" readonly placeholder='部门'>
+            </input>
+            <div id="parentDiv1" class="treeview1">
+              <!-- <ul class="list-group1" id="treeULTap_bsp">
+              </ul> -->
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label for="parent_biz_model">父级业务线</label>
+            <!-- <input style="width:100%;" id="parent_biz_model" value="父级业务线"> -->
+            <input type="text" style="width:100%;" id="input_parent" onclick="ClickBusline()" readonly  placeholder="父级业务线">
+            </input>
+            <div id="parentDiv" class="treeview">
+              <!-- <ul class="list-group" id="treeULTap_busline">
+              </ul> -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveChange_model">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+      var dataUrl = '/api/busline/buslineinfo/';
+      var all_bsporg_data = [];
+      var all_busline_data = [];
+      var requestLevel = 1;
+      var requestParentID = 0;
+			jQuery(function($) {
+
+        // all_bsporg_data = JustGetBspOrgData();
+        // all_busline_data = JustGetBuslineData();
+			    // data=GetBuslineInfo().data
+          // console.log(data);
+          // data=GetServer(10).data
+				//initiate dataTables plugin
+				var oTable1 =
+				$('#dynamic-table')
+				//.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+				.dataTable( {
+          "bLengthChange": false,
+          "bFilter": false,
+          "bSort": false,
+          "bInfo": true,
+          "bProcessing": true, // 加载条
+          "iDisplayLength": 10,
+          "bProcessing": false, // 是否显示取数据时的那个等待提示
+          "bServerSide": true,//这个用来指明是通过服务端来取数据
+          "sAjaxSource": "/api/busline/buslineinfo/",//这个是请求的地址
+          "fnServerData": retrieveData, // 获取数据的处理函数
+          "oLanguage": {
+            "sProcessing": "正在加载中......",
+            "sLengthMenu": "每页显示 _MENU_ 条记录",
+            "sZeroRecords": "对不起，查询不到相关数据！",
+            "sEmptyTable": "表中无数据存在！",
+            "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+            "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
+            "oPaginate": {
+                  "sFirst": "首页",
+                  "sPrevious": "上一页",
+                  "sNext": "下一页",
+                  "sLast": "末页",
+                },
+              },
+        bStateSave: true,
+        sScrollX: "100%",
+        bAutoWidth: true,
+					"aoColumns": [
+            { "mDataProp": null,
+					  		"sClass": "center",
+						  	"mRender": function(fields,type,full){
+                  var data = JSON.stringify(full);
+                  return "<a class='tooltip-error' onclick='RequestNextLevel(" + data + ")'>"+ full.busline_name +"</a>"
+							},
+            },
+            // { "mData": "busline_name" },
+					  // { "mData": "busline_code" },
+            { "mData": "owner_biz" },
+            { "mData": "owner_op" },
+            { "mData": "bsp_org_name" },
+            { "mData": "parent_name" },
+            { "mData": "busline_level" },
+            { "mData": "is_leaf" },
+            { "mData": "fullpath" },
+            { "mData": "description" },
+            { "mData": "state" },
+            { "mDataProp": null,
+					  		"sClass": "center",
+						  	"mRender": function(fields,type,full){
+                  var data = JSON.stringify(full);
+                  return "<a class='tooltip-error' onclick='ShowEditModel(" + data + ")'><i class='ace-icon fa fa-cog bigger-110 hidden-480'>编辑</i></a>"
+							// return "<a class='tooltip-error' onclick='ShowBspOrgDetail(" + full.busline_id + ")'><i class='ace-icon fa fa-cog bigger-110 hidden-480'>编辑</i></a>"
+							},
+						  	//"sWidth":"5%",
+						  	"bSortable":false
+					  },
+					],
+					"aaSorting": [],
+					// "aaData": data,
+			    } );
+
+          function retrieveData(sSource, aoData, fnCallback ) {
+            var startnum=aoData[3]['value'];
+            var range=aoData[4]['value'];
+            token = GetToken();
+            if(token == 'error'){
+              sweetAlert("O NO !", "TOKEN 失效!", "error");
+              return false;
+            }
+            token = token.data.token;
+            var name=$('#InputName').val();
+          	var op=$('#InputOP').val();
+          	var manager=$('#InputManager').val();
+            datas = {
+              'token':token,
+              'startnum':startnum,
+              'range':range,
+              'name':name,
+              'op':op,
+              'manager':manager,
+              'level':requestLevel,
+              'parentID':requestParentID,
+              };
+              // console.log(datas);
+            datas = JSON.stringify(datas);
+              $.ajax({
+                  url : dataUrl,//这个就是请求地址对应sAjaxSource
+                  data : datas,//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
+                  type : 'post',
+                  dataType : 'json',
+                  async : false,
+                  success : function(result) {
+                    result['iTotalRecords'] = result.data.length;
+                    if(result['iTotalRecords'] != 0){
+                      result['iTotalDisplayRecords']= result.data[0].data_count;
+                    }else{
+                      result['iTotalDisplayRecords']=0;
+                    }
+                    fnCallback(result);//把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+                  },
+                  error : function(msg) {
+                  }
+              });
+          }
+				//oTable1.fnAdjustColumnSizing();
+
+				//TableTools settings
+				TableTools.classes.container = "btn-group btn-overlap";
+				TableTools.classes.print = {
+					"body": "DTTT_Print",
+					"info": "tableTools-alert gritter-item-wrapper gritter-info gritter-center white",
+					"message": "tableTools-print-navbar"
+				}
+
+				//initiate TableTools extension
+				var tableTools_obj = new $.fn.dataTable.TableTools( oTable1, {
+					"sSwfPath": "/static/swf/copy_csv_xls_pdf.swf",
+
+					"sRowSelector": "td:not(:last-child)",
+					"sRowSelect": "multi",
+					"fnRowSelected": function(row) {
+						//check checkbox when row is selected
+						try { $(row).find('input[type=checkbox]').get(0).checked = true }
+						catch(e) {}
+					},
+					"fnRowDeselected": function(row) {
+						//uncheck checkbox
+						try { $(row).find('input[type=checkbox]').get(0).checked = false }
+						catch(e) {}
+					},
+
+					"sSelectedClass": "success",
+			        "aButtons": [
+						{
+							"sExtends": "copy",
+							"sToolTip": "复制到剪贴板",
+							"sButtonClass": "btn btn-white btn-primary btn-bold",
+							"sButtonText": "<i class='fa fa-copy bigger-110 pink'></i>",
+							"fnComplete": function() {
+								this.fnInfo( '<h3 class="no-margin-top smaller">列表已拷贝</h3>\
+									<p>已拷贝 '+(oTable1.fnSettings().fnRecordsTotal())+' 行到剪贴板.</p>',
+									1500
+								);
+							}
+						},
+
+						{
+							"sExtends": "csv",
+							"sToolTip": "倒出为CSV",
+							"sButtonClass": "btn btn-white btn-primary  btn-bold",
+							"sButtonText": "<i class='fa fa-file-excel-o bigger-110 green'></i>"
+						},
+
+						{
+							"sExtends": "pdf",
+							"sToolTip": "导出为PDF",
+							"sButtonClass": "btn btn-white btn-primary  btn-bold",
+							"sButtonText": "<i class='fa fa-file-pdf-o bigger-110 red'></i>"
+						},
+
+						{
+							"sExtends": "print",
+							"sToolTip": "打印预览",
+							"sButtonClass": "btn btn-white btn-primary  btn-bold",
+							"sButtonText": "<i class='fa fa-print bigger-110 grey'></i>",
+
+							"sMessage": "<div class='navbar navbar-default'><div class='navbar-header pull-left'><a class='navbar-brand' href='#'><small>Optional Navbar &amp; Text</small></a></div></div>",
+
+							"sInfo": "<h3 class='no-margin-top'>Print view</h3>\
+									  <p>Please use your browser's print function to\
+									  print this table.\
+									  <br />Press <b>escape</b> when finished.</p>",
+						}
+			        ]
+			    } );
+				//we put a container before our table and append TableTools element to it
+			    $(tableTools_obj.fnContainer()).appendTo($('.tableTools-container'));
+
+				//also add tooltips to table tools buttons
+				//addding tooltips directly to "A" buttons results in buttons disappearing (weired! don't know why!)
+				//so we add tooltips to the "DIV" child after it becomes inserted
+				//flash objects inside table tools buttons are inserted with some delay (100ms) (for some reason)
+				setTimeout(function() {
+					$(tableTools_obj.fnContainer()).find('a.DTTT_button').each(function() {
+						var div = $(this).find('> div');
+						if(div.length > 0) div.tooltip({container: 'body'});
+						else $(this).tooltip({container: 'body'});
+					});
+				}, 200);
+
+
+
+				//ColVis extension
+				var colvis = new $.fn.dataTable.ColVis( oTable1, {
+					"buttonText": "<i class='fa fa-search'></i>",
+					"aiExclude": [0, 6],
+					"bShowAll": true,
+					//"bRestore": true,
+					"sAlign": "right",
+					"fnLabel": function(i, title, th) {
+						return $(th).text();//remove icons, etc
+					}
+
+				});
+
+				//style it
+				$(colvis.button()).addClass('btn-group').find('button').addClass('btn btn-white btn-info btn-bold')
+
+				//and append it to our table tools btn-group, also add tooltip
+				$(colvis.button())
+				.prependTo('.tableTools-container .btn-group')
+				.attr('title', '显示/隐藏 列').tooltip({container: 'body'});
+
+				//and make the list, buttons and checkboxed Ace-like
+				$(colvis.dom.collection)
+				.addClass('dropdown-menu dropdown-light dropdown-caret dropdown-caret-right')
+				.find('li').wrapInner('<a href="javascript:void(0)" />') //'A' tag is required for better styling
+				.find('input[type=checkbox]').addClass('ace').next().addClass('lbl padding-8');
+
+
+
+				/////////////////////////////////
+				//table checkboxes
+				$('th input[type=checkbox], td input[type=checkbox]').prop('checked', false);
+
+				//select/deselect all rows according to table header checkbox
+				$('#dynamic-table > thead > tr > th input[type=checkbox]').eq(0).on('click', function(){
+					var th_checked = this.checked;//checkbox inside "TH" table header
+
+					$(this).closest('table').find('tbody > tr').each(function(){
+						var row = this;
+						if(th_checked) tableTools_obj.fnSelect(row);
+						else tableTools_obj.fnDeselect(row);
+					});
+				});
+
+				//select/deselect a row when the checkbox is checked/unchecked
+				$('#dynamic-table').on('click', 'td input[type=checkbox]' , function(){
+					var row = $(this).closest('tr').get(0);
+					if(!this.checked) tableTools_obj.fnSelect(row);
+					else tableTools_obj.fnDeselect($(this).closest('tr').get(0));
+				});
+
+
+
+
+					$(document).on('click', '#dynamic-table .dropdown-toggle', function(e) {
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+					e.preventDefault();
+				});
+
+
+				//And for the first simple table, which doesn't have TableTools or dataTables
+				//select/deselect all rows according to table header checkbox
+				var active_class = 'active';
+				$('#simple-table > thead > tr > th input[type=checkbox]').eq(0).on('click', function(){
+					var th_checked = this.checked;//checkbox inside "TH" table header
+
+					$(this).closest('table').find('tbody > tr').each(function(){
+						var row = this;
+						if(th_checked) $(row).addClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', true);
+						else $(row).removeClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', false);
+					});
+				});
+
+				//select/deselect a row when the checkbox is checked/unchecked
+				$('#simple-table').on('click', 'td input[type=checkbox]' , function(){
+					var $row = $(this).closest('tr');
+					if(this.checked) $row.addClass(active_class);
+					else $row.removeClass(active_class);
+				});
+
+
+
+				/********************************/
+				//add tooltip for small view action buttons in dropdown menu
+				$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+
+				//tooltip placement on right or left
+				function tooltip_placement(context, source) {
+					var $source = $(source);
+					var $parent = $source.closest('table')
+					var off1 = $parent.offset();
+					var w1 = $parent.width();
+
+					var off2 = $source.offset();
+					//var w2 = $source.width();
+
+					if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
+					return 'left';
+				}
+
+        $( "#input-size-slider" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['', 'input-sm', 'input-lg', 'input-mini', 'input-small', 'input-medium', 'input-large', 'input-xlarge', 'input-xxlarge'];
+						var val = parseInt(ui.value);
+						$('#form-field-4').attr('class', sizing[val]).val('.'+sizing[val]);
+					}
+				});
+
+				$( "#input-span-slider" ).slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 12,
+					step: 1,
+					slide: function( event, ui ) {
+						var val = parseInt(ui.value);
+						$('#form-field-5').attr('class', 'col-xs-'+val).val('.col-xs-'+val);
+					}
+				});
+
+
+
+				//"jQuery UI Slider"
+				//range slider tooltip example
+				$( "#slider-range" ).css('height','200px').slider({
+					orientation: "vertical",
+					range: true,
+					min: 0,
+					max: 100,
+					values: [ 17, 67 ],
+					slide: function( event, ui ) {
+						var val = ui.values[$(ui.handle).index()-1] + "";
+
+						if( !ui.handle.firstChild ) {
+							$("<div class='tooltip right in' style='display:none;left:16px;top:-6px;'><div class='tooltip-arrow'></div><div class='tooltip-inner'></div></div>")
+							.prependTo(ui.handle);
+						}
+						$(ui.handle.firstChild).show().children().eq(1).text(val);
+					}
+				}).find('span.ui-slider-handle').on('blur', function(){
+					$(this.firstChild).hide();
+				});
+
+
+				$( "#slider-range-max" ).slider({
+					range: "max",
+					min: 1,
+					max: 10,
+					value: 2
+				});
+
+				$( "#slider-eq > span" ).css({width:'90%', 'float':'left', margin:'15px'}).each(function() {
+					// read initial values from markup and remove that
+					var value = parseInt( $( this ).text(), 10 );
+					$( this ).empty().slider({
+						value: value,
+						range: "min",
+						animate: true
+
+					});
+				});
+
+				$("#slider-eq > span.ui-slider-purple").slider('disable');//disable third item
+
+				$('#id-input-file-1 , #id-input-file-2').ace_file_input({
+					no_file:'No File ...',
+					btn_choose:'Choose',
+					btn_change:'Change',
+					droppable:false,
+					onchange:null,
+					thumbnail:false //| true | large
+					//whitelist:'gif|png|jpg|jpeg'
+					//blacklist:'exe|php'
+					//onchange:''
+					//
+				});
+				//pre-show a file name, for example a previously selected file
+				//$('#id-input-file-1').ace_file_input('show_file_list', ['myfile.txt'])
+
+
+				$('#id-input-file-3').ace_file_input({
+					style:'well',
+					btn_choose:'点击上传文件',
+					btn_change:null,
+					no_icon:'ace-icon fa fa-cloud-upload',
+					droppable:true,
+					thumbnail:'small'//large | fit
+					//,icon_remove:null//set null, to hide remove/reset button
+					/**,before_change:function(files, dropped) {
+						//Check an example below
+						//or examples/file-upload.html
+						return true;
+					}*/
+					/**,before_remove : function() {
+						return true;
+					}*/
+					,
+					preview_error : function(filename, error_code) {
+						//name of the file that failed
+						//error_code values
+						//1 = 'FILE_LOAD_FAILED',
+						//2 = 'IMAGE_LOAD_FAILED',
+						//3 = 'THUMBNAIL_FAILED'
+						//alert(error_code);
+					}
+
+				}).on('change', function(){
+					//console.log($(this).data('ace_input_files'));
+					//console.log($(this).data('ace_input_method'));
+				});
+
+        //动态添加model里边的bsp_org的tree内容
+        AddModelElement();
+				//$('#id-input-file-3')
+				//.ace_file_input('show_file_list', [
+					//{type: 'image', name: 'name of image', path: 'http://path/to/image/for/preview'},
+					//{type: 'file', name: 'hello.txt'}
+				//]);
+
+
+				//dynamically change allowed formats by changing allowExt && allowMime function
+				$('#id-file-format').removeAttr('checked').on('change', function() {
+					var whitelist_ext, whitelist_mime;
+					var btn_choose
+					var no_icon
+					if(this.checked) {
+						btn_choose = "Drop images here or click to choose";
+						no_icon = "ace-icon fa fa-picture-o";
+
+						whitelist_ext = ["jpeg", "jpg", "png", "gif" , "bmp"];
+						whitelist_mime = ["image/jpg", "image/jpeg", "image/png", "image/gif", "image/bmp"];
+					}
+					else {
+						btn_choose = "Drop files here or click to choose";
+						no_icon = "ace-icon fa fa-cloud-upload";
+
+						whitelist_ext = null;//all extensions are acceptable
+						whitelist_mime = null;//all mimes are acceptable
+					}
+					var file_input = $('#id-input-file-3');
+					file_input
+					.ace_file_input('update_settings',
+					{
+						'btn_choose': btn_choose,
+						'no_icon': no_icon,
+						'allowExt': whitelist_ext,
+						'allowMime': whitelist_mime
+					})
+					file_input.ace_file_input('reset_input');
+
+					file_input
+					.off('file.error.ace')
+					.on('file.error.ace', function(e, info) {
+						//console.log(info.file_count);//number of selected files
+						//console.log(info.invalid_count);//number of invalid files
+						//console.log(info.error_list);//a list of errors in the following format
+
+						//info.error_count['ext']
+						//info.error_count['mime']
+						//info.error_count['size']
+
+						//info.error_list['ext']  = [list of file names with invalid extension]
+						//info.error_list['mime'] = [list of file names with invalid mimetype]
+						//info.error_list['size'] = [list of file names with invalid size]
+
+
+						/**
+						if( !info.dropped ) {
+							//perhapse reset file field if files have been selected, and there are invalid files among them
+							//when files are dropped, only valid files will be added to our file array
+							e.preventDefault();//it will rest input
+						}
+						*/
+
+
+						//if files have been selected (not dropped), you can choose to reset input
+						//because browser keeps all selected files anyway and this cannot be changed
+						//we can only reset file field to become empty again
+						//on any case you still should check files with your server side script
+						//because any arbitrary file can be uploaded by user and it's not safe to rely on browser-side measures
+					});
+
+				});
+
+			});
+
+      function resultFormatResult(medata) {
+
+          return medata.text;
+      }
+
+      function resultFormatSelection(medata) {
+          return medata.text;
+      }
+
+      function chooseParm(urls, placehold, placeholdid){
+              var choosebusline ={
+                allowClear:true,
+                model:true,
+                data:[],
+                // placeholder: placehold,
+                initSelection:function(element, callback){
+                  callback({'text':placehold, 'id':placeholdid});
+                },
+                minimumInputLength: 1,
+                separator:',,',
+                ajax: {
+                  url:urls,
+                  data: function (term, page) {
+                          $("#select2-chosen-2").empty();
+                          var token = GetToken();
+                          if (token == 'error') {
+                              alert('Token过期');
+                              return false;
+                          }
+                          token = token.data.token;
+                          var postData = {
+                              'token': token,
+                              'q': term,
+                              'page_limit': 10,
+                              'uname':term,
+                          };
+                          postData = JSON.stringify(postData);
+                          return postData;
+                  },
+                  type: 'POST',
+                  dataType: 'json',
+                  results: function (data, page) {
+                    // console.log(data);
+                      return { results: data.data };
+                  },
+                  formatResult: resultFormatResult,
+                  formatSelection: resultFormatSelection,
+                  dropdownCssClass: "bigdrop",
+                  escapeMarkup: function (m) { return m; }
+              }
+          };
+            return choosebusline;
+        };
+
+        var currentEditData = [];
+      function ShowEditModel(full){
+        currentEditData = [];
+        console.log(full);
+        currentEditData = full;
+        $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+
+        $('#name').remove('readonly');
+        $('#fullpath_model').attr('readonly','readonly');
+
+        if (full) {
+          $('#name_model').val(full['busline_name']);
+          $('#fullpath_model').val(full['fullpath']);
+          $('#code_model').val(full['busline_code']);
+          $('#level_model').val(full['busline_level']);
+          $('#desc_model').val(full['description']);
+          $('#state_model').val(full['state']);
+
+          $('#op_owner_model').select2(chooseParm("/api/cluster/getuserdata/",full['owner_op'],full['owner_op_id']));
+          $('#biz_owner_model').select2(chooseParm("/api/cluster/getuserdata/",full['owner_biz'],full['owner_biz_id']));
+
+          $('#input_bsporg').val(full['bsp_org_name']);
+          $('#input_bsporg').attr('placeholder',full['bsp_org_id']);
+          $('#input_parent').val(full['parent_name']);
+          $('#input_parent').attr('placeholder',full['parent_id']);
+
+          // console.log("input_parent:",$('#input_parent').attr('placehold'));
+          // console.log("input_bsporg:",$('#input_bsporg').attr('placehold'));
+
+          $('#name_model').attr('readonly','readonly');
+        }else {
+
+          $('#op_owner_model').select2(chooseParm("/api/cluster/getuserdata/"));
+          $('#biz_owner_model').select2(chooseParm("/api/cluster/getuserdata/"));
+
+          $('#input_bsporg').val('');
+          $('#input_parent').val('');
+          $('#input_bsporg').attr('placeholder','');
+          $('#input_parent').attr('placeholder','');
+        }
+
+        $('#parent_biz_model').on('change', function(){
+          //修改fullPath
+          var fullpath = $('#parent_biz_model').select2('data').fullpath;
+          $('#fullpath_model').val(fullpath);
+        });
+
+
+
+        $('#myModal_edit').modal('show');
+      }
+
+      $('#saveChange_model').on('click', function(){
+
+        var dataDic = {};
+        console.log(currentEditData);
+        if (currentEditData) {
+          dataDic['busline_id'] = currentEditData['busline_id'];
+        }else {
+          dataDic['busline_id'] = '';
+        }
+
+        dataDic['busline_name'] = $('#name_model').val();
+        dataDic['fullpath'] = $('#fullpath_model').val();
+        dataDic['busline_code'] = $('#code_model').val();
+        dataDic['busline_level'] = $('#level_model').val();
+        dataDic['description'] = $('#desc_model').val();
+        dataDic['state'] = $('#state_model').val();
+
+        dataDic['owner_op_id'] = $('#op_owner_model').select2('data').id;
+        dataDic['owner_biz_id'] = $('#biz_owner_model').select2('data').id;
+
+        dataDic['bsp_org_id'] = $('#input_bsporg').attr('placeholder')//document.getElementById('input_bsporg').placeholder;//$('#op_model').select2('data').id;
+        dataDic['parent_id'] = $('#input_parent').attr('placeholder')//document.getElementById('input_parent').placeholder;//$('#parent_biz_model').select2('data').id;
+
+        console.log(dataDic);
+        var result = saveChange(dataDic);
+        if (result.data) {
+          //保存成功后，局部刷新页面
+          var datatable = $('#dynamic-table').dataTable().api();
+          datatable.clear();
+          datatable.draw();
+        }
+        currentEditData = [];
+      });
+
+      $('#addBusline').on('click', function(){
+        currentEditData = [];
+        ShowEditModel();
+        // console.log('addBusline');
+      });
+
+      function SearchBusline(){
+        dataUrl = '/api/busline/searchbuslineinfo/';
+        var datatable = $('#dynamic-table').dataTable().api();
+      	datatable.clear();
+      	datatable.draw();
+      }
+
+      function RequestNextLevel(full){
+
+        console.log(full);
+        if (full.is_leaf == '是') {
+          //叶子节点，不能点击
+          alert('没有下一级了')
+          return;
+        }
+
+        requestLevel = parseInt(full.busline_level) + 1;
+        requestParentID = full.busline_id;
+        dataUrl = '/api/busline/buslineinfo/';
+        var datatable = $('#dynamic-table').dataTable().api();
+      	datatable.clear();
+      	datatable.draw();
+      }
+
+      function goBackToLastLevel(){
+        requestLevel = requestLevel - 1;
+        requestParentID = 0;
+        if (requestLevel<1) {
+          alert('已经没有上一级了！');
+          return;
+        }
+        console.log(requestLevel);
+        dataUrl = '/api/busline/buslineinfo/';
+        var datatable = $('#dynamic-table').dataTable().api();
+      	datatable.clear();
+      	datatable.draw();
+      }
+
+      function ClickBusline(){
+        // if (all_busline_data.length <= 0) {
+        //   setBuslineList();
+        //   return;
+        // }
+        // dealwithBuslineList(all_busline_data);
+        AddBuslineTreeview();
+      }
+
+      function ClickBspOrg(){
+        // if (all_bsporg_data.length <= 0) {
+        //   setBspOrgList();
+        //   return;
+        // }
+        // dealwithBspOrgList(all_bsporg_data);
+        AddBsporgTreeview();
+      }
+
+
+
+</script>
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 工具管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>CMDB助手</span>
+</h5>
+<hr>
+<div>
+<a id="ga" href="javascript:void(0);" class="button radius big">上GA</a>
+<a id="beta" href="javascript:void(0);" class="button radius big">上Beta</a>
+<a id="api" href="javascript:void(0);" class="button radius big">验证api</a>
+<input id="btn" name="value" type="hidden" value="">
+</div>
+<input type="hidden" id="value" value="">
+<div>
+    <textarea id="msg" value="" style="width: 90%;height: 300px"></textarea>
+</div>
+
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/tools.js","js/tools.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

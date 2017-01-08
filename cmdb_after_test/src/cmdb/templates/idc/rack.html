@@ -1,0 +1,88 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 机柜管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>机柜列表</span>
+    {% if show.add %}
+    <a id="addbtn" data-reveal-id="edit" href="javascript:void(0);" class="button radius right tiny">+ 添加机柜</a>
+    {% endif %}
+</h5>
+<hr>
+{% if dc_rack_info %}
+<dl class="tabs tab-title" data-tab>
+    {% for item in dc_rack_info %}
+        <dd class="{{ item.status }}"><a href="#taba{{ item.id }}">{{ item.name }}</a></dd>
+    {% endfor %}
+</dl>
+<div class="tabs-content">
+    {% for item in dc_rack_info %}
+    <div class="content {{ item.status }}" id="taba{{ item.id }}">
+        <div class="row" style="margin:0 0 0 0">
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>机柜名称</th>
+                    <th>机柜高度</th>
+                    <th>所属机房</th>
+                    <th>设备总数</th>
+                    {% if show.modify %}
+                        <th>操作</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for rack_item in item.data %}
+                    <tr>
+                        <td>{{ rack_item.no }}</td>
+                        <td><a href="{{ url_for('rack.showDetail',id=rack_item.id)}}">{{ rack_item.name }}</a></td>
+                        <td>{{ rack_item.height }}</td>
+                        <td>{{ rack_item.dc_name }}</td>
+                        <td>{{ rack_item.device_num }}</td>
+                        {% if show.modify %}
+                        <td>
+                            <a href="javascript:getRackDetail({{rack_item.id}}, {{item.id}});void(0);">修改</a>
+                            {% if  rack_item.followed %}
+                                <a data-options='{"id":{{ rack_item.id }}, "type":"3", "act":"unfollow"}' href='javascript:void(0);'
+                                   >取消关注</a>
+                            {% else %}
+                                <a data-options='{"id":{{ rack_item.id }}, "type":"3"}' href='javascript:void(0);'
+                                   >关注</a>
+                            {% endif%}
+                        </td>
+                     {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div id="edit" class="reveal-modal small" data-reveal>
+    <h4>添加机柜</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+    <input type="text" id="name" placeholder="请输入机柜名称"/>
+    <input type="text" id="height" placeholder="请输入机柜高度"/>
+    <select id="dc_id">
+        <option selected="selected" value="0">请选择所属机房</option>
+        {% for item in dc_info %}
+        <option value="{{ item.id }}">{{ item.name }}</option>
+        {% endfor %}
+    </select>
+    <textarea id="content" placeholder="请输入机柜描述信息"></textarea>
+    <input type="hidden" id="primaryid"/>
+    <a href="javascript:void(0);" id="doadd" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/rack.js","js/rack.js","js/follow.js", "js/alarm.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

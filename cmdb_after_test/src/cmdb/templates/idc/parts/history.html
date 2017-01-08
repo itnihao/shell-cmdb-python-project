@@ -1,0 +1,45 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 配件库管理{% endblock %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='plugins/footable/css/footable.core.css') }}"/>
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<h5 class="content_title">
+    <a id="model" href="{{ url_for('parts.model_memory') }}">型号列表</a>
+    <a id="history" href="{{ url_for('parts.memory') }}" style="margin-left: 10px;">库存列表</a>
+    <span style="margin-left: 10px;">历史详情</span>
+    {% if flag=="out" %}
+    <span class="right">出库详情</span>
+    <a id="in_history" href="{{ url_for('parts.in_history_memory') }}" class="right" style="margin-right: 10px">入库详情</a>
+    {% else %}
+    <a id="out_history" href="{{ url_for('parts.out_history_memory') }}" class="right">出库详情</a>
+    <span class="right" style="margin-right: 10px">入库详情</span>
+    {% endif %}
+</h5>
+<hr>
+{% if flag=="out" %}
+<dl class="tabs" data-tab>
+    <dd {% if type == 'mem' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.out_history_memory') }}">内存</a></dd>
+    <dd {% if type == 'disk' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.out_history_disk') }}">硬盘</a></dd>
+</dl>
+{% else %}
+<dl class="tabs" data-tab>
+    <dd {% if type == 'mem' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.in_history_memory') }}">内存</a></dd>
+    <dd {% if type == 'disk' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.in_history_disk') }}">硬盘</a></dd>
+</dl>
+{% endif %}
+    {% include 'idc/parts/list.html' %}
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/stock_parts_history.js", "js/common-lib.js", "js/idc/parts/stock_parts_history.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

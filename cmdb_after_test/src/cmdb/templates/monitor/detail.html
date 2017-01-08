@@ -1,0 +1,79 @@
+{% extends "public/monitor_layout.html" %}
+{% block title %}监控{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>监控主机:<a href="{{ url_for('host.host_detail',id = host_info.id) }}">{{ host_info.hostname }}</a>
+        <input id="host_id" type="hidden" value="{{ host_info.id }}"/>
+    </span>
+    <span class="right large-2">
+        <select id="time_picker">
+            <option value="0">30分钟</option>
+            <option value="1">60分钟</option>
+            <option value="3">3小时</option>
+            <option value="6">6小时</option>
+            <option value="12">12小时</option>
+            <option value="24">24小时</option>
+        </select>
+    </span>
+</h5>
+<hr>
+<div class="row collapse">
+    <div class="row" style="margin:5px 0px 5px 0px;">
+        <div id="load" class="large-6 columns charts loading"></div>
+        <div id="iowait" class="large-6 columns charts loading"></div>
+        <div id="net" class="large-6 columns charts loading"></div>
+        <div id="mem" class="large-6 columns charts loading"></div>
+    </div>
+    <div class="row" style="position: relative;">
+        <div id="host_ratio" style="height: 230px;"></div>
+        <div id="host_ratio2"></div>
+        <ul class="button-group [radius round] right" id="time_button"
+            style="display:block;position:absolute;top:0px;left:auto;right: 10px;">
+            <li><a data="1" href="javascript:void(0);" class=" tiny  button time ">实时</a></li>
+            <li><a data="90" href="javascript:void(0);" class="tiny button time ">90天</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+{% block custom_body %}
+<div id="app_status_bar" class="sticky">
+    <nav class="top-bar" data-topbar="" role="navigation">
+        <section class="top-bar-section">
+            <ul class="left" style="padding-left: 17%;">
+                <li class="divider" style="padding: 8px 8px;background-color: #a5c17b;"></li>
+                <li><a href="{{ url_for('host.host_detail',id = host_info.id) }}">{{ host_info.hostname }}</a></li>
+                <li class="divider"></li>
+                <li><a href="javascript:void(0);" id="app_bar_cpu">--</a></li>
+                <li class="divider"></li>
+                <li class="hostload_{{ host_info.id }}"><a href="javascript:void(0);">--</a></li>
+                <li class="divider"></li>
+                <li><a href="javascript:void(0);" id="app_bar_mem">--</a></li>
+                <li class="divider"></li>
+                <li><a href="javascript:void(0);" id="app_bar_net">--</a></li>
+                <li class="divider"></li>
+                <li><a href="javascript:void(0);" id="app_bar_disk">--</a></li>
+                <li class="divider"></li>
+                <li><a href="javascript:void(0);" id="app_bar_iowait">--</a></li>
+                <li class="divider"></li>
+                <li><a href="{{ zabbix_url }}" target="_blank">更多监控信息</a></li>
+                <li><span style="border:none" data-tooltip aria-haspopup="true" class="has-tip tip-top"
+                          data-options="show_on:large" title="提示:1分钟刷新一次"> <img src="/static/img/tooltip.png" width="15"
+                                                                                height="15"></span></li>
+            </ul>
+        </section>
+    </nav>
+</div>
+{% endblock %}
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/monitor/detail.css') }}"/>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/monitor_detail.js", "js/common-lib.js","js/monitor/index.js","js/highcharts.js","js/monitor/mycharts.js","js/monitor/detail.js" %}
+
+    <script type="text/javascript" src="/static/js/common-lib.js"></script>
+    <script type="text/javascript" src="/static/js/monitor/index.js"></script>
+    <script type="text/javascript" src="/static/js/monitor/mycharts.js"></script>
+    <script type="text/javascript" src="/static/js/monitor/detail.js"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+{% endassets %}
+{% endblock %}

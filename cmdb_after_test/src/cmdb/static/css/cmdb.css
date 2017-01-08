@@ -1,0 +1,316 @@
+.top-bar {
+    background: none repeat scroll 0 0 #393939 !important;
+}
+.row {
+  max-width: 620.5rem !important;
+}
+.side-nav{
+    background: none repeat scroll 0 0 #e0e0e0 !important;
+    border-right: 1px solid silver !important;
+    padding-left:10px;
+}
+.columns {
+    padding: 0rem !important;
+
+}
+.content{
+    margin-bottom: 1.25rem;
+    padding: 1.25rem;
+}
+.content_title{
+    height: 35px;
+    line-height: 35px;
+}
+.footer{
+    background: none repeat scroll 0 0 #e0e0e0;
+    border-top:1px solid silver;
+    line-height: 28px;
+    height: 28px;
+    font-size: 12px;
+
+}
+.none {
+    display: none;
+}
+#businessLargeMarquee {
+    background: url(../img/hero.jpg) repeat-y left top #064f68;
+    width: 100%;
+    padding-top: 200px;
+    height: 500px;
+    text-align: center;
+}
+#businessLargeMarquee h1,#businessLargeMarquee h4{
+    color:#fff;
+}
+
+.pricing-table .price,.pricing-table .bullet-item {
+    text-align: left; !important
+}
+
+/* Added by roban lee */
+.breadcrumbs {
+    padding: 15px;
+}
+.breadcrumbs > * {
+    font-size:13px
+}
+.progress {
+    margin-bottom: 0;
+    background-color: #bdc3c7;
+    padding:0;
+    height: 18px;
+}
+.meter {
+    color:white;
+    font-size: 11px;
+    padding-left: 5px;
+}
+
+.active-nav {
+    background-color: #2980b9;
+    color: white;
+}
+
+.active-nav a {
+    color:white !important;
+} 
+
+#pools > li >a:hover,#monitor-def-group > a:hover {
+     background-color: #2980b9;
+     color:white !important;
+}
+
+.side-nav >li:not(.heading) >a:hover {
+     background-color: #2980b9;
+     color:white !important;
+}
+
+table > tbody > tr:hover {
+    background-color: #ecf0f1;
+    color:white;
+}
+
+.footable-row-detail-row {
+    width:100%;
+}
+
+
+.footable-row-detail-value {
+    display: block;
+    width:800px;
+}
+
+#back-to-top {
+    position: fixed;
+    right:0px;
+    bottom: 28px;
+    z-index: 9999;
+    width: 45px;
+    height: 45px;
+    display: none;
+    background: #222;
+    background: rgba(0, 0, 0, 0.75);
+    font-size: 16px;
+    text-align: center;
+    line-height: 45px;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    cursor: pointer;
+}
+
+
+
+.rob-tab-ul {
+    list-style: none;
+    margin: 0;
+    padding: 0
+}   
+.rob-tab-ul li {
+    display: inline;
+    color:white;
+    padding:10px 20px 10px 20px;
+    height: 30px;
+    border-radius: 5px 5px 0 0 ;
+    cursor: pointer
+}
+.rob-tab-ul > li.active , .rob-tab-ul li:hover{
+    background-color: white;
+    color:#555;
+}
+.rob-icon {
+    font-size: 18px;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+.rob-icon:hover{
+    color: #ddd;
+    cursor:pointer;
+}
+.tabs{
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0;
+}
+
+.tabs dd, .tabs .tab-title {
+    box-sizing: border-box;
+}
+.tabs dd > a, .tabs .tab-title > a {
+    margin-bottom: -1px;
+    background-color: #ffffff;
+    border-radius: 4px 4px 0 0;
+    line-height: 20px;
+}
+.tabs dd.active a, .tabs .tab-title.active a{
+    border: 1px solid #ddd;
+    border-bottom-color: #fff;
+}
+
+.tooltip-display {
+    border-bottom: 1px dotted #ccc;
+    color: #333;
+    cursor: help;
+    font-weight: bold;
+}
+
+.tooltip-display-wrap {
+    display: none;
+    position: absolute;
+    z-index: 999;
+    font-weight: normal;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    padding: 0.75rem;
+    max-width: 300px;
+    left: 50%;
+    width: 100%;
+    color: white;
+    background: #333333;
+}
+
+.tooltip-display-wrap {
+    max-width: 500px;
+    width: 500px !important;
+}
+
+.tooltip-display-wrap > .nub {
+    display: block;
+    left: 5px;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: solid 5px;
+    border-color: transparent transparent #333333 transparent;
+    top: -10px;
+}
+.cmdb-tiny {
+    padding-top: 0.63rem;
+    padding-right: 1.25rem;
+    padding-bottom: 0.790rem;
+    padding-left: 1.25rem;
+    font-size: 0.75rem; }
+.link_blue {
+    color: #0078a0;
+}
+
+.fail_warning {
+    background-color: #f08a24;
+}
+
+/*搜索css*/
+#search_ul{
+    display: none;
+    cursor: 2;
+    position: absolute;
+    background: url("../css/images/ui-bg_flat_75_ffffff_40x100.png") repeat-x scroll 50% 50% #fff;
+    border: 1px solid #aaa;
+    color: #222;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 1em;
+    width: 220px;
+    z-index: 9999;
+
+    border-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+
+}
+.suggest{
+    padding-left: 20px;
+}
+.nopadding{
+    padding-left: 5px !important;
+}
+#juhesearch{
+    padding-left: 5px !important;
+    height: 30px;
+    width: 220px;
+    border-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.label {
+    padding: 0.17rem 0.35rem;
+}
+.shine_circle{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    /*fonts-size: 20px;*/
+    line-heigth: 16px;
+    text-align: center;
+    color: #f00;
+    text-decoration: none;
+}
+
+.arrow {
+    position: absolute;
+    right: 0;
+    top: 10px;
+    width: 14px !important;
+}
+
+#ubuntu_tips{
+    font-size: 12px;
+}
+
+.fileinput-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+.fileinput-button input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  -ms-filter: 'alpha(opacity=0)';
+  font-size: 200px;
+  direction: ltr;
+  cursor: pointer;
+}
+
+@-webkit-keyframes pulse{
+    from {  -webkit-box-shadow: 0 0 9px #333; -webkit-transform: translateX(3px) rotate(2deg);}
+    50%  {  -webkit-box-shadow: 0 0 18px #91bd09; }
+    to   {  -webkit-box-shadow: 0 0 9px #333; -webkit-transform: translateX(0px) rotate(0deg);}
+}
+@-moz-keyframes pulse{
+    from {  -webkit-box-shadow: 0 0 9px #333; -webkit-transform: translateX(3px) rotate(2deg);}
+    50%  {  -webkit-box-shadow: 0 0 18px #91bd09; }
+    to   {  -webkit-box-shadow: 0 0 9px #333; -webkit-transform: translateX(0px) rotate(0deg);}
+}

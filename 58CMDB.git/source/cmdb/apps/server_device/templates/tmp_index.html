@@ -1,0 +1,206 @@
+{%extends "base.html"%}
+{% block extra_head %}
+<!-- page specific plugin scripts -->
+<link rel="stylesheet" href="{{STATIC_URL}}css/select2.min.css" />
+<script src="{{STATIC_URL}}js/fuelux.wizard.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.validate.min.js"></script>
+<script src="{{STATIC_URL}}js/bootbox.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.maskedinput.min.js"></script>
+<script src="{{STATIC_URL}}js/select2.min.js"></script>
+
+{% endblock %}
+
+{% block Hometitle %}业务资源管理{% endblock %}
+{% block actiontitle %} <a href="#"> 主机管理 </a> {% endblock %}
+
+{% block pagetitle %} <a href="{% url 'assign.server.index' %}"> 服务器资源分配 </a>{% endblock %}
+
+{% block pagecontent %}
+<div class="row">
+<div class="col-xs-12">
+  <!-- PAGE CONTENT BEGINS -->
+  <h4 class="lighter">
+    <i class="ace-icon fa fa-hand-o-right icon-animated-hand-pointer blue"></i>
+    <a href="#modal-wizard" data-toggle="modal" class="pink"> 服务器资源分配流程预览 </a>
+  </h4>
+
+  <div class="hr hr-18 hr-double dotted"></div>
+
+  <div class="widget-box">
+    <div class="widget-header widget-header-blue widget-header-flat">
+      <h4 class="widget-title lighter">相关流程</h4>
+    </div>
+
+    <div class="widget-body">
+      <div class="widget-main">
+        <div id="fuelux-wizard-container">
+          <div>
+            <ul class="steps">
+              <li data-step="1" class="active">
+                <span class="step">1</span>
+                <span class="title">选择服务器</span>
+              </li>
+
+              <li data-step="2">
+                <span class="step">2</span>
+                <span class="title">选择分配对应人员</span>
+              </li>
+            </ul>
+          </div>
+
+          <hr />
+
+          <div class="step-content pos-rel">
+            <div class="step-pane active" data-step="1">
+              <h3 class="lighter block green">这是第一步!!</h3>
+
+            </div>
+
+            <div class="step-pane" data-step="2">
+              <h3 class="lighter block green">这是第二步!!</h3>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+        <div class="wizard-actions">
+          <button class="btn btn-prev">
+            <i class="ace-icon fa fa-arrow-left"></i>
+            上一步
+          </button>
+
+          <button class="btn btn-success btn-next" data-last="完成保存">
+            下一步
+            <i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+          </button>
+        </div>
+      </div><!-- /.widget-main -->
+    </div><!-- /.widget-body -->
+  </div>
+
+  <div id="modal-wizard" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div id="modal-wizard-container">
+          <div class="modal-header">
+            <ul class="steps">
+              <li data-step="1" class="active">
+                <span class="step">1</span>
+                <span class="title">选择服务器</span>
+              </li>
+
+              <li data-step="2">
+                <span class="step">2</span>
+                <span class="title">选择分配对应人员</span>
+              </li>
+
+            </ul>
+          </div>
+
+          <div class="modal-body step-content">
+            <div class="step-pane active" data-step="1">
+              <div class="center">
+                <h4 class="blue">第一步</h4>
+              </div>
+            </div>
+
+            <div class="step-pane" data-step="2">
+              <div class="center">
+                <h4 class="blue">第二步</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer wizard-actions">
+          <button class="btn btn-sm btn-prev">
+            <i class="ace-icon fa fa-arrow-left"></i>
+            Prev
+          </button>
+
+          <button class="btn btn-success btn-sm btn-next" data-last="Finish">
+            Next
+            <i class="ace-icon fa fa-arrow-right icon-on-right"></i>
+          </button>
+
+          <button class="btn btn-danger btn-sm pull-left" data-dismiss="modal">
+            <i class="ace-icon fa fa-times"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div><!-- PAGE CONTENT ENDS -->
+</div><!-- /.col -->
+</div><!-- /.row -->
+
+<script type="text/javascript">
+  jQuery(function($) {
+
+    $('[data-rel=tooltip]').tooltip();
+
+    $(".select2").css('width','200px').select2({allowClear:true})
+    .on('change', function(){
+      $(this).closest('form').validate().element($(this));
+    });
+
+
+    var $validation = false;
+    $('#fuelux-wizard-container')
+    .ace_wizard({
+      //step: 2 //optional argument. wizard will jump to step "2" at first
+      //buttons: '.wizard-actions:eq(0)'
+    })
+    .on('actionclicked.fu.wizard' , function(e, info){
+      if(info.step == 1 && $validation) {
+        if(!$('#validation-form').valid()) e.preventDefault();
+      }
+    })
+    .on('finished.fu.wizard', function(e) {
+      bootbox.dialog({
+        message: "以上信息保存成功!",
+        buttons: {
+          "success" : {
+            "label" : "OK",
+            "className" : "btn-sm btn-primary"
+          }
+        }
+      });
+    }).on('stepclick.fu.wizard', function(e){
+      //e.preventDefault();//this will prevent clicking and selecting steps
+    });
+
+
+    //jump to a step
+    /**
+    var wizard = $('#fuelux-wizard-container').data('fu.wizard')
+    wizard.currentStep = 3;
+    wizard.setState();
+    */
+
+    //determine selected step
+    //wizard.selectedItem().step
+
+
+    $('#modal-wizard-container').ace_wizard();
+    $('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
+
+
+    /**
+    $('#date').datepicker({autoclose:true}).on('changeDate', function(ev) {
+      $(this).closest('form').validate().element($(this));
+    });
+
+    $('#mychosen').chosen().on('change', function(ev) {
+      $(this).closest('form').validate().element($(this));
+    });
+    */
+
+
+    $(document).one('ajaxloadstart.page', function(e) {
+      //in ajax mode, remove remaining elements before leaving page
+      $('[class*=select2]').remove();
+    });
+  })
+</script>
+{% endblock %}

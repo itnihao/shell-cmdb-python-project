@@ -1,0 +1,8 @@
+    <form action="{{url_for('device.category_modify', id=cate.id)}}" method="post">
+        <h5>修改设备分类(ID: {{cate.id}})</h5>
+        <input type="text" name="name" placeholder="名称" value="{{cate.name}}"/>
+        <input type="text" name="short_name" placeholder="简称" value="{{cate.short_name}}"/>
+        <textarea name="note" placeholder="备注">{{cate.note}}</textarea>
+        <button type="submit" class="button tiny right">确定</button>
+    </form>
+    <a class="close-reveal-modal">&#215;</a>

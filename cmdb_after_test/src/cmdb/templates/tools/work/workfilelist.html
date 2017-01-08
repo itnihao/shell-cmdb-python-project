@@ -1,0 +1,300 @@
+{% extends "public/joblayout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.min.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>脚本管理</span>
+</h5>
+<hr>
+<div class="row">
+{#    <a href="javascript:void(0)" id="bn_edit" data-toggle="modal" data-target="#mymodal">#}
+    {% if workShow.workfileadd %}
+        <a href="javascript:void(0)" id="bn_edit">
+            <span class="badge pull-left" style="background-color:#337AB7">添加脚本+</span>
+        </a>
+    {% else %}
+
+        <span class="badge pull-left " style="background-color:grey">无添加权限</span>
+        
+    {% endif %}
+</div>
+<br>
+<div class="row">
+    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered mt20 dataTable no-footer" id="resultTable" role="grid" aria-describedby="resultTable_info" >
+			<thead>
+				<tr role="row">
+                    <th class="text-left sorting_disabled"  >名称</th>
+                    <th class="text-left sorting_disabled"  >文件路径</th>
+                    <th class="text-left sorting_disabled" >文件名</th>
+                    <th class="text-left sorting_disabled" >描述</th>
+                    <th class="text-left sorting_disabled"  >部门</th>
+                    <th class="text-left sorting_disabled" >文件类型</th>
+                    <th class="text-center sorting_disabled" >操作</th>
+                </tr>
+			</thead>
+            <tbody>
+                {% for w in workfile %}
+                <tr role="row" class="odd">
+
+                    <td>{{ w.name }}</td>
+                    <td>{{ w.path }}</td>
+                    <td>{{ w.filename }}</td>
+                    <td>{{ w.description }}</td>
+                    <td>{{ w.department.name }}</td>
+                    <td>{{ w.workType.name }}</td>
+                    <td >
+                        <div class="btn-list btn-xs span7 text-center" >
+                            {% if w.isPre %}
+                                <button class="btn btn-primary btn-xs" onclick="getDetail({{ w.id }})">编辑</button>
+                                <span class="mr5" style="border-left:2px solid #bbb;padding:6px 0 8px 2px; "></span>
+                                <button class="btn btn-danger btn-xs" onclick="wkdelete({{ w.id }})">删除</button>
+                            {% else %}
+                                <span class="badge" style="background-color:grey">无操作权限</span>
+                            {% endif %}
+
+
+                        </div>
+                    </td >
+
+                </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+</div>
+<div class="modal fade form-horizontal" style="height: auto;" id="mymodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+				<h4 id="poptitle" class="modal-title">添加脚本文件</h4>
+			</div>
+			<div class="modal-body">
+                <div style="padding: 0px 100px 10px;">
+                   <form class="bs-example bs-example-form" role="form">
+                      <div class="input-group">
+                         <span class="input-group-addon">&nbsp;&nbsp;&nbsp;名称&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                         <input id="name" type="text" class="form-control" placeholder="name">
+                      </div><br>
+
+                      <div class="input-group">
+                         <span class="input-group-addon">文件路径</span>
+                         <input id="path" type="text" class="form-control" placeholder="path">
+                      </div><br>
+
+                      <div class="input-group">
+                         <span class="input-group-addon">文件名称</span>
+                         <input id="filename" type="text" class="form-control" placeholder="file name">
+                      </div><br>
+
+                       <div class="input-group">
+                         <span class="input-group-addon">&nbsp;&nbsp;&nbsp;描述&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                         <input id="description" type="text" class="form-control" placeholder="description">
+                      </div><br>
+
+                       <div class="input-group" style="height: auto">
+                         <span class="input-group-addon">&nbsp;&nbsp;&nbsp;部门&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                          <select id="dp_id" style="height: 35px">
+                            {% for d in department %}
+                            <option value="{{ d.id }}">{{ d.name}}</option>
+                            {% endfor %}
+
+                        </select>
+                      </div><br>
+
+                      <div class="input-group" style="height: auto">
+                         <span class="input-group-addon" >文件类型</span>
+                         <select id="type_id" style="height: 35px">
+
+                            {% for d in worktype %}
+                            <option value="{{ d.id }}">{{ d.name}}</option>
+                            {% endfor %}
+
+                        </select>
+                      </div><br>
+                      <input type="hidden" id="primaryid"/>
+                   </form>
+                </div>
+			</div>
+			<div class="modal-footer">
+                <div data-alert class="alert-box alert pull-left" id="msgtips" style="display: none;">
+                    This is an alert - alert that is rounded.<a class="close" href="#">x</a>
+{#                    <a href="javascript:void(0);" class="close">&times;</a>#}
+                </div>
+				<button type="button" class="btn btn-warning btn-lg" data-dismiss="modal">close</button>
+				<button id="ok_change" type="button" class="btn btn-primary btn-lg">确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% block customscript %}
+{% assets filters="jsmin", output="asset/runscripts.js","js/jquery-ui.min.js","js/jobplat/runscripts.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+{% endassets %}
+{% endblock %}
+<script>
+     $("#bn_edit").click(function () {
+        $("#poptitle").html("添加脚本文件");
+        $("#name").val("");
+        $("#path").val("");
+        $("#filename").val("");
+        $("#description").val("");
+
+         msgtips("")
+        $("#mymodal").modal('show')
+     });
+
+    $("#ok_change").click(function () {
+        var name = $.trim($("#name").val());
+        var path = $.trim($("#path").val());
+        var filename = $.trim($("#filename").val());
+        var description = $.trim($("#description").val());
+        var dp_id = $.trim($("#dp_id").val());
+        var type_id = $.trim($("#type_id").val());
+        var primaryid = $.trim($("#primaryid").val());
+
+        if (name.length <= 0) {
+            msgtips("请输入名称", 0);
+            return false;
+        } else {
+            msgtips("");
+        }
+        if (path.length <= 0) {
+            msgtips("请输入文件路径", 0);
+            return false;
+        } else {
+            msgtips("");
+        }
+        if (filename.length <= 0) {
+            msgtips("请输入文件名称", 0);
+            return false;
+        } else {
+            msgtips("");
+        }
+        if (dp_id.length <= 0 || dp_id <= 0) {
+            msgtips("请选择所属部门", 0);
+            return false;
+        } else {
+            msgtips("");
+        }
+        if (type_id.length <= 0 || type_id <= 0) {
+            msgtips("请选择文件类型", 0);
+            return false;
+        } else {
+            msgtips("");
+        }
+        if (primaryid && /^[1-9]\d*$/.test(primaryid)) {
+            $.ajax({
+                'url': '/cmdb/work/workfilemodify/'+primaryid,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {'name': name, 'path': path,'filename': filename,'description': description,'type_id': type_id,'dp_id':dp_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        msgtips(res.msg, 0);
+                    } else {
+                        msgtips(res.msg, 1);
+                         $("#mymodal").modal('hide');
+                         window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        }
+        else{
+            $.ajax({
+                'url': '/cmdb/work/workfileadd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {'name': name, 'path': path,'filename': filename,'description': description,'type_id': type_id,'dp_id':dp_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        msgtips(res.msg, 0);
+                    } else {
+                        msgtips(res.msg, 1);
+                         $("#mymodal").modal('hide');
+                         window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        }
+    })
+
+    getDetail= function (id) {
+        $.ajax({
+            'url': '/cmdb/work/workfiledetail/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+
+                    $("#poptitle").html("编辑脚本文件");
+                    msgtips("");
+
+                    $("#name").val(res.name);
+                    $("#path").val(res.path);
+                    $("#filename").val(res.filename);
+                    $("#description").val(res.description);
+                    $("#primaryid").val(res.id);
+                    $("#dp_id").val(res.department.id);
+                    $("#type_id").val(res.workType.id);
+
+                    $("#mymodal").modal('show')
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+    }
+
+      wkdelete=function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/work/workfiledelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        alert('删除失败!')
+                    } else {
+
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+
+     msgtips=function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    }
+</script>
+
+{% endblock %}

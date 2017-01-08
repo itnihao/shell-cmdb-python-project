@@ -1,0 +1,65 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 设备分类管理{% endblock %}
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/device-category.js","js/device-category.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>设备分类列表</span>
+    {% if show.add %}
+    <a href="javascript:void(0);" data-reveal-id="cate-add-form" class="button radius right tiny">+添加分类</a>
+    {% endif %}
+</h5>
+<hr>
+{% with messages = get_flashed_messages(1) %}
+{% if messages %}
+{% for message in messages %}
+<div data-alert class="alert-box {% if message[0] == 1 %}info{% else %}warning{% endif %}">{{ message[1] }}<a href="#" class="close">&times;</a></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th>类别名称</th>
+        <th>简称</th>
+        <!-- <th>备注</th> -->
+        <!-- <th width="95">修改时间</th> -->
+        {% if show.modify %}
+        <th width="90">操作</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for cate in cates %}
+    <tr>
+        <td>{{cate.name}}</td>
+        <td>{{cate.short_name}}</td>
+        <!-- <td>{{cate.note}}</td> -->
+        <!-- <td>{{cate.updated.strftime('%m/%d/%Y')}}</td> -->
+        {% if show.modify %}
+        <td>
+            <a href="{{url_for('device.category_modify', id=cate.id)}}" data-reveal-id="cate-modify-form"
+               data-reveal-ajax="true">修改</a>
+            <!--<a href="{{url_for('device.category_delete', id=cate.id)}}" data-name="{{cate.name}}" data-id="{{cate.id}}" class="device-cate-delete-btn">删除</a>-->
+        </td>
+    {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div id="cate-add-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('device.category_add') }}" method="post">
+        <h5><b>添加新的设备分类</b></h5>
+        <input type="text" name="name" placeholder="名称"/>
+        <input type="text" name="short_name" placeholder="简称"/>
+        <textarea name="note" placeholder="备注"></textarea>
+        <button type="submit" class="button tiny right">确定</button>
+    </form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+<div id="cate-modify-form" class="reveal-modal small" data-reveal></div>
+<form action="#" method="post" id="device-cate-delete-form" style="display: none"></form>
+{% endblock %}

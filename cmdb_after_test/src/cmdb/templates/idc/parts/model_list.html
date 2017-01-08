@@ -1,0 +1,150 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 配件库管理{% endblock %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='plugins/footable/css/footable.core.css') }}"/>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>型号列表</span>
+    <a id="stock" href="{{ url_for('parts.memory') }}" style="margin-left: 10px;">库存列表</a>
+    <a id="history" href="{{ url_for('parts.out_history_memory') }}" style="margin-left: 10px;">历史详情</a>
+</h5>
+<hr>
+<dl class="tabs" data-tab>
+    <dd {% if flag == 'mem' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.model_memory') }}">内存</a></dd>
+    <dd {% if flag == 'disk' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.model_disk') }}">硬盘</a></dd>
+</dl>
+<div class="tabs-content">
+    <div class="content active">
+    {% if flag == 'mem' %}
+    <a id="add_mem" href="javascript:void(0);" class="button radius right tiny" style="margin-left: 10px">+ 添加型号</a>
+    {% else %}
+    <a id="add_disk" href="javascript:void(0);" class="button radius right tiny">+ 添加型号</a>
+    {% endif %}
+    <table class="table" style="width: 100%">
+        <thead>
+            <tr>
+                <th width="10%" data-sort-ignore="true">序号</th>
+                    {% if flag=="mem" %}
+                        <th width="13%" data-type="numeric">型号</th>
+                        <th width="13%" data-type="numeric">容量</th>
+                        <th width="14%" data-type="numeric">频率</th>
+                    {% else %}
+                        <th width="8%" data-type="numeric">容量</th>
+                        <th width="10%" data-type="numeric">尺寸</th>
+                        <th width="8%" data-sort-ignore="true">接口</th>
+                        <th width="9%" data-type="numeric">转速</th>
+                        <th width="9%" data-sort-ignore="true">接口速率</th>
+                    {% endif %}
+                <th width="30" data-sort-ignore="true">录入日期</th>
+                <th width="20" data-sort-ignore="true">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in model_list %}
+            <tr>
+                <td>{{ item.idx }}</td>
+                {% if flag=="mem" %}
+                    <td data-value="{{ item.model[-1] }}">{{ item.model }}</td>
+                    <td data-value="{{ item.storage }}">{{ item.storage }}</td>
+                    <td data-value="{{ item.frequency }}">{{ item.frequency }}</td>
+                {% else %}
+                    <td data-value="{{ item.storage }}">{{ item.storage }}</td>
+                    <td data-value="{{ item.size }}">{{ item.size }}</td>
+                    <td>{{ item.interface }}</td>
+                    {% if item.speed == -1 %}
+                        <td>无</td>
+                    {% else %}
+                        <td data-value="{{ item.speed }}">{{ item.speed }}</td>
+                    {% endif %}
+                    <td>{{ item.if_rate }}</td>
+                {% endif %}
+                <td>{{ item.created }}</td>
+                <td><a href="javascript:void(0);" class="modify" data="{{item.id}}">修改</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div id="add_mem_model" class="reveal-modal small" data-reveal>
+        <h4 id="edit_mem">添加内存型号</h4>
+        <hr>
+        <div data-alert class="alert-box alert" name="msgtips" style="display: none;">
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <select id="mem_storage">
+            <option selected="selected" value="0">请选择内存容量</option>
+            {% for item in data['storage'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <select id="model">
+            <option selected="selected" value="0">请选择内存类型</option>
+            {% for item in data['model'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <select id="frequency">
+            <option selected="selected" value="0">请选择工作频率</option>
+            {% for item in data['frequency'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" id="memoryid"/>
+        <input type="hidden" id="memorytype" name="type" value="mem"/>
+        <a href="javascript:void(0);" id="doadd_mem" class="button  radius tiny right">确认</a>
+        <a href="javascript:void(0);" id="gray_1" class="button radius tiny right" style="display: none; background-color: #808080">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="add_disk_model" class="reveal-modal small" data-reveal>
+        <h4 id="edit_disk">添加硬盘型号</h4>
+        <hr>
+        <div data-alert class="alert-box alert" name="msgtips" style="display: none;">
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <select id="size">
+            <option selected="selected" value="0">请选择硬盘尺寸</option>
+            {% for item in data['size'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <select id="disk_storage">
+            <option selected="selected" value="0">请选择硬盘容量</option>
+            {% for item in data['storage'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <select id="interface">
+            <option selected="selected" value="0">请选择接口</option>
+            {% for item in data['interface'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <select id="speed">
+            <option selected="selected" value="0">请选择转速</option>
+            {% for item in data['speed'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <select id="if_rate">
+            <option selected="selected" value="0">请选择接口速率</option>
+            {% for item in data['if_rate'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" id="disktype" name="type" value="disk"/>
+        <input type="hidden" id="diskid"/>
+        <a href="javascript:void(0);" id="doadd_disk" class="button  radius tiny right">确认</a>
+        <a href="javascript:void(0);" id="gray_2" class="button radius tiny right" style="display: none; background-color: #808080">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/stock_parts_model.js","js/idc/parts/stock_parts_model.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}

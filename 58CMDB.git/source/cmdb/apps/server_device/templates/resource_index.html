@@ -1,0 +1,718 @@
+{% extends base %}
+{% block extra_head %}
+    <!-- page specific plugin scripts -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/dropzone.min.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/chosen.min.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery-ui.custom.min.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}plugin/sweetalert/sweet-alert.css"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/select2.min.css"/>
+    <script src="{{ STATIC_URL }}js/jquery.dataTables.min.js"></script>
+    <script src="{{ STATIC_URL }}js/jquery.dataTables.bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}js/dataTables.tableTools.min.js"></script>
+    <script src="{{ STATIC_URL }}js/dataTables.colVis.min.js"></script>
+    <script src="{{ STATIC_URL }}js/dropzone.min.js"></script>
+    <script src="{{ STATIC_URL }}js/tables.js"></script>
+    <script src="{{ STATIC_URL }}js/bootbox.min.js"></script>
+    <script src="{{ STATIC_URL }}js/select2.min.js"></script>
+    <script src="{{ STATIC_URL }}plugin/sweetalert/sweet-alert.min.js"></script>
+{% endblock %}
+
+{% block Hometitle %}<a href="{% url 'home' %}"> 基础资源管理 </a>{% endblock %}
+{% block actiontitle %} <a href="{% url 'server.index' %}"> 资源池管理 </a> {% endblock %}
+
+{% block pagetitle %} <a href="{% url 'server.index' %}"> 资源池管理 </a>{% endblock %}
+
+{% block pagecontent %}
+
+    <div class="main-container" id="main-container">
+
+        <div class="page-content">
+
+            <div class="col-sm-12 infobox-container">
+                {% for pool in resourcepool %}
+                    <div class="infobox infobox-orange2">
+                        <div class="infobox-icon">
+                            <i class="ace-icon fa fa-tasks"></i>
+                        </div>
+                        <div class="infobox-data">
+                            <button class="btn btn-white btn-danger btn-sm se-btn" type="button"
+                                    value="{{ pool.resource_pool_id }}">{{ pool.resource_pool_name }}</button>
+                            <div class="infobox-content">资源池服务器数量:{{ pool.tresourcepoolserver_set.all.count }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-danger">
+                        <button class="close" data-dismiss="alert">
+                            <i class="ace-icon fa fa-times"></i>
+                        </button>
+                        <i class="ace-icon fa fa-hand-o-down"></i>
+                        没有数据,请创建!
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <!--
+                                            <div class="clearfix">
+                                                <div class="pull-right tableTools-container"></div>
+                                            </div>
+                    -->
+                    <div class="table-header">
+                        资源池管理详细信息
+                        <button class="btn btn-danger btn-sm fenbuline-btn" type="button">分配资源至业务线</button>
+                        <button class="btn btn-danger btn-sm fencluster-btn" type="button">分配资源至集群</button>
+                        <button class="btn btn-success btn-sm free-btn" type="button">释放资源</button>
+                    </div>
+                    <div>
+                        <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th class="center">
+                                    <label class="pos-rel">
+                                        <input type="checkbox" class="ace">
+                                        <span class="lbl"></span>
+                                    </label>
+                                </th>
+                                <th>服务器资产编号</th>
+                                <th>服务器内网IP</th>
+                                <th>设备型号</th>
+                                <th>CPU</th>
+                                <th>DISK</th>
+                                <th>OS类型</th>
+                                <th>已分配业务线</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div><!-- /.page-content -->
+    </div><!-- /.main-container -->
+
+    <!-- Modal -->
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+         id="fenModal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="fenModalLabel">服务器分配</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-xs-12 col-sm-3 no-padding-right">选择业务线</label>
+                            <div class=" col-sm-12">
+                                <input id="busline" style="width:80%;" name="busline"/>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="add_busline"> 保存</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+         id="fenModal2">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="fenModalLabel2">服务器分配</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-xs-12 col-sm-3 no-padding-right">选择集群</label>
+                            <div class=" col-sm-12">
+                                <input id="cluster" style="width:80%;" name="cluster"/>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="add_assoc"> 保存</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- inline scripts related to this page -->
+    <script type="text/javascript">
+        jQuery(function ($) {
+            //initiate dataTables plugin
+            var oTable1 =
+                    $('#dynamic-table')
+                    //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+                            .dataTable({
+                                bStateSave: true,
+                                //  sScrollX: "100%",
+                                //	bAutoWidth: true,
+                                "aoColumns": [
+                                    {
+                                        "mDataProp": "pk",
+                                        "sClass": "center",
+                                        "mRender": function (pk) {
+                                            return "<label class='pos-rel'> <input type='checkbox' class='ace' value='" + pk + "'> <span class='lbl'></span> </label>"
+                                        },
+                                        //"sWidth":"5%",
+                                        "bSortable": false
+                                    },
+                                    {
+                                        "mDataProp": "server_sn",
+                                        "mRender": function (server_sn) {
+                                            return "<a href=#>" + server_sn + "</a>"
+                                        }
+                                    },
+                                    {"mData": "server_inip"},
+                                    {"mData": "server_type"},
+                                    {"mData": "cpu"},
+                                    {"mData": "disk"},
+                                    {"mData": "os_type"},
+                                    {
+                                        "mData": "buline"
+                                    }
+                                ],
+                                "aaSorting": [],
+                                //"aaData": data,
+                                //,
+                                //"sScrollY": "200px",
+                                //"bPaginate": false,
+
+                                //"sScrollX": "100%",
+                                //"sScrollXInner": "120%",
+                                //"bScrollCollapse": true,
+                                //Note: if you are applying horizontal scrolling (sScrollX) on a ".table-bordered"
+                                //you may want to wrap the table inside a "div.dataTables_borderWrap" element
+
+                                //"iDisplayLength": 50
+                            });
+            //oTable1.fnAdjustColumnSizing();
+
+
+            //TableTools settings
+            TableTools.classes.container = "btn-group btn-overlap";
+            TableTools.classes.print = {
+                "body": "DTTT_Print",
+                "info": "tableTools-alert gritter-item-wrapper gritter-info gritter-center white",
+                "message": "tableTools-print-navbar"
+            }
+
+            //initiate TableTools extension
+            var tableTools_obj = new $.fn.dataTable.TableTools(oTable1, {
+                "sSwfPath": "/static/swf/copy_csv_xls_pdf.swf",
+
+                "sRowSelector": "td:not(:last-child)",
+                "sRowSelect": "multi",
+                "fnRowSelected": function (row) {
+                    //check checkbox when row is selected
+                    try {
+                        $(row).find('input[type=checkbox]').get(0).checked = true
+                    }
+                    catch (e) {
+                    }
+                },
+                "fnRowDeselected": function (row) {
+                    //uncheck checkbox
+                    try {
+                        $(row).find('input[type=checkbox]').get(0).checked = false
+                    }
+                    catch (e) {
+                    }
+                },
+
+                "sSelectedClass": "success",
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sToolTip": "复制到剪贴板",
+                        "sButtonClass": "btn btn-white btn-primary btn-bold",
+                        "sButtonText": "<i class='fa fa-copy bigger-110 pink'></i>",
+                        "fnComplete": function () {
+                            this.fnInfo('<h3 class="no-margin-top smaller">列表已拷贝</h3>\
+									<p>已拷贝 ' + (oTable1.fnSettings().fnRecordsTotal()) + ' 行到剪贴板.</p>',
+                                    1500
+                            );
+                        }
+                    },
+
+                    {
+                        "sExtends": "csv",
+                        "sToolTip": "倒出为CSV",
+                        "sButtonClass": "btn btn-white btn-primary  btn-bold",
+                        "sButtonText": "<i class='fa fa-file-excel-o bigger-110 green'></i>"
+                    },
+
+                    {
+                        "sExtends": "pdf",
+                        "sToolTip": "导出为PDF",
+                        "sButtonClass": "btn btn-white btn-primary  btn-bold",
+                        "sButtonText": "<i class='fa fa-file-pdf-o bigger-110 red'></i>"
+                    },
+
+                    {
+                        "sExtends": "print",
+                        "sToolTip": "打印预览",
+                        "sButtonClass": "btn btn-white btn-primary  btn-bold",
+                        "sButtonText": "<i class='fa fa-print bigger-110 grey'></i>",
+
+                        "sMessage": "<div class='navbar navbar-default'><div class='navbar-header pull-left'><a class='navbar-brand' href='#'><small>Optional Navbar &amp; Text</small></a></div></div>",
+
+                        "sInfo": "<h3 class='no-margin-top'>Print view</h3>\
+									  <p>Please use your browser's print function to\
+									  print this table.\
+									  <br />Press <b>escape</b> when finished.</p>",
+                    }
+                ]
+            });
+            //we put a container before our table and append TableTools element to it
+            $(tableTools_obj.fnContainer()).appendTo($('.tableTools-container'));
+
+            //also add tooltips to table tools buttons
+            //addding tooltips directly to "A" buttons results in buttons disappearing (weired! don't know why!)
+            //so we add tooltips to the "DIV" child after it becomes inserted
+            //flash objects inside table tools buttons are inserted with some delay (100ms) (for some reason)
+            setTimeout(function () {
+                $(tableTools_obj.fnContainer()).find('a.DTTT_button').each(function () {
+                    var div = $(this).find('> div');
+                    if (div.length > 0) div.tooltip({container: 'body'});
+                    else $(this).tooltip({container: 'body'});
+                });
+            }, 200);
+
+
+            //ColVis extension
+            var colvis = new $.fn.dataTable.ColVis(oTable1, {
+                "buttonText": "<i class='fa fa-search'></i>",
+                "aiExclude": [0, 6],
+                "bShowAll": true,
+                //"bRestore": true,
+                "sAlign": "right",
+                "fnLabel": function (i, title, th) {
+                    return $(th).text();//remove icons, etc
+                }
+
+            });
+
+            //style it
+            $(colvis.button()).addClass('btn-group').find('button').addClass('btn btn-white btn-info btn-bold')
+
+            //and append it to our table tools btn-group, also add tooltip
+            $(colvis.button())
+                    .prependTo('.tableTools-container .btn-group')
+                    .attr('title', '显示/隐藏 列').tooltip({container: 'body'});
+
+            //and make the list, buttons and checkboxed Ace-like
+            $(colvis.dom.collection)
+                    .addClass('dropdown-menu dropdown-light dropdown-caret dropdown-caret-right')
+                    .find('li').wrapInner('<a href="javascript:void(0)" />') //'A' tag is required for better styling
+                    .find('input[type=checkbox]').addClass('ace').next().addClass('lbl padding-8');
+
+
+            /////////////////////////////////
+            //table checkboxes
+            $('th input[type=checkbox], td input[type=checkbox]').prop('checked', false);
+
+            //select/deselect all rows according to table header checkbox
+            $('#dynamic-table > thead > tr > th input[type=checkbox]').eq(0).on('click', function () {
+                var th_checked = this.checked;//checkbox inside "TH" table header
+
+                $(this).closest('table').find('tbody > tr').each(function () {
+                    var row = this;
+                    if (th_checked) tableTools_obj.fnSelect(row);
+                    else tableTools_obj.fnDeselect(row);
+                });
+            });
+
+            //select/deselect a row when the checkbox is checked/unchecked
+            $('#dynamic-table').on('click', 'td input[type=checkbox]', function () {
+                var row = $(this).closest('tr').get(0);
+                if (!this.checked) tableTools_obj.fnSelect(row);
+                else tableTools_obj.fnDeselect($(this).closest('tr').get(0));
+            });
+
+            $(document).on('click', '#dynamic-table .dropdown-toggle', function (e) {
+                e.stopImmediatePropagation();
+                e.stopPropagation();
+                e.preventDefault();
+            });
+
+            /********************************/
+            //add tooltip for small view action buttons in dropdown menu
+            $('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+
+            //tooltip placement on right or left
+            function tooltip_placement(context, source) {
+                var $source = $(source);
+                var $parent = $source.closest('table')
+                var off1 = $parent.offset();
+                var w1 = $parent.width();
+
+                var off2 = $source.offset();
+                //var w2 = $source.width();
+
+                if (parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2)) return 'right';
+                return 'left';
+            }
+
+            $("#input-size-slider").css('width', '200px').slider({
+                value: 1,
+                range: "min",
+                min: 1,
+                max: 8,
+                step: 1,
+                slide: function (event, ui) {
+                    var sizing = ['', 'input-sm', 'input-lg', 'input-mini', 'input-small', 'input-medium', 'input-large', 'input-xlarge', 'input-xxlarge'];
+                    var val = parseInt(ui.value);
+                    $('#form-field-4').attr('class', sizing[val]).val('.' + sizing[val]);
+                }
+            });
+
+            $("#input-span-slider").slider({
+                value: 1,
+                range: "min",
+                min: 1,
+                max: 12,
+                step: 1,
+                slide: function (event, ui) {
+                    var val = parseInt(ui.value);
+                    $('#form-field-5').attr('class', 'col-xs-' + val).val('.col-xs-' + val);
+                }
+            });
+
+
+            //"jQuery UI Slider"
+            //range slider tooltip example
+            $("#slider-range").css('height', '200px').slider({
+                orientation: "vertical",
+                range: true,
+                min: 0,
+                max: 100,
+                values: [17, 67],
+                slide: function (event, ui) {
+                    var val = ui.values[$(ui.handle).index() - 1] + "";
+
+                    if (!ui.handle.firstChild) {
+                        $("<div class='tooltip right in' style='display:none;left:16px;top:-6px;'><div class='tooltip-arrow'></div><div class='tooltip-inner'></div></div>")
+                                .prependTo(ui.handle);
+                    }
+                    $(ui.handle.firstChild).show().children().eq(1).text(val);
+                }
+            }).find('span.ui-slider-handle').on('blur', function () {
+                $(this.firstChild).hide();
+            });
+
+
+            $("#slider-range-max").slider({
+                range: "max",
+                min: 1,
+                max: 10,
+                value: 2
+            });
+
+            $("#slider-eq > span").css({width: '90%', 'float': 'left', margin: '15px'}).each(function () {
+                // read initial values from markup and remove that
+                var value = parseInt($(this).text(), 10);
+                $(this).empty().slider({
+                    value: value,
+                    range: "min",
+                    animate: true
+
+                });
+            });
+
+            $("#slider-eq > span.ui-slider-purple").slider('disable');//disable third item
+
+            $('.se-btn').on("click", function (event) {
+                var value = $(this).attr('value');
+                token = GetToken();
+                if (token == 'error') {
+                    sweetAlert("O NO !", "TOKEN 失效!", "error");
+                    return false;
+                }
+                token = token.data.token;
+                //token for api
+                data = {
+                    'token': token,
+                    'resource_pool_id': value
+                };
+                data = JSON.stringify(data);
+                url = '/api/server/getresoursepoolserver/';
+                server = ajax(url, 'POST', data, 'json');
+                var datatable = $('#dynamic-table').dataTable().api();
+                datatable.clear();
+                datatable.rows.add(server.data);
+                datatable.draw();
+            })
+
+            function resultFormatResult(medata) {
+
+                return medata.text;
+            }
+
+            function resultFormatSelection(medata) {
+                return medata.text;
+            }
+
+            function chooseParm(urls, placehold) {
+                var choosebusline = {
+                    allowClear: true,
+                    data: [],
+                    placeholder: placehold,
+                    minimumInputLength: 2,
+                    separator: ',,',
+                    ajax: {
+                        url: urls,
+                        data: function (term, page) {
+                            //  $("#select2-chosen-2").empty();
+                            var token = GetToken();
+                            if (token == 'error') {
+                                sweetAlert("O NO !", "TOKEN 失效!", "error");
+                                return false;
+                            }
+                            token = token.data.token;
+                            var postData = {
+                                'token': token,
+                                'q': term,
+                                'page_limit': 5,
+                                'busline': $('#busline').val(),
+                            };
+                            postData = JSON.stringify(postData);
+                            return postData;
+                        },
+                        type: 'POST',
+                        dataType: 'json',
+                        results: function (data, page) {
+                            return {results: data.data};
+                        },
+                        formatResult: resultFormatResult,
+                        formatSelection: resultFormatSelection,
+                        dropdownCssClass: "bigdrop",
+                        escapeMarkup: function (m) {
+                            return m;
+                        }
+                    }
+                };
+                return choosebusline;
+            };
+
+            var server_id_list = [];
+            $('.fenbuline-btn').on("click", function (event) {
+                server_id_list = [];
+                $("input[type=checkbox]:checked").each(function () {
+                    if (this.value != "on") {
+                        server_id_list[server_id_list.length] = this.value;
+                    }
+                });
+                if (server_id_list.length < 1) {
+                    sweetAlert("O NO !", "请选择服务器!", "error");
+                    return;
+                }
+                else {
+                    $('#fenModal').modal('show');
+                    $('#busline').select2(chooseParm("/api/busline/list/", "请输入业务线名称"));
+                    //$('#cluster').select2(chooseParm("/api/cluster/list/","请输入集群名称"));
+                }
+            });
+
+            $('.fencluster-btn').on("click", function (event) {
+                server_id_list = [];
+                $("input[type=checkbox]:checked").each(function () {
+                    if (this.value != "on") {
+                        server_id_list[server_id_list.length] = this.value;
+                    }
+                });
+                if (server_id_list.length < 1) {
+                    sweetAlert("O NO !", "请选择服务器!", "error");
+                    return;
+                }
+                else {
+                    $('#fenModal2').modal('show');
+                    //$('#busline').select2(chooseParm("/api/busline/list/","请输入业务线名称"));
+                    $('#cluster').select2(chooseParm("/api/cluster/list/", "请输入集群名称"));
+                }
+            });
+
+            $('.free-btn').on("click", function (event) {
+                server_id_list = [];
+                $("input[type=checkbox]:checked").each(function () {
+                    if (this.value != "on") {
+                        server_id_list[server_id_list.length] = this.value;
+                    }
+                });
+                if (server_id_list.length < 1) {
+                    sweetAlert("O NO !", "请选择服务器!", "error");
+                    return;
+                }
+                else {
+                    //  关联的业务线id
+                    //var busline_id = $('#busline').val();
+                    var cluster_id = $('#cluster').val();
+                    //server_id_list
+                    //  关联的机器信息
+                    var token = GetToken();
+                    if (token == 'error') {
+                        sweetAlert("O NO !", "TOKEN 失效!", "error");
+                        return false;
+                    }
+                    token = token.data.token;
+                    var postData = {'server_items': server_id_list, 'cluster_id': cluster_id, 'token': token};
+                    postData = JSON.stringify(postData);
+
+                    $.ajax({
+                        url: '/api/clusterserver/delclusterserver/',
+                        type: 'POST',
+                        data: postData,
+                        dataType: 'json',
+                        success: function (data) {
+                            var data = data.data;
+                            var len = data.error_row.length;
+                            if (len == 0) {
+                                swal({
+                                    title: '释放成功',
+                                    type: "success",
+                                    showCancelButton: false,
+                                    cancelButtonText: 'cancel',
+                                    confirmButtonClass: "btn-info",
+                                    closeOnConfirm: true
+                                }, function () {
+                                    location.href = '/pool/';
+                                    return false
+                                });
+                            } else if (len >= 1) {
+                                swal({
+                                    title: data.error_row + " 服务器释放失败",
+                                    type: "warning",
+                                    showCancelButton: true,
+                                    cancelButtonText: 'cancel',
+                                    confirmButtonClass: "btn-info",
+                                    closeOnConfirm: false
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#add_assoc').on('click', function (event) {
+                //  关联的业务线id
+                //var busline_id = $('#busline').val();
+                var cluster_id = $('#cluster').val();
+                if (cluster_id == '') {
+                    sweetAlert("O NO !", "请选择集群！", "error");
+                }
+                //server_id_list
+                //  关联的机器信息
+                var token = GetToken();
+                if (token == 'error') {
+                    sweetAlert("O NO !", "TOKEN 失效!", "error");
+                    return false;
+                }
+                token = token.data.token;
+                var postData = {'server_items': server_id_list, 'cluster_id': cluster_id, 'token': token};
+                postData = JSON.stringify(postData);
+
+                $.ajax({
+                    url: '/api/clusterserver/addclusterserver/',
+                    type: 'POST',
+                    data: postData,
+                    dataType: 'json',
+                    success: function (data) {
+                        var data = data.data;
+                        var len = data.error_row.length;
+                        if (len == 0) {
+                            swal({
+                                title: '关联成功',
+                                type: "success",
+                                showCancelButton: false,
+                                cancelButtonText: 'cancel',
+                                confirmButtonClass: "btn-info",
+                                closeOnConfirm: true
+                            }, function () {
+                                location.href = '/pool/';
+                                return false
+                            });
+                        } else if (len >= 1) {
+                            swal({
+                                title: data.error_row + " 服务器分配失败",
+                                type: "warning",
+                                showCancelButton: false,
+                                cancelButtonText: 'cancel',
+                                confirmButtonClass: "btn-info",
+                                closeOnConfirm: false
+                            });
+                        }
+                    }
+                });
+            });
+
+            $('#add_busline').on('click', function (event) {
+                //  关联的业务线id
+                var busline_id = $('#busline').val();
+                //var cluster_id = $('#cluster').val();
+                var token = GetToken();
+                if (token == 'error') {
+                    sweetAlert("O NO !", "TOKEN 失效!", "error");
+                    return false;
+                }
+                token = token.data.token;
+                var postData = {'server_items': server_id_list, 'busline_id': busline_id, 'token': token};
+                postData = JSON.stringify(postData);
+
+                $.ajax({
+                    url: '/api/clusterserver/addclusterbulineserver/',
+                    type: 'POST',
+                    data: postData,
+                    dataType: 'json',
+                    success: function (data) {
+                        var data = data.data;
+                        var len = data.error_row.length;
+                        if (len == 0) {
+                            swal({
+                                title: '关联成功',
+                                type: "success",
+                                showCancelButton: false,
+                                cancelButtonText: 'cancel',
+                                confirmButtonClass: "btn-info",
+                                closeOnConfirm: true
+                            }, function () {
+                                location.href = '/pool/';
+                                return false
+                            });
+                        } else if (len >= 1) {
+                            swal({
+                                title: data.error_row + " 服务器分配失败",
+                                type: "warning",
+                                showCancelButton: true,
+                                cancelButtonText: 'cancel',
+                                confirmButtonClass: "btn-info",
+                                closeOnConfirm: false
+                            });
+                        }
+                    }
+                });
+            });
+
+
+        })
+    </script>
+{% endblock %}

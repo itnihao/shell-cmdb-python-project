@@ -1,0 +1,78 @@
+{% extends "public/sa_layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>域名任务</span>
+</h5>
+<hr>
+{% if data %}
+<div class="tabs-content">
+    <table style="width: 100%">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>申请人</th>
+        <th>域名</th>
+        <th>
+           <span data-tooltip aria-haspopup="true" class="has-tip" title="IP 或 域名">指向</span>
+        </th>
+        <th>备注</th>
+        <th>时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+    <tr>
+        <td>{{item.idx}}</td>
+        <td>{{item.cn_name}}</td>
+        <td>{{item.domain}}</td>
+        <td>{{item.value}}</td>
+        <td title="{{ item.content }}">
+            {% if item.content_len > 15 %}
+                {{ item.content_part }}...
+            {% else %}
+                {{ item.content_part }}
+            {% endif %}
+        </td>
+        <td>{{item.created}}</td>
+        <td>
+            {% if item.status == 1 %}
+            <a href="javascript:void(0);" class="pass" data="{{ item.id }}">通过</a>&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" class="reject" data="{{ item.id }}">驳回</a>
+            {% elif item.status == 2 %}
+                已驳回
+            {% else %}
+                已通过
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="pagination-centered right">
+    <ul class="pagination">
+        <li class="arrow">当前{{ extendinfo['cur_total'] }}条,共{{ extendinfo['total'] }}条</li>
+        {% if p.previous %}
+            <li class="arrow"><a href="{{ url_for('dns.task_my') }}?p=1">&laquo;</a></li>
+        {% endif %}
+        {% for page in p.pages %}
+            {% if page == p.current %}
+                <li class="current"><a href="">{{ page }}</a></li>
+            {% else %}
+                <li><a href="{{ url_for('dns.task_my') }}?p={{ page }}">{{ page }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if p.next %}
+            <li class="arrow"><a href="{{ url_for('dns.task_my') }}?p={{ p.page_num }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+</div>
+{% else %}
+        您目前没有待审批的任务
+{% endif %}
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/dns/task.js","js/sa/dns/task.js","js/jquery-ui.min.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

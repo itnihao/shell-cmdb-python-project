@@ -1,0 +1,178 @@
+{% extends "public/layout.html" %}
+{% block main %}
+{% if current_user.host_approvaler %}
+<dl class="tabs" data-tab>
+    {% if flag == "happroval" %}
+    <dd><a id="list2" href="javascript:void(0) ;" data="{{ url_for('user.papproval') }}">权限审批</a></dd>
+    <dd class="active"><a href="javascript:void(0);">主机审批</a></dd>
+    {% else %}
+    <dd class="active"><a href="javascript:void(0);">权限审批</a></dd>
+    <dd><a id="list1" href="javascript:void(0) ;" data="{{ url_for('user.happroval') }}">主机审批</a></dd>
+    {% endif %}
+</dl>
+{% else %}
+<h5 class="content_title">
+    <span>服务器权限审批</span>
+</h5>
+{% endif %}
+
+<div class="tabs-content">
+    <div class="content active">
+    {% if info %}
+        {% if flag == "happroval" %}
+            <table style="width: 100%">
+            <thead>
+            <tr>
+                <th width="5%">编号</th>
+                <th width="7%">申请人</th>
+                <th width="6%">机房</th>
+                <th width="10%">主机类型</th>
+                <th width="14%">配置</th>
+                <th width="5%">数量</th>
+                <th width="25%">描述</th>
+                <th width="17%">申请时间</th>
+                <th width="11%">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in info %}
+            <tr title="POOL:{{ item.pool_name }}&#10描述:{{ item.content }}">
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.idc }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.config|safe }}</td>
+                <td>{{ item.num }}</td>
+                <td>
+                    {% if item.content_len > 33 %}
+                    {{ item.short_content }}...
+                    {% else %}
+                    {{ item.short_content }}
+                    {% endif %}
+                </td>
+                <td>{{ item.date }}</td>
+                <td>
+                    {% if item.status == 1 and current_user_id==item.approver_id %}
+                        {% if item.type_id == 2 %}
+                            <a href="javascript:host_pass({{item.id}});void(0);" style="margin-left: 5px; margin-bottom: 0;">通过&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                        {% elif item.type_id == 1 %}
+                            <a href="{{ url_for('host.allocate',apply_id=item.id,pool_id=item.pool_id,idc=item.idc_id,cpu=item.cpu,mem=item.mem,disk=item.disk) }}"
+                            style="margin-left: 5px; margin-bottom: 0;">通过&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                        {% endif %}
+                            <a href="javascript:void(0)" apply_id="{{ item.id }}" name="host_reject">驳回</a>
+                    {% elif item.status == 1 and current_user_id!=item.approver_id %}
+                    审核中
+                    {% elif item.status == 2 %}
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="{{ item.note }}">已驳回</span>
+                    {% else %}
+                    已通过
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% elif flag == "papproval" %}
+            <table style="width: 100%" >
+                <thead>
+                <tr>
+                    <th width="5%">编号</th>
+                    <th width="8%">申请人</th>
+                    <th width="14%"><span data-tooltip aria-haspopup="true" class="has-tip" title="主机或POOL">名称</span></th>
+                    <th width="8%">权限</th>
+                    <th width="8%">期限</th>
+                    <th width="25%">描述</th>
+                    <th width="18%">申请时间</th>
+                    <th width="11%">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in info %}
+                    <tr>
+                        <td>{{ item.idx }}</td>
+                        <td>{{ item.cn_name }}</td>
+                        {% if item.type == 1 %}
+                        <td><a href="{{ url_for('host.host_detail',id=item.target_id) }}">{{ item.name }}</a></td>
+                        {% else %}
+                        <td><a href="{{ url_for('pool.detail',id=item.target_id) }}">{{ item.name }}</a></td>
+                        {% endif %}
+                        <td>{{ item.role }}</td>
+                        <td>{{ item.days }}天</td>
+                        <td title="{{ item.content }}">
+                            {{ item.short_content }}
+                        </td>
+                        <td>
+                            {{ item.created }}
+                        </td>
+                        <td>
+                            {% if item.status == 1 %}
+                                <a href="javascript:void(0);" data1="{{ item.id }}" data2="{{ item.type }}" class="pass" style="margin-left: 5px; margin-bottom: 0;">通过&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                                <a href="javascript:void(0);" data1="{{ item.id }}" data2="{{ item.type }}" name="host-bastion-reject" class="">驳回</a>
+                            {% elif item.status == 2 %}
+                                已驳回
+                            {% else %}
+                                已通过
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% else %}
+        <hr style="visibility: hidden;"/>
+        您当前没有需要审批的主机
+    {% endif %}
+    </div>
+</div>
+
+<div class="pagination-centered right">
+    <ul class="pagination">
+        {% if p.previous %}
+        {% if flag == "happroval" %}
+        <li class="arrow"><a href="{{ url_for('user.happroval') }}?p=1">&laquo;</a></li>
+        {% else %}
+        <li class="arrow"><a href="{{ url_for('user.papproval') }}?p=1">&laquo;</a></li>
+        {% endif %}
+        {% endif %}
+        {% for page in p.pages %}
+        {% if page == p.current %}
+        <li class="current"><a href="">{{ page }}</a></li>
+        {% else %}
+        <li>
+            {% if flag == "papproval" %}
+            <a href="{{ url_for('user.papproval') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% else %}
+            <a href="{{ url_for('user.happroval') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% endif %}
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if p.next %}
+        <li class="arrow">
+            {% if flag == "happroval" %}
+            <a href="{{ url_for('user.happroval') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% else %}
+            <a href="{{ url_for('user.papproval') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% endif %}
+        </li>
+        {% endif %}
+    </ul>
+</div>
+
+<div id="host-reject" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('user.reject_apply') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="host-bastion-reject" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('user.reject_bastion_apply') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/ucenter/my_approval.js","js/jquery-ui.min.js", "js/myapproval.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

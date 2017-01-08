@@ -1,0 +1,85 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>编辑工单</span>
+    <a  href="{{ url_for('tickets.detail',id = ticket.id ) }}" class="button radius right tiny"><< 返回</a>
+</h5>
+<hr>
+{% if tasks %}
+<div class="tabs-content">
+    <form method="post" action="{{ url_for('tickets.tickets_mod',id = ticket.id ) }}">
+        <div class="row tasks">
+            {% for opened_item in tasks['opened'] %}
+            <div style="margin: 0 0 0 0;" class="row">
+                <div class="large-12 columns">
+                    <dl data-accordion="" class="accordion">
+                        <dd class="accordion-navigation">
+                            <a class="tickets_bg" href="#ticket_{{ opened_item.idx }}">任务{{ opened_item.idx }}</a>
+                            <div class="content active" id="ticket_{{ opened_item.idx }}">
+                                <div class="row">
+                                    <table class="table" style="border: none; width: 100% ">
+                                        <tbody>
+                                        <tr>
+                                            <td class="large-1 columns">工单分类</td>
+                                            <td class="large-11 columns">
+                                                <select data="{{ opened_item.idx }}" class="large-3 columns cats" name="cat[]">
+                                                    <option value="0">请选择工单分类</option>
+                                                    {% for cat_item in cats %}
+                                                    <option value="{{ cat_item['id'] }}" {% if cat_item['id'] == opened_item.tickets_cat_id %} selected="selected" {% endif %}>{{ cat_item['name'] }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="large-1 columns">工单描述</td>
+                                            <td class="large-11 columns">
+                                                <input type="hidden" value="{{ opened_item.id }}" name="task_ids[]"/>
+                                                <textarea class="task_content" name="content[]">{{ opened_item.content }}</textarea>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            {% endfor %}
+            {% for closed_item in tasks['closed'] %}
+            <div class="row" style="margin: 0 0 0 0;">
+                <div class="large-12 columns">
+                    <dl class="accordion" data-accordion>
+                        <dd class="accordion-navigation">
+                            <a href="#ticket_{{ closed_item.idx }}" class="tickets_bg">
+                                任务{{ closed_item.idx }} 分类:{{closed_item.tickets_cat_name }} 处理人:{{ closed_item.manage_cname }} 状态:{{ closed_item.status_desc }}
+                            </a>
+                            <div id="ticket_{{ closed_item.idx }}" class="content">
+                                <div class="row">
+                                    {{ closed_item.content }}
+                                </div>
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <a href="javascript:void(0);" class="button  radius tiny right">确认</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
+{% block customstyle %}
+{% assets filters="cssmin", output="asset/tickets/add.css", "css/sa/tickets/add.css"%}
+<link rel="stylesheet" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/sa/tickets/mod.js","js/kindeditor/kindeditor.js","js/sa/tickets/mod.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% endblock %}

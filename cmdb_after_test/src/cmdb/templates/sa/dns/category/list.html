@@ -1,0 +1,84 @@
+{% extends "public/sa_layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>域名ZONE</span>
+    <a id="add" href="javascript:void(0);" class="button radius right tiny">+ 添加ZONE</a>
+</h5>
+<hr>
+{% if data %}
+<table style="width: 100%">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>ZONE</th>
+        <th>类型</th>
+        <th>可见否?</th>
+        <th>备注</th>
+        <th>审批人</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+    <tr>
+        <td>{{ item.idx }}</td>
+        <td>{{ item.zone }}</td>
+        <td>{{ item.type_descri }}</td>
+        <td>{{ item.display_descri }}</td>
+        <td title="{{ item.content }}">
+            {% if item.content_len > 15 %}
+                {{ item.content_part }}...
+            {% else %}
+                {{ item.content_part }}
+            {% endif %}
+        </td>
+        <td>{{ item.approve_name }}</td>
+        <td><a href="javascript:void(0);" class="del" data="{{ item.id }}">删除</a>&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" class="mod" data="{{ item.id }}">修改</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<div id="dns_cat" class="reveal-modal small" data-reveal>
+    <h3 id="edit">添加ZONE</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;"></div>
+    <div class="row">
+        <input type="text" name="zone" id="zone" placeholder="请输入ZONE名称" value="">
+
+        <select id="display" name="display">
+            <option selected="selected" value="1">对外可见</option>
+            <option value="0">对外不可见</option>
+        </select>
+
+        <select id="type" name="type">
+            <option selected="selected" value="-1">请选择使用范围</option>
+            <option value="0">OFFICE</option>
+            <option value="1">IDC外部</option>
+            <option value="2">IDC内部</option>
+        </select>
+
+        <input type="text" id="manage_cname" placeholder="请输入该域名的审批人">
+        <input type="hidden" id="manage_uid" value="0">
+
+        <textarea id="content" name="content" placeholder="请输入备注" style="resize: none;" rows="5"></textarea>
+        <input type="hidden" id="zone_cat_id">
+        <a id="doadd" href="javascript:void(0);" class="button radius tiny right">确认</a>
+    </div>
+    <a class="close-reveal-modal" id="closebtn">&#215;</a>
+</div>
+{% endblock %}
+
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+    <style type="text/css">
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+    </style>
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/dns/category/list.js","js/sa/dns/category/list.js", "js/jquery-ui.min.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

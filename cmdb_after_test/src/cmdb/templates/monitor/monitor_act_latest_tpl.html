@@ -1,0 +1,60 @@
+<!-- 
+	Template Name: moitor_act_latest_tpl
+	Author : Robanlee@gmail.com
+-->
+
+<dl data-accordion="" class="accordion">
+    {% for group in ['system','disk','memory','net','io','other'] %}
+    <dd class="accordion-navigation dd-{{group}}">
+        <a href="#pannel-{{group}}">{{group}}</a>
+        <div class="content content-extend" id="pannel-{{group}}" style="padding:0">
+            <table style="width: 100%;border:none;margin-bottom:0"  class="table" >
+                <thead>
+                    <tr>
+                        <th width="30%" data-sort-initial="true" >
+                            项目名称 {{group}}
+                        </th>
+                        <th>
+                            项目值
+                        </th>
+                        <th width="100">
+                            浮度
+                        </th>
+                        <th width="20%">
+                            采样时间
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if  data[group]  %}
+                    {% for item in data[group] if item.value %}
+                    <tr>
+                        <td> {{ item.key_ }} </td>
+                        <td>
+                        {{ item.value and item.value or '-'}}
+                        <font  color="{{colorScheme[item.v_unit] and colorScheme[item.v_unit] or 'black'}}"><b>{{item.v_unit and  item.v_unit or ( group== 'disk' and '%' or '') }} </b></font>
+                        </td>
+                        <td>
+                            {% if item.rate  %}
+                            <font color="{{item.rate > 0 and 'blue' or 'red'}}">
+                            {{ item.rate }} %  {{item.rate > 0 and ' ↑' or '↓'}}
+                            </font>
+                            {%else%}
+                            -
+                            {%endif%}
+                        </td>
+                        <td> {{ item.lastclock and item.lastclock or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5">抱歉,没有查询到数据</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+
+            </table>
+        </div>
+    </dd>
+    {%endfor%}
+</dl>

@@ -1,0 +1,326 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/host/apply.css') }}"/>
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+
+    .ui-autocomplete {
+        z-index: 9000;
+    }
+
+    .host_apply label {
+        text-align: right;
+        margin-right: 50px;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>主机申请</span>
+</h5>
+<hr>
+<form action="{{ url_for('host.apply') }}" method="post" id="apply_host">
+<div class="large-10 columns host_apply">
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label>机房:</label>
+    </div>
+    <div class="small-8 columns">
+        <select id="idc">
+            {% for i in idc_info %}
+            <option class="idc_name"  value = "{{ i.id }}" >{{ i.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="small-2 columns">
+        &nbsp;
+    </div>
+</div>
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label>类型:</label>
+    </div>
+    <div class="small-8 columns">
+        <select id="host_type">
+            {% for k,v in host_type.items() %}
+                {% if k == "2" %}
+                    <option selected="selected" value={{k}}>{{v}}</option>
+                {% else %}
+                    <option  value={{k}} >{{v}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="small-2 columns">
+        &nbsp;
+    </div>
+</div>
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label id="os_lable">系统:</label>
+    </div>
+    <div class="small-8 columns">
+        <select id="os">
+            {% for o in os_type %}
+            <option value="{{ o }}">{{ o }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="small-2 columns">
+        &nbsp;
+    </div>
+</div>
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label>POOL:</label>
+    </div>
+    <div class="small-8 columns">
+        <select id="pool">
+            <option value="-1">请选择您主机要入的pool</option>
+            {% for p in pool_info %}
+                {% if p.source != 0 %}
+                    <option value="{{ p.id }}"> {{ p.source_desc }}-{{ p.name }}</option>
+                {% else %}
+                    <option value="{{ p.id }}"> {{ p.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="small-2 columns">
+        &nbsp;
+    </div>
+</div>
+<div id="virtual_host">
+    <span id="virtual_span" style="display: block">
+    <div class="row collapse">
+        <div class="small-2 columns">
+            <label>CPU:</label>
+        </div>
+        <div class="small-8 columns">
+            <div class="row">
+                <div id="cpu_slider">
+                    <a href="javascript:void(0);" class="ui-slider-handle ui-state-default ui-corner-all"
+                       style="left: 33.3333%; margin-left: 0px;"></a>
+                </div>
+            </div>
+            <div class="row">
+                <div id="cpupro" class="cpu">
+                    <h2 class="cpu_local" id="cpu_one">2核</h2>
+
+                    <h2 id="cpu_two">4核</h2>
+
+                    <h2 id="cpu_three">8核</h2>
+
+                    <h2 id="cpu_four">16核</h2>
+                    <input type="hidden" value="2" id="cpu_amount" name="cpuinfo">
+                </div>
+            </div>
+        </div>
+        <div class="small-2 columns">
+        &nbsp;
+    </div>
+    </div>
+    <div class="row collapse">
+        <div class="small-2 columns">
+            <label>内存:</label>
+        </div>
+        <div class="small-8 columns">
+            <div class="row">
+                <div id="mem_slider">
+                    <a href="javascript:void(0);" class="ui-slider-handle ui-state-default ui-corner-all"
+                       style="left: 33.3333%; margin-left: 0px;"></a>
+                </div>
+            </div>
+            <div class="row">
+                <div id="mempro" class="mem">
+                    <h2 class="mem_local" id="mem_one">2G</h2>
+
+                    <h2 id="mem_two">4G</h2>
+
+                    <h2 id="mem_three">8G</h2>
+
+                    <h2 id="mem_four">16G</h2>
+                    <input type="hidden" value="2" id="mem_amount" name="meminfo">
+                </div>
+            </div>
+        </div>
+        <div class="small-2 columns">
+            &nbsp;
+        </div>
+    </div>
+    <div class="row collapse">
+        <div class="small-2 columns">
+            <label>硬盘:</label>
+        </div>
+        <div class="small-8 columns">
+            <div class="row">
+                <div id="disk_slider">
+                    <a href="javascript:void(0);" class="ui-slider-handle ui-state-default ui-corner-all"
+                       style="left: 33.3333%; margin-left: 0px;"></a>
+                </div>
+            </div>
+            <div class="row">
+                <div id="diskpro" class="disk">
+                    <h2 class="disk_local" id="disk_one">50G</h2>
+
+                    <h2 id="disk_two">100G</h2>
+
+                    <h2 id="disk_three">150G</h2>
+
+                    <h2 id="disk_four">200G</h2>
+                    <input type="hidden" value="50" id="disk_amount" name="diskinfo">
+                </div>
+            </div>
+        </div>
+        <div class="small-2 columns">
+            &nbsp;
+        </div>
+    </div>
+        </span>
+</div>
+<div id="physical_host">
+      <span id="physical_span" style="display: none">
+            <div class="row collapse">
+                <div class="small-2 columns">
+                    <label>CPU:</label>
+                </div>
+                <div class="small-8 columns">
+                    <div class="row">
+                        <div id="physical_cpu_slider">
+                            <a href="javascript:void(0);" class="ui-slider-handle ui-state-default ui-corner-all"
+                               style="left: 33.3333%; margin-left: 0px;"></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="physical_cpupro" class="cpu">
+                            <h2 class="physical_cpu_local" id="physical_cpu_one">12核</h2>
+
+                            <h2 id="physical_cpu_two">24核</h2>
+
+                            <h2 id="physical_cpu_three">48核</h2>
+                            <input type="hidden" value="12" id="physical_cpu_amount" name="cpuinfo">
+                        </div>
+                    </div>
+                </div>
+                <div class="small-2 columns">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="row collapse">
+                <div class="small-2 columns">
+                    <label>内存:</label>
+                </div>
+                <div class="small-8 columns">
+                    <div class="row">
+                        <div id="physical_mem_slider">
+                            <a href="javascript:void(0);" class="ui-slider-handle ui-state-default ui-corner-all"
+                               style="left: 33.3333%; margin-left: 0px;"></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="physical_mempro" class="mem">
+                            <h2 class="physical_mem_local" id="physical_mem_one">16G</h2>
+
+                            <h2 id="physical_mem_two">32G</h2>
+
+                            <h2 id="physical_mem_three">64G</h2>
+
+                            <h2 id="physical_mem_four">96G</h2>
+                            <input type="hidden" value="16" id="physical_mem_amount" name="meminfo">
+                        </div>
+                    </div>
+                </div>
+                <div class="small-2 columns">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="row collapse">
+                <div class="small-2 columns">
+                    <label>硬盘:</label>
+                </div>
+                <div class="small-8 columns">
+                    <div class="row">
+                        <div id="physical_disk_slider">
+                            <a href="javascript:void(0);" class="ui-slider-handle ui-state-default ui-corner-all"
+                               style="left: 33.3333%; margin-left: 0px;"></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="physical_diskpro" class="disk">
+                            <h2 class="physical_disk_local" id="physical_disk_one">300G</h2>
+
+                            <h2 id="physical_disk_two">600G</h2>
+
+                            <h2 id="physical_disk_three">1T</h2>
+
+                            <h2 id="physical_disk_four">2T</h2>
+                            <input type="hidden" value="300" id="physical_disk_amount" name="diskinfo">
+                        </div>
+                    </div>
+                </div>
+                <div class="small-2 columns">
+                    <div class="row collapse">
+                        <div class="small-2 columns">
+                            <span style="padding-left:3px;text-align: center; font-size: 25px;">
+                                X
+                            </span>
+                        </div>
+                        <div clas="small-10 columns">
+                            <input type="text" id="disk_number" style="width: 30px" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </span>
+</div>
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label>数量:</label>
+    </div>
+    <div>
+        <input type="text" id="number" style="width: 50px" value="1">
+    </div>
+</div>
+<br>
+<br>
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label>备注:</label>
+    </div>
+    <div class="small-8 columns">
+        <textarea id="content" rows="5" placeholder="您的申请将由{{approver}}审批..." % {{ approver }}></textarea>
+    </div>
+    <div class="small-2 columns">
+        &nbsp;
+    </div>
+</div>
+<div class="row collapse">
+    <div class="small-2 columns">
+        <label>&nbsp;&nbsp;</label>
+    </div>
+    <div class="small-10 columns">
+        <div class="row collapse">
+            <div class="small-2 columns">
+                <a href="javascript:void(0);" id="applyhost" class="button  radius tiny">确认</a>
+            </div>
+            <div clas="small-10 columns">
+                <div  id="msgtip" style="display: none;color: red;font-size: 18px;line-height: 18px;">
+                    <span class="content">This is an alert - alert that is rounded.</span>
+                    <a href="javascript:void(0);" class="close">&times;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</form>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/host_apply.js","js/jquery-ui.min.js", "js/host/apply.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

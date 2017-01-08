@@ -1,0 +1,343 @@
+{% extends "virtual/layout.html" %}
+
+{% block url %}
+    <link rel="stylesheet" href="static/css/select2.css"/>
+
+{% endblock %}
+
+{% block ul %}
+    <ul class="breadcrumb">
+        <li>
+            <i class="icon-home home-icon"></i>
+            <a href="#">用户平台</a>
+        </li>
+        <li class="active">日志查询</li>
+    </ul>
+{% endblock %}
+
+{% block main %}
+    <div class="page-header">
+        <h1>
+           主机日志
+        </h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="widget-box">
+
+                        </div>
+
+                        <div class="widget-body">
+                            <div class="widget-main">
+                                 <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-success arrowed-right" style="width: 80px">
+                                                    筛选条件</label>
+                                            </div>
+                                            <div class=" col-sm-3  ">
+                                                <select id="data_center" style="width: 300px;">
+                                                    <option value="0">请选择数据中心</option>
+                                                    <option value="tj">天津</option>
+                                                    <option value="bj">北京</option>
+                                                </select>
+                                            </div>
+                                            <div class=" col-sm-3" >
+                                                <select id="cluster" style="width: 300px;">
+                                                    <option value="0">请选择可用集群</option>
+                                                    <option value="wuba">58集群</option>
+                                                    <option value="ganji">赶集集群</option>
+                                                    <option value="ajk">安居客集群</option>
+                                                    <option value="yc">英才集群</option>
+                                                </select>
+                                            </div>
+                                 </div>
+
+{#                                <div class="hr hr-double hr-dotted hr18"></div>#}
+<!--
+                                <div class="row">
+                                     <div class="col-xs-12">
+                                        <div class="table-responsive">
+                                            <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                                                <thead>
+                                                <tr>
+                                                    <th class="center">
+                                                        <label>
+                                                            <input type="checkbox" class="ace"/>
+                                                            <span class="lbl"></span>
+                                                        </label>
+                                                    </th>
+                                                    <th>主机名</th>
+                                                    <th>IP地址</th>
+                                                    <th class="hidden-480">所属宿主机</th>
+
+                                                    <th>
+                                                        <i class="icon-time bigger-110 hidden-480"></i>
+                                                        状态
+                                                    </th>
+                                                    <th class="hidden-480">申请人</th>
+
+                                                    <th>监控</th>
+                                                </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                <tr>
+                                                    <td class="center">
+                                                        <label>
+                                                            <input type="checkbox" class="ace"/>
+                                                            <span class="lbl"></span>
+                                                        </label>
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="#">host202</a>
+                                                    </td>
+                                                    <td>10.249.6.30</td>
+                                                    <td class="hidden-480"> 10.126.83.168 </td>
+                                                    <td><span class="label label-sm label-info">running</span></td>
+
+                                                    <td class="hidden-480">
+                                                        汪爱伟
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
+
+                                                            <button class="btn btn-xs btn-warning">
+                                                                <i class="icon-flag bigger-120"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="center">
+                                                        <label>
+                                                            <input type="checkbox" class="ace"/>
+                                                            <span class="lbl"></span>
+                                                        </label>
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="#">host103</a>
+                                                    </td>
+                                                    <td>10.249.6.30</td>
+                                                    <td class="hidden-480"> 10.126.83.168 </td>
+                                                    <td><span class="label label-sm label-info">running</span></td>
+
+                                                    <td class="hidden-480">
+                                                        汪爱伟
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
+
+                                                            <button class="btn btn-xs btn-warning">
+                                                                <i class="icon-flag bigger-120"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>                     /.table-responsive
+                                     </div>
+                                </div>
+-->
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                                        <h4 class="header smaller lighter blue">主机日志列表</h4>
+
+                                                        <div class="table-responsive">
+                                                            <table id="host_list" class="table table-striped table-bordered table-hover">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th class="center">
+                                                                        <label>
+                                                                            <input type="checkbox" class="ace"/>
+                                                                            <span class="lbl"></span>
+                                                                        </label>
+                                                                    </th>
+                                                                    <th>时间</th>
+                                                                    <th>申请人</th>
+                                                                    <th>主机型号</th>
+                                                                    <th class="hidden-480">数量</th>
+                                                                    <th class="hidden-480">操作类型</th>
+                                                                    <th>
+                                                                        <i class="icon-time bigger-110 hidden-480"></i>
+                                                                        状态
+                                                                    </th>
+                                                                </tr>
+                                                                </thead>
+
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td class="center">
+                                                                        <label>
+                                                                            <input type="checkbox" class="ace"/>
+                                                                            <span class="lbl"></span>
+                                                                        </label>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <a href="#">20160704</a>
+                                                                    </td>
+                                                                    <td> 汪爱伟</td>
+                                                                    <td class="hidden-480">VE1</td>
+
+                                                                    <td class="hidden-480">
+                                                                        10
+                                                                    </td>
+                                                                    <td>
+                                                                        申请
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="label label-sm label-warning">running</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="center">
+                                                                        <label>
+                                                                            <input type="checkbox" class="ace"/>
+                                                                            <span class="lbl"></span>
+                                                                        </label>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <a href="#">20160704</a>
+                                                                    </td>
+                                                                    <td> 汪爱伟</td>
+                                                                    <td class="hidden-480">VE1</td>
+
+                                                                    <td class="hidden-480">
+                                                                        10
+                                                                    </td>
+                                                                    <td>
+                                                                        申请
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="label label-sm label-warning">running</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="center">
+                                                                        <label>
+                                                                            <input type="checkbox" class="ace"/>
+                                                                            <span class="lbl"></span>
+                                                                        </label>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <a href="#">20160704</a>
+                                                                    </td>
+                                                                    <td> 汪爱伟</td>
+                                                                    <td class="hidden-480">VE1</td>
+
+                                                                    <td class="hidden-480">
+                                                                        10
+                                                                    </td>
+                                                                    <td>
+                                                                        删除
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="label label-sm label-warning">running</span>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="center">
+                                                                        <label>
+                                                                            <input type="checkbox" class="ace"/>
+                                                                            <span class="lbl"></span>
+                                                                        </label>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <a href="#">20160704</a>
+                                                                    </td>
+                                                                    <td> 汪爱伟</td>
+                                                                    <td class="hidden-480">VE1</td>
+
+                                                                    <td class="hidden-480">
+                                                                        10
+                                                                    </td>
+                                                                    <td>
+                                                                        申请
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="label label-sm label-warning">running</span>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                    </div>
+                                </div>
+<!--
+                                <div class="row" id="page">
+                                    <input id="put1" value="{{ current_page }}" hidden><input id="put2" value="{{ all_page }}" hidden>
+                                    <div class="col-sm-4 col-md-4 text-left">
+                                        <label  id="resultTable_info" style="margin-top: 20px">分页 {{ current_page }}/ {{ all_page }}</label>
+                                    </div>
+                                    <div class="col-sm-8 col-md-8  ">
+                                        <ul class="pagination pagination-sm">
+                                            <li class="paginate_button first " id="resultTable_first"><a href="#">|&lt;</a></li>
+                                            <li class="paginate_button previous" id="resultTable_previous"><a href="#">&lt;&lt;</a></li>
+                                            <li class="paginate_button"><input id="resultTable_input" type="number" min="1" class="inp" style="width:45px;height:30px;text-align:center;" value="{{ current_page }}"></li>
+                                            <li class="paginate_button next" id="resultTable_next"><a href="#" style="color: #777">&gt;&gt;</a></li>
+                                            <li class="paginate_button last" id="resultTable_last"><a href="#" style="color: #777">&gt;|</a></li>
+                                            <li class="paginate_button goto" id="resultTable_goto"><a href="#" style="color: #777">跳转</a></li>
+                                        </ul>
+                                    </div>
+                                </div> --> <!-- / page num -->
+                            </div> <!-- /widget-main -->
+                        </div>
+                        <!-- /widget-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col -->
+    </div>
+{% endblock %}
+{% block customscript %}
+    <script src="static/js/jquery.dataTables.min.js"></script>
+    <script src="static/js/jquery.dataTables.bootstrap.js"></script>
+    <script type="text/javascript">
+        jQuery(function ($) {
+                    var oTable1 = $('#host_list').dataTable({
+                        "aoColumns": [
+                            {"bSortable": false},
+                            null, null, null, null, null,
+                            {"bSortable": false}
+                        ]
+                    });
+
+
+                    $('table th input:checkbox').on('click', function () {
+                        var that = this;
+                        $(this).closest('table').find('tr > td:first-child input:checkbox')
+                                .each(function () {
+                                    this.checked = that.checked;
+                                    $(this).closest('tr').toggleClass('selected');
+                                });
+
+                    });
+
+
+                    $('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+                    function tooltip_placement(context, source) {
+                        var $source = $(source);
+                        var $parent = $source.closest('table')
+                        var off1 = $parent.offset();
+                        var w1 = $parent.width();
+
+                        var off2 = $source.offset();
+                        var w2 = $source.width();
+
+                        if (parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2)) return 'right';
+                        return 'left';
+                    }
+                })
+    </script>
+{% endblock %}

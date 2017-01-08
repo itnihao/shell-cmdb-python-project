@@ -1,0 +1,265 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+    .ui-autocomplete {
+        z-index: 9000;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<dl class="tabs" data-tab>
+    {% if flag == 'hostlist' %}
+      <dd class="active" ><a href="javascript:void(0);">主机列表</a></dd>
+      <dd><a id="list2" href="javascript:void(0);" data="{{ url_for('user.myhost') }}">我的主机</a></dd>
+    {% else %}
+     <dd><a id="list1" href="javascript:void(0);" data="{{ url_for('host.index') }}">主机列表</a></dd>
+     <dd class="active" ><a href="javascript:void(0);">我的主机</a></dd>
+    {% endif %}
+</dl>
+<div class="tabs-content">
+    {% if flag == 'hostlist' %}
+    <div class="content active">
+        <div class="row collapse">
+            <form action="{{ url_for('host.index') }}" method="get" id="searchForm">
+                <div class="row">
+                    <a href="{{ url_for('host.host_excel',exporthost=export_host) }}" class="button radius right cmdb-tiny" style="margin-left: 8px;"> 导出当前 </a>
+                    {% if show.add %}
+                     <a href="{{ url_for('host.export_all') }}" class="button radius right cmdb-tiny" style="margin-left: 8px;"> 导出所有 </a>
+                    {% endif %}
+                    {% if show.add %}
+                        <a href="javascript:void(0);" class="button radius right cmdb-tiny" data-reveal-id="add-form" style="margin-left: 8px;">+ 添加主机</a>
+
+                    {% endif %}
+                    <a href="{{ url_for('host.apply') }}" class="button radius right cmdb-tiny">申请主机</a>
+
+                    <div class="large-1 columns margin_custom">
+                        <input type="submit" class="postfix radius button cmdb-tiny" value="搜索" id="searchBtn">
+                    </div>
+                    {% if rack_id %}
+                    <input type="hidden" name="rack_id" value="{{ rack_id }}" style=hidden>
+                    {% endif %}
+                    <div class="large-2 columns margin_custom">
+                        <input type="text" name="q" placeholder="请输入..." value="{{ q }}">
+                    </div>
+                    <div class="large-2 columns margin_custom">
+                        <select name="status">
+                            <option value="0">请选择状态</option>
+                            {% for (status_id,status_item) in status_name.items() %}
+                            <option value={{ status_id }} {% if status == "%s"%status_id %}selected="selected" {% endif %}>{{ status_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="large-2 columns margin_custom">
+                        <select name="type">
+                            <option value="0">请选择类型</option>
+                            {% for (type_id,type_item) in type_name.items() %}
+                            <option value={{ type_id }} {% if type == "%s"%type_id %}selected="selected" {% endif %}>{{ type_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+            </form>
+            {% if show.add %}
+                <div class="row">
+                    <div class="large-8 columns margin_custom" >
+                        <div id="result" style="margin-left:200px"></div>
+                    </div>
+                    <div class="large-2 columns margin_custom" style=" text-align:center;">
+                        <button class="button radius cmdb-tiny" id="buttonUpload"
+                            onclick="return ajaxFileUpload(1);">导入虚拟机</button>
+                    </div>
+                    <div class="large-2 columns margin_custom" style=" text-align:center;">
+                        <button class="button radius cmdb-tiny" id="buttonUpload"
+                            onclick="return ajaxFileUpload(2);">导入物理机</button>
+                    </div>
+                    <div class="large-2 columns margin_custom" style=" text-align:center;">
+                        <input id="fileToUpload"  type="file"
+                            name="fileToUpload"  class="input">
+
+                    </div>
+
+                </div>
+            {% endif %}
+        </div>
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th width="15%">主机名称</th>
+                <th width="11%">IP</th>
+                <th width="7%">类型</th>
+                <th width="11%">虚机?</th>
+                {% if extendinfo['show_special'] %}
+                <th width="11%">状态</th>
+                {% endif %}
+                <th width="11%">CPU</th>
+                <th width="11%">内存</th>
+                <th width="11%">硬盘</th>
+                {% if show.modify %}
+                <th width="12%%">操作</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in datas %}
+            <tr>
+                <td><a href="{{ url_for('host.index')}}{{ item.id }}"  title="应用业务:{{ item.note_info }}">{{ item.hostname }}</a></td>
+                <td>{{ item.ip }}</td>
+                <td>{{ item.type_name }}</td>
+                <td>{{ item.virtual_descri }}</td>
+                {% if extendinfo['show_special'] %}
+                <td>{{ item.status_descri }}</td>
+                {% endif %}
+                <td>{{ item.cpu_descri }}</td>
+                <td>{{ item.memory_descri }}</td>
+                <td>{{ item.storage_descri }}</td>
+                {% if show.modify %}
+                <td>
+                    <a href="javascript:void(0)" host_id="{{ item.id }}" name="host_modify">修改</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination-centered right">
+            <ul class="pagination">
+                <li>当前{{ extendinfo['cur_total'] }}条,共{{ extendinfo['total'] }}条</li>
+                {% if p.previous %}
+                    <li class="arrow"><a href="{{ url_for('host.index') }}?p=1{{ url }}">&laquo;</a></li>
+                {% endif %}
+                {% for page in p.pages %}
+                    {% if page == p.current %}
+                        <li class="current"><a href="">{{ page }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('host.index') }}?p={{ page }}{{ url }}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if p.next %}
+                    <li class="arrow"><a href="{{ url_for('host.index') }}?p={{ p.page_num }}{{ url }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <div class="content active">
+        <table style="width: 100%;">
+        <thead>
+        <tr>
+            <th width="10%">编号</th>
+            <th width="25%">主机名</th>
+            <th width="25%">权限</th>
+            <th width="20%">状态</th>
+            <th width="20%">申请时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for tmp_item in myhost_list %}
+        <tr>
+            <td>{{ tmp_item.id }}</td>
+            <td>
+                <a href="{{ url_for('host.host_detail',id=tmp_item.host_id) }}">{{ tmp_item.hostname }}</a>
+            </td>
+            <td>{{ tmp_item.role }}</td>
+            <td>
+            {% if tmp_item.status_id == 1 %}
+                <span class="round success label">{{ tmp_item.status }}</span>
+            {% else %}
+                <span class="round fail_warning warning label">{{ tmp_item.status }}</span>
+            {% endif %}
+            </td>
+            <td>{{ tmp_item.created }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% endif %}
+</div>
+
+
+<div id="add-entity-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.add') }}" method="post" id="submitEntityForm"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="add-virtual-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.add') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="modify-virtual-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.modify') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="modify-entity-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.modify') }}" method="post"></form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="add-form" class="reveal-modal small" data-reveal>
+    <h5>选择添加主机的类型</h5>
+    <hr/>
+    <a href="javascript:void(0)" class="secondary button" id="addEntityHostBtn">实体机</a>
+    <a href="javascript:void(0)" class="secondary button" id="addVirtualHostBtn">虚拟机</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+
+
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/host.js","js/jquery-ui.min.js","js/host.js","js/follow.js","js/alarm.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+<script type="text/javascript" src="/static/js/vendor/ajaxfileupload.js"></script>
+{{ fujs.js }}
+<script type="text/javascript">
+function ajaxFileUpload(method) {
+    var aj_rul=''
+    if (method==1){
+        aj_rul="/cmdb/host/importdb"
+    }
+    else{
+        aj_rul="/cmdb/host/importdb_true"
+    }
+    $.ajaxFileUpload({
+
+        url : aj_rul,   //submit to UploadFileServlet
+        secureuri : false,
+        fileElementId : 'fileToUpload',
+        //dataType : 'text', //or json xml whatever you like~
+        dataType: 'json',
+        //type:'json',
+        contentType:'text/html',
+        success : function(res) {
+            if(res.code==1 ){
+                if(res.data.length>0) {
+                    var url = flask_util.url_for('host.importinfo', {datas: res.data})
+                    window.location.href = url;
+                }
+                else{
+                    alert('success')
+                }
+            }
+            else{
+                alert(res.msg)
+            }
+
+        },
+        error : function(res) {
+            $("#result").append(res);
+        }
+
+
+    });
+
+}
+</script>
+{% endassets %}
+{% endblock %}

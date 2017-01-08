@@ -1,0 +1,124 @@
+{% extends "public/sa_layout.html" %}
+{% block customstyle %}
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>域名列表</span>
+</h5>
+<hr>
+<div class="row collapse">
+    <form action="{{ url_for('dns.index') }}" method="get" id="search">
+        <div class="large-1 columns margin_custom">
+            <input type="submit" class="postfix radius button cmdb-tiny" value="搜索" id="searchBtn">
+        </div>
+        <div class="large-2 columns margin_custom">
+            <input type="text" name="q" placeholder="请输入..." value="{{ q }}">
+        </div>
+        <div class="large-2 columns margin_custom">
+            <select name="zone" id="zone_id">
+                <option value="0" selected="selected">请选择zone</option>
+                {% for item in zone_info %}
+                <option value={{ item.id }} {% if zone_id == "%s"%item.id %}selected="selected" {% endif %}>{{ item.zone }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+{% if data %}
+<table style="width: 100%">
+    <thead>
+    <tr>
+        <th>域名</th>
+        <th>类型</th>
+        <th>
+            <span data-tooltip aria-haspopup="true" class="has-tip" title="IP 或 域名">指向</span>
+        </th>
+        <th>时间</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+    <tr>
+        <td><a href="http://{{ item.domain }}" target="_blank">{{ item.domain }}</a></td>
+        <td>{{ item.type_descri }}</td>
+        <td>{{ item.value }}</td>
+        <td>{{ item.updated }}</td>
+        <td>
+        {% if item.status == 1 or item.status == 3 %}
+            <span class="round regular label">{{ item.status_descri }}</span>
+        {% elif item.status == 2 or item.status == 5 %}
+            <span class="round fail_warning warning label">{{ item.status_descri }}</span>
+        {% elif item.status == 4 %}
+            <span class="round success label">{{ item.status_descri }}</span>
+        {% else %}
+            <span class="round fail_warning warning label">未知</span>
+        {% endif %}
+        </td>
+        <td><a href="javascript:void(0);" class="del" data="{{ item.id }}">删除</a>{% if item.status == 4 %}&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" id="{{item.id}}" class="dns_modify">修改</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div id="dns_edit" class="reveal-modal small" data-reveal>
+    <h4>域名修改</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+        <div class="row">
+        <div class="small-10 columns">
+            <input type="text" id="zone" readonly="readonly">
+        </div>
+        <div class="small-2 columns"></div>
+        </div>
+    <div>
+        <div class="row">
+            <div class="small-10 columns">
+                <input type="text" id="dns_value" placeholder="请输入value">
+            </div>
+            <div class="small-2 columns">
+                <a href="javascript:void(0);" id="switch_ip" style="margin:20px 0 0 10px;display: block;font-size: 15px">CNAME</a>
+                <a href="javascript:void(0);" id="switch_cname" style="margin:20px 0 0 10px;display: none;font-size: 15px" class="radius tiny">IP</a>
+                <a href="javascript:void(0);" id="self_ip" style="margin:20px 0 0 10px;display: none;font-size: 15px" class="radius tiny">本机IP</a>
+            </div>
+        </div>
+    </div>
+    <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    <input id="deny_ip1" style="display: none" type="checkbox"><label id="deny_ip2" style="display: none" for="deny_ip1">禁止自动更新IP</label>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div class="pagination-centered right">
+    <ul class="pagination">
+        <li class="arrow">当前{{ extendinfo['cur_total'] }}条,共{{ extendinfo['total'] }}条</li>
+        {% if p.previous %}
+            <li class="arrow"><a href="{{ url_for('dns.index') }}?p=1{{ url }}">&laquo;</a></li>
+        {% endif %}
+        {% for page in p.pages %}
+            {% if page == p.current %}
+                <li class="current"><a href="">{{ page }}</a></li>
+            {% else %}
+                <li><a href="{{ url_for('dns.index') }}?p={{ page }}{{ url }}">{{ page }}</a></li>
+            {% endif %}
+        {% endfor %}
+        {% if p.next %}
+            <li class="arrow"><a href="{{ url_for('dns.index') }}?p={{ p.page_num }}{{ url }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/dns/list.js","js/sa/dns/list.js","js/myapply.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

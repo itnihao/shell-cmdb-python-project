@@ -1,0 +1,194 @@
+{%extends base%}
+
+{% block extra_head %}
+<script src="{{STATIC_URL}}js/kendo.all.min.js"></script>
+{% endblock %}
+
+{% block Hometitle %}<a href="{% url 'home' %}"> 总览 </a>{% endblock %}
+{% block actiontitle %}概述{% endblock %}
+
+{% block pagetitle %}概述{% endblock %}
+
+{% block pagecontent %}
+
+<body>
+
+    <div id="wrapper">
+
+        <div id="page-wrapper">
+
+            <div class="container-fluid">
+                <div class="row data-pane">
+										<div class="infobox infobox-green">
+												<div class="infobox-icon">
+													<i class="ace-icon fa fa-users"></i>
+												</div>
+
+												<div class="infobox-data">
+													<span class="infobox-data-number">{{cluster_count}}</span>
+													<div class="infobox-content">集群数量</div>
+												</div>
+										</div>
+
+										<div class="infobox infobox-blue">
+												<div class="infobox-icon">
+													<i class="ace-icon fa fa-desktop"></i>
+												</div>
+
+												<div class="infobox-data">
+													<span class="infobox-data-number">{{server_count}}</span>
+													<div class="infobox-content">主机总量</div>
+												</div>
+										</div>
+
+										<div class="infobox infobox-pink">
+												<div class="infobox-icon">
+													<i class="ace-icon fa fa-hdd-o"></i>
+												</div>
+
+												<div class="infobox-data">
+													<span class="infobox-data-number">{{server_free_count}}</span>
+													<div class="infobox-content">空闲主机</div>
+												</div>
+										</div>
+
+                    <div class="infobox infobox-orange">
+												<div class="infobox-icon">
+													<i class="ace-icon fa fa-bars"></i>
+												</div>
+
+												<div class="infobox-data">
+													<span class="infobox-data-number">{{position_count}}</span>
+													<div class="infobox-content">机位总量</div>
+												</div>
+										</div>
+
+										<div class="infobox infobox-orange">
+												<div class="infobox-icon">
+													<i class="ace-icon fa fa-tasks"></i>
+												</div>
+
+												<div class="infobox-data">
+													<span class="infobox-data-number">{{position_free}}</span>
+													<div class="infobox-content">空闲机位</div>
+												</div>
+										</div>
+                </div>
+                <!-- /.row -->
+
+                <div class="row charts">
+                    <div class="col-md-6">
+                        <div class="king-block king-block-bordered mb30">
+                            <div class="king-block-header">
+                                <h3 class="king-block-title">服务器使用占比</h3>
+                            </div>
+                            <div class="king-block-content">
+                                <div class="chart" id="chartA"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="king-block king-block-bordered mb30">
+                            <div class="king-block-header">
+                                <h3 class="king-block-title">各部门服务器占比</h3>
+                            </div>
+                            <div class="king-block-content">
+                                <div class="chart" id="chartC"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.row -->
+
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+      $('#chartA').kendoChart({
+          legend:{
+              position : "bottom"
+          },
+          theme : 'bootstrap',
+          seriesDefaults: {
+              labels: {
+                  template: "#= category # - #= kendo.format('{0:P}', percentage)#",
+                  position: "outsideEnd",
+                  visible: true,
+                  background: "transparent"
+              }
+          },
+          series: [{
+              name: '服务器使用占比',
+              type: 'pie',
+              startAngle: 550,
+              data: [{
+                  value:{{server_count}},
+                  category:'主机总数'
+              },
+              {
+                  value: {{server_free_count}},
+                  category: '空闲主机总数'
+              }]
+          }]
+      });
+
+        $('#chartC').kendoChart({
+            legend:{
+                position : "bottom"
+            },
+            theme : 'bootstrap',
+            seriesDefaults: {
+                labels: {
+                    template: "#= category # - #= kendo.format('{0:P}', percentage)#",
+                    position: "outsideEnd",
+                    visible: true,
+                    background: "transparent"
+                }
+            },
+            series: [{
+                name: '访问来源',
+                type: 'pie',
+                data: [{
+                    category:'运维部',
+                    value:335
+                },
+                {
+                    value: 310,
+                    category: '搜索部门'
+                },
+                {
+                    value: 234,
+                    category: '测试部门'
+                },
+                {
+                    value: 135,
+                    category: '二手车'
+                },
+                {
+                    value: 1548,
+                    category: '房产'
+                }]
+            }]
+        });
+    });
+
+    //重新绘制
+    $(window).on('resize',function(){
+        var chartA = $("#chartA").data("kendoChart");
+        var chartC = $("#chartC").data("kendoChart");
+
+        chartA.redraw();
+        chartC.redraw();
+    });
+
+    </script>
+
+{% endblock %}

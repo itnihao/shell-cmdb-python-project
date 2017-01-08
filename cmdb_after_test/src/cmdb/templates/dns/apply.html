@@ -1,0 +1,372 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+    <style type="text/css">
+        .margin_custom {
+            margin-right: 8px;
+            float: right;
+        }
+
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+
+        .dns_apply label {
+            text-align: right;
+            margin-right: 50px;
+        }
+    </style>
+{% endblock %}
+{% block main %}
+    <dl class="tabs" data-tab>
+        {% if flag == 'dns_apply' %}
+            <dd class="active"><a href="javascript:void(0);">域名申请</a></dd>
+            {% if current_user.is_admin %}
+            <dd><a class="list" href="javascript:void(0);" data="{{ url_for('dns.switch_cdn') }}">CDN切换</a></dd>
+            <dd><a class="list" href="javascript:void(0);" data="{{ url_for('dns.cdn_list') }}">CDN列表</a></dd>
+            {% endif %}
+        {% elif flag == 'switch_cdn' %}
+            <dd><a class="list" href="javascript:void(0);" data="{{ url_for('dns.apply') }}">域名申请</a></dd>
+            <dd class="active"><a href="javascript:void(0);">CDN切换</a></dd>
+            <dd><a class="list" href="javascript:void(0);" data="{{ url_for('dns.cdn_list') }}">CDN列表</a></dd>
+        {% elif flag == 'cdn_list' %}
+            <dd><a class="list" href="javascript:void(0);" data="{{ url_for('dns.apply') }}">域名申请</a></dd>
+            <dd><a class="list" href="javascript:void(0);" data="{{ url_for('dns.switch_cdn') }}">CDN切换</a></dd>
+            <dd class="active"><a href="javascript:void(0);">CDN列表</a></dd>
+        {% endif %}
+    </dl>
+
+    <hr>
+    {% if flag == 'dns_apply' %}
+        <div class="large-8 columns dns_apply">
+            <form id="zone_id" action="{{ url_for('dns.apply') }}" method="get">
+                <div class="row">
+                    <div class="small-3 columns">&nbsp;</div>
+                    <div class="small-7 columns">
+                        <div data-alert class="alert-box alert" id="msgtip" style="display: none;">
+                            <span class="content">This is an alert - alert that is rounded.</span>
+                            <a href="javascript:void(0);" class="close">&times;</a>
+                        </div>
+                    </div>
+                    <div class="small-2 columns">&nbsp;</div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            业务&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-7 columns" style="float: left">
+                        <select class="zone_type" style="width: 100%" name="zone_type">
+                            <option value="-1">请选择业务类型</option>
+                            {% for key,value in zone_type.items() %}
+                                <option value="{{ value }}">{{ key }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            域名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-3 columns">
+                        <input type="text" id="pre_domain" name="pre_domain" value="{{ params['pre_domain'] }}"
+                               placeholder="请输入域名前缀"/>
+                    </div>
+                    <div class="small-4 columns">
+                        <select id="zone" style="width: 100%" name="zone">
+                            <option value="-1">请选择域名后缀</option>
+{#                            {% for z in zone_info %}#}
+{#                                <option value="{{ z.id }}"#}
+{#                                        {% if params['zone_id'] == "%s"%z.id %}selected="selected" {% endif %}>{{ z.zone }}</option>#}
+{#                            {% endfor %}#}
+                        </select>
+                    </div>
+                    <div class="small-2 colimns"></div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            域名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-6 columns" style="float: left;">
+                        <fieldset class="large-6 columns" style="border-style: none;margin: 7px;">
+                            <input type="radio" name="pokemon" value="IP" id="switch_ip" required checked><label
+                                for="pokemonIP">IP</label>
+                            <input type="radio" name="pokemon" value="CNAME" id="switch_cname"><label
+                                for="pokemonCNAME">CNAME</label>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label id="ip" style="margin: 6px;display: block;width:100%;font-size: 15px">IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                        <label id="domain" style="margin: 6px;display: none;width:100%;font-size: 15px">CNAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                    </div>
+                    <div class="small-7 columns">
+                        <input id="ip_domain" name="ip_domain" type="text" value="{{ params['ip_domain'] }}"
+                               placeholder="请输入IP"/>
+                    </div>
+                    <div class="small-1 columns"></div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin-top:40px;text-align: right;width:100%;font-size: 15px">用途&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                    </div>
+                    <div class="small-7 columns">
+                        <textarea id="content" name="content" rows="6"
+                                  placeholder="{% if approval %}将由{{ approval }}审批您的申请，请填写此域名的主要用途...{% else %}请填写此域名的主要用途...{% endif %}"></textarea>
+                    </div>
+                    <div class="small-2 columns"></div>
+                </div>
+                <div class="row collapse">
+                    <div class="small-3 columns">
+                        <label>&nbsp;&nbsp;</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <a href="javascript:void(0);" id="applydns" class="button radius tiny">确认</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script>var zones = {{ zone_info|tojson|safe }};</script>
+    {% elif flag == 'switch_cdn' %}
+        <div class="large-8 columns dns_apply">
+            <form id="zone_id" action="{{ url_for('dns.switch_cdn') }}" method="get">
+                <div class="row">
+                    <div class="small-3 columns">&nbsp;</div>
+                    <div class="small-7 columns">
+                        <div data-alert class="alert-box alert" id="msgtip" style="display: none;">
+                            <span class="content">This is an alert - alert that is rounded.</span>
+                            <a href="javascript:void(0);" class="close">&times;</a>
+                        </div>
+                    </div>
+                    <div class="small-2 columns">&nbsp;</div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            CDN地区&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-6 columns" style="float: left;">
+                        <fieldset id="area_fieldset" class="large-12 columns" style="border-style: none;margin: 7px;">
+                            <input type="radio" name="area" value="default" id="default_cdn" required
+                                   checked><label>默认</label></input>
+                            <input type="radio" name="area" value="huanan" id="huanan_cdn"><label>华南</label></input>
+                            <input type="radio" name="area" value="huabei" id="huabei_cdn"><label>华北</label></input>
+                            <input type="radio" name="area" value="huadong" id="huadong_cdn"><label>华东</label></input>
+                            <input type="radio" name="area" value="xibu" id="xibu_cdn"><label>西部</label></input>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            域名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-4 columns">
+                        <select id="zone" style="width: 100%" name="zone">
+                            <option value="-1">请选择域名后缀</option>
+                            {% for z in zone_info %}
+                                <option value="{{ z.id }}"
+                                        {% if params['zone_id'] == "%s"%z.id %}selected="selected" {% endif %}>{{ z.zone }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="small-2 colimns"></div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            前缀&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-4 columns">
+                        <input type="search" id="pre_zone" list="pre_zone_list" name="pre_zone"
+                               value="{{ params['pre_domain'] }}"
+                               placeholder="请输入域名前缀" autocomplete="off"/>
+                        <datalist id="pre_zone_list"></datalist>
+                    </div>
+                    <div class="small-2 colimns"></div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            服务商&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-6 columns" style="float: left;">
+                        <fieldset class="large-12 columns" style="border-style: none;margin: 7px;" disabled="true">
+                            <input type="radio" name="now_pro" value="tencent"
+                                   id="now_tencent_cdn"><label>腾讯</label></input>
+                            <input type="radio" name="now_pro" value="dnion"
+                                   id="now_dnion_cdn"><label>帝联</label></input>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-3 columns">
+                        <label style="margin: 6px;text-align: right;width:100%;font-size: 15px">
+                            切换到&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </div>
+                    <div class="small-6 columns" style="float: left;">
+                        <fieldset class="large-12 columns" style="border-style: none;margin: 7px;">
+                            <input type="radio" name="new_pro" value="tencent"
+                                   id="new_tencent_cdn"><label>腾讯</label></input>
+                            <input type="radio" name="new_pro" value="dnion"
+                                   id="new_dnion_cdn"><label>帝联</label></input>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="row collapse">
+                    <div class="small-3 columns">
+                        <label>&nbsp;&nbsp;</label>
+                    </div>
+                    <div class="small-9 columns">
+                        <a href="javascript:void(0);" id="applycdn" class="button radius tiny">确认</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script>var zones = {{ zone_info|tojson|safe }};</script>
+    {% else %}
+        <div class="row">
+            <form action="{{ url_for('dns.cdn_list') }}" method="get" id="searchForm">
+                <a href="{{ url_for('dns.cdn_export',cdnlists=cdn_lists) }}" class="button radius right cmdb-tiny"
+                   style="margin-left: 8px;"> 导出excel </a>
+                <input type="submit" class="button radius right cmdb-tiny" value="搜索" id="cdn_seach">
+                <div class="small-2 columns margin_custom">
+                    <input type="search" id="pre_zone" list="pre_zone_list" name="pre_zone"
+                           placeholder="请输入前缀" autocomplete="off"/>
+                </div>
+                <div class="large-1 columns margin_custom">
+                    <label style="margin: 6px;text-align: right;width:100%;font-size: 15px;">
+                        搜索：&nbsp;&nbsp;
+                    </label>
+                </div>
+                <datalist id="pre_zone_list"></datalist>
+            </form>
+        </div>
+
+        <dl class="accordion" data-accordion>
+            <dd class="accordion-navigation">
+                <a href="#default">默认</a>
+
+                <div id="default" class="content active">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="15%">前缀</th>
+                            <th width="15%">域名</th>
+                            <th width="20%">CDN</th>
+                            <th width="10%">厂商</th>
+                            <th width="10%">地区</th>
+                            <th width="20%">更新日期</th>
+                            <th width="10%">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="area0"></tbody>
+                    </table>
+                </div>
+            </dd>
+            <dd class="accordion-navigation">
+                <a href="#huadong">华东</a>
+
+                <div id="huadong" class="content active">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="15%">前缀</th>
+                            <th width="15%">域名</th>
+                            <th width="20%">CDN</th>
+                            <th width="10%">厂商</th>
+                            <th width="10%">地区</th>
+                            <th width="20%">更新日期</th>
+                            <th width="10%">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="area1"></tbody>
+                    </table>
+                </div>
+            </dd>
+
+
+            <dd class="accordion-navigation">
+                <a href="#huanan">华南</a>
+
+                <div id="huanan" class="content active">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="15%">前缀</th>
+                            <th width="15%">域名</th>
+                            <th width="20%">CDN</th>
+                            <th width="10%">厂商</th>
+                            <th width="10%">地区</th>
+                            <th width="20%">更新日期</th>
+                            <th width="10%">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="area2"></tbody>
+                    </table>
+                </div>
+            </dd>
+            <dd class="accordion-navigation">
+                <a href="#huabei">华北</a>
+
+                <div id="huabei" class="content active">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="15%">前缀</th>
+                            <th width="15%">域名</th>
+                            <th width="20%">CDN</th>
+                            <th width="10%">厂商</th>
+                            <th width="10%">地区</th>
+                            <th width="20%">更新日期</th>
+                            <th width="10%">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="area3"></tbody>
+                    </table>
+                </div>
+            </dd>
+            <dd class="accordion-navigation">
+                <a href="#xibu">西部</a>
+
+                <div id="xibu" class="content active">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="15%">前缀</th>
+                            <th width="15%">域名</th>
+                            <th width="20%">CDN</th>
+                            <th width="10%">厂商</th>
+                            <th width="10%">地区</th>
+                            <th width="20%">更新日期</th>
+                            <th width="10%">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="area4"></tbody>
+                    </table>
+                </div>
+            </dd>
+        </dl>
+
+        <script>var cdnlists = {{ cdn_lists|tojson|safe }};</script>
+    {% endif %}
+{% endblock %}
+{% block customscript %}
+    <script>
+        var flag = "{{ flag }}";
+    </script>
+    {% assets filters="jsmin", output="asset/dns_apply.js","js/jquery-ui.min.js", "js/sa/dns/dns_apply.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "public/joblayout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.min.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>作业&nbsp;&nbsp;{{ task.name }}&nbsp;&nbsp;</span>
+</h5>
+<hr>
+<div>
+    <pre id="progress"></pre>
+</div>
+{% block customscript %}
+{#{% assets filters="jsmin", output="asset/runscripts.js","js/jquery-ui.min.js","js/jobplat/runscripts.js" %}#}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+{{ fujs.js }}
+{#{% endassets %}#}
+{% endblock %}
+<script>
+
+    task={{ task|tojson|safe}}
+    txt=''
+
+    initlog=function(){
+        txt=''
+        $.ajax({
+            type: 'POST',
+            url: '/cmdb/work/startwork',
+            'dataType': 'json',
+            'data': {job_info:task.info_ext,job_name:task.name.split('@')[0]},
+        success: function (data, status, request) {
+            status_url = request.getResponseHeader('Location');
+            update_progress_info(status_url);
+        },
+        error: function () {
+            alert('Unexpected error');
+        }
+        });
+    }
+
+    function update_progress_info(status_url) {
+            // send GET request to status URL
+            $.getJSON(status_url, function(data) {
+
+                try{
+                    $('#progress').text('');
+                    if(data.status.msg){
+                        txt=''
+                         $.each(data.status.msg, function(p1, p2){
+                            txt += format_log(p2);
+                        });
+                        $('#progress').text(txt);
+
+                        label_red()
+                    }
+
+
+                }
+
+                catch(e){
+
+                }
+
+{#                if (data['state'] == 'PENDING' || data['state'] == 'PROGRESS') {#}
+                  if (data['state'] !='MYFINSHIED') {
+                    // rerun in 2 seconds
+                    setTimeout(function() {
+                        update_progress_info(status_url);
+                    }, 1000);
+                }
+            });
+        }
+
+    function label_red(){
+
+        $("#progress").each(function(i,n){
+            t=$(this).text()
+            error_c=['1','2','3','4','5','6','7','8','9']
+            $.each(error_c, function(p1, p2) {
+                var regExp = new RegExp("'unreachable': "+p2, "g")
+                t = t.replace(regExp, ("<font color='red'>'unreachable: '"+p2+"</font>"));
+                var regExp = new RegExp("'failures': "+p2, "g")
+                t = t.replace(regExp, ("<font color='red'>'failures: '"+p2+"</font>"));
+
+            })
+            $('#progress').html(t);
+        })
+    }
+
+    function format_log(_info){
+        if(_info.indexOf('unreachable')>-1){
+            sp1=_info.split("failures'")
+            sp2=''
+            if(sp1.length>1){
+                $.each(sp1, function(_ind, p2){
+                    if(_ind<sp1.length-1){
+                        s_add=p2+"failures'"+sp1[_ind+1].split(',')[0]
+                        sp1[_ind+1]=sp1[_ind+1].replace(sp1[_ind+1].split(',')[0],'')
+                        sp2+=s_add+'\n'
+                    }
+                    else{
+                        s_add=p2+sp1[_ind+1]
+                        sp2+=s_add+'\n'
+                    }
+                })
+            }
+            return sp2
+        }
+        else{
+            return _info+'\n'
+        }
+    }
+
+    initlog()
+
+</script>
+{% endblock %}

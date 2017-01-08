@@ -1,0 +1,88 @@
+    {% extends "public/layout.html" %}
+{% block title %}CMDB - 机柜详细{% endblock %}
+{% block main %}
+<h5 class="content_title">
+        <span>机房:&nbsp;{{ idc_name }} &nbsp;机柜:&nbsp;{{ rack_name }} </span>
+</h5>
+<hr>
+
+<dl class="tabs" data-tab >
+    <dd class="active"><a href="#panel1">主机列表</a></dd>
+    <dd><a href="#panel2">设备列表</a></dd>
+</dl>
+<div class="tabs-content">
+    <div class="content active" id="panel1">
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th width="15%">主机名称</th>
+                <th width="11%">IP</th>
+                <th width="7%">类型</th>
+                <th width="11%">虚机?</th>
+                <th width="11%">状态</th>
+                <th width="11%">CPU</th>
+                <th width="11%">内存</th>
+                <th width="11%">硬盘</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for item in datas %}
+                <tr>
+                    <td><a href="{{ url_for('host.index')}}{{ item.id }}">{{ item.hostname }}</a></td>
+                    <td>{{ item.ip }}</td>
+                    <td>{{ item.type_descri }}</td>
+                    <td>{{ item.virtual_descri }}</td>
+                    <td>{{ item.status_descri }}</td>
+                    <td>{{ item.cpu_descri }}</td>
+                    <td>{{ item.memory_descri }}</td>
+                    <td>{{ item.storage_descri }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="content" id="panel2">
+        <table width="100%">
+            <thead>
+            <tr>
+                <th>资产编号</th>
+                <th>类型</th>
+                <th>机房/机柜</th>
+                <th>品牌</th>
+                <th>型号</th>
+                <th>CPU</th>
+                <th title="GB">内存</th>
+                <th title="GB">硬盘</th>
+                <th>保修</th>
+                <th title="RMB">价格</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for dev in device %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('device.detail',id=dev.id)}}">{{ dev.device_label }}</a>
+                    </td>
+                    <td>{{ cate_names[dev.device_cat_id] }}</td>
+                    <td>{{ rack_idc_names[dev.rack_id] }}/{{ rack_names[dev.rack_id] }}</td>
+                    <td>{{ supp_names[dev.supplier_id] }}</td>
+                    <td>{{ dev.model_descri }}</td>
+                    <td>{{ dev.cpu_info() }}</td>
+                    <td>{{ dev.memory_info() }}</td>
+                    <td>{{ dev.storage_info() }}</td>
+                    <td>{{ dev.service_term() }}年</td>
+                    <td>{{ dev.price_rmb() }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/rack.js","js/rack.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}

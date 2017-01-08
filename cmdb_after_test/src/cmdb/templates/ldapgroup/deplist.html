@@ -1,0 +1,283 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+        .alert-box{
+             @include alert();
+            margin: 5px;
+        }
+</style>
+{% endblock %}
+{% block title %}CMDB - 部门管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>部门列表</span>
+    {% if show.add %}
+    <a href="javascript:void(0);" id="dpaddbtn" class="button radius right tiny"> + 添加部门</a>
+    {% endif %}
+
+</h5>
+<hr>
+{% if department %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th>部门名称</th>
+        <th>部门描述</th>
+        {% if show.modify %}
+        <th>操作</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for dep in department %}
+    <tr>
+        <td>
+            <a href="url_for('ldapgroup.depdetail',id=dep.id)}}">{{ dep.name }}</a>
+        </td>
+        <td>{{ dep.description}}</td>
+        {% if show.modify %}
+        <td>
+            <a href="javascript:dp.getDcDetail({{ dep.id }});void(0);">修改</a>
+            {% if show.delete %}
+                <a href="javascript:void(0);" dep_id="{{ dep.id }}" class="dep_delete">删除</a>
+            {% endif %}
+
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<div id="depdiv" class="reveal-modal small" data-reveal>
+    <h3>添加部门</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+    <div class="row">
+        <input type="text" id="name" placeholder="请输入部门名称">
+        <input type="text" id="description" placeholder="请输入部门描述">
+        <input type="hidden" id="primaryid"/>
+
+        <input type="hidden"  id="leaderid" name="leader_s" value="0"/>
+        <input type="text" id="leader" name="leader_s" placeholder="请输人部门领导"/>
+
+        <input type="hidden"  id="bleaderid" name="bleader_s" value="0"/>
+        <input type="text" id="bleader" name="bleader_s" placeholder="请输人备份部门领导"/>
+
+
+        <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    </div>
+    <a class="close-reveal-modal" id="closebtn">&#215;</a>
+</div>
+{% block customscript %}
+
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+
+{% endblock %}
+<script>
+
+var dp = {
+    bindevents: function () {
+
+        $("#dpaddbtn").click(function () {
+            $($("#depdiv h3").get(0)).html("添加部门");
+            $("#name").val("");
+            $("#description").val("");
+            $("#leaderid").val("");
+            $("#leader").val("");
+            $("#bleaderid").val("");
+            $("#bleader").val("");
+
+            dp.msgtips("");
+            $("#depdiv").foundation('reveal', 'open');
+        });
+
+        $("#doadd").click(function () {
+            var name = $.trim($("#name").val());
+            var description = $.trim($("#description").val());
+            var primaryid = $.trim($("#primaryid").val());
+            var leaderid = $.trim($("#leaderid").val());
+            var bleaderid = $.trim($("#bleaderid").val());
+            if (name.length <= 0) {
+                dp.msgtips("请输入部门名称", 0);
+                return false;
+            } else {
+                dp.msgtips("");
+            }
+            if (leaderid == 0)
+            {
+                msgtips("请选择人名", 0);
+                return false;
+            }
+            if (bleaderid == 0)
+            {
+                msgtips("请选择人名", 0);
+                return false;
+            }
+
+            if (primaryid && /^[1-9]\d*$/.test(primaryid)) {
+
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/depmodify/' + primaryid,
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {'name': name, 'description': description,'leaderid':leaderid,'bleaderid':bleaderid},
+                    success: function (res) {
+                        if (res.code == 1) {
+                            dp.msgtips(res.msg, 0);
+                        } else {
+                            dp.msgtips(res.msg, 1);
+                            $("#depdiv").foundation('reveal', 'close');
+                            window.location.href = window.location.href;
+                        }
+                    }
+                })
+            } else {
+                 console.log('1111')
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/depadd',
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {'name': name, 'description': description,'leaderid':leaderid,'bleaderid':bleaderid},
+                    success: function (res) {
+                        console.log('2222')
+                        if (res.code == 1) {
+
+                            dp.msgtips(res.msg, 0);
+                        } else {
+                            dp.msgtips(res.msg, 1);
+                            $("#depdiv").foundation('reveal', 'close');
+                            window.location.href = window.location.href;
+                        }
+                    },
+                    error:function (res) {
+                        console.log(res)
+                    }
+                })
+            }
+        });
+        $(".dep_delete").click(function () {
+            dp.dpdelete($(this).attr("dep_id"));
+        });
+    },
+
+    autofix: function () {
+        options = {
+            source: function (request, response) {
+                $.ajax({
+                    url: "/user/search",
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        maxRows: 12,
+                        keyword: request.term
+                    },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return {
+                                label: item[1],
+                                value: item[0]
+                            }
+                        }));
+                    }
+                });
+            },
+            minChars: 1,
+            max: 5,
+            scroll: true,
+            autoFill: true,
+            mustMatch: true,
+            matchContains: false,
+            scrollHeight: 50,
+            select: function (event, ui) {
+                if ($(this).attr("id") == "leader") {
+                    $("#leader").val(ui.item.label);
+                    $("#leaderid").val(ui.item.value);
+                } else if ($(this).attr("id") == "bleader") {
+                    $("#bleader").val(ui.item.label);
+                    $("#bleaderid").val(ui.item.value);
+}
+                return false;
+            }
+        };
+        //添加autocomplete
+        $("#leader").autocomplete(options);
+        $("#bleader").autocomplete(options);
+
+    },
+
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    },
+
+    getDcDetail: function (id) {
+        $.ajax({
+            'url': '/cmdb/ldapgroup/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    $($("#depdiv h3").get(0)).html("编辑部门");
+                    dp.msgtips("");
+                    $("#name").val(res.name);
+                    $("#description").val(res.description_r);
+                    $("#leaderid").val(res.leader_uid);
+                    $("#leader").val(res.leader_name);
+                    $("#bleaderid").val(res.bleader_uid);
+                    $("#bleader").val(res.bleader_name);
+                    $("#primaryid").val(res.id);
+                    $("#depdiv").foundation('reveal', 'open');
+                }
+
+            }
+        });
+    },
+
+    dpdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/depdelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+$(document).ready(function () {
+    dp.bindevents();
+    dp.autofix()
+});
+</script>
+{% endblock %}
+

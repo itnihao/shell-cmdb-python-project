@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block ul %}
+    <ul class="breadcrumb">
+        <li>
+            <i class="icon-home home-icon"></i>
+            <a href="#">容量管理</a>
+        </li>
+                <li class="active">模型定义 </li>
+    </ul>
+{% endblock %}
+
+{% block main %}
+     <div class="row col-xs-12" id="model_info">
+        <div class="vspace-xs-6"></div>
+        <div class="row">
+            <div class="col-sm-2 align-center">
+                <label class="label label-lg label-success arrowed-right" style="width: 100px;font-size: 14px">
+                    选择部门</label>
+            </div>
+            <div class="col-sm-2">
+                <select id="department" style="width: 250px;" v-model="select_department">
+                    <option v-for="department in departments"
+                            value="[[$index]]">
+                        [[department]]
+                    </option>
+                </select>
+            </div>
+
+        </div>
+        <hr/>
+        <div class="vspace-xs-6"></div>
+        <div class="row">
+            <table id="tab_pool" class="table table-striped table-bordered table-hover ">
+                <thead>
+                <tr>
+                    <th class="center">业务</th>
+                    <th class="center">模型名</th>
+                    <th class="center">上限设置
+                    </th>
+                    <th class="center">应用到pool
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="model in models">
+                    <td class="center">{# 业务 #}
+                       <br/> [[model.business]]
+                    </td>
+
+                    <td class="center">{# 模型名 #}
+                       <br/> [[model.name]]
+                    </td>
+
+                    <td class="center">{# 上限设置 #}
+                        <input type="text" >
+                         <span>cpu.user :&nbsp;[[ model.monitor.cpu_user ]]</span><br/>
+                        <span>network:&nbsp;[[ model.monitor.network ]]</span><br/>
+                        <span>QPS:&nbsp;[[ model.monitor.QPS ]]</span><br/>
+                    </td>
+
+                    <td class="center"> {# 应用到pool #}
+                       <br/> [[model.pool]]
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+            <div class="row" id="page">
+                <div class="align-right">
+                    <span id="btn0">共 页&nbsp;</span>
+                    <a href="#" id="btn1" @click="change_page_host(0,-1)">首页</a>
+                    <a href="#" id="btn2" @click="change_page_host(-1)">上一页</a>
+                    <input type="number" min="1" max=" " class="input-mini align-center"
+                           style="height: 25px" />
+                    <a href="#" id="btn3" @click="change_page_host(1)">下一页</a>
+                    <a href="#" id="btn4" @click="change_page_host(0,1)">尾页</a>
+                    <a href="#" id="btn5" @click="change_page_host(0,0)">跳转</a>
+                </div>
+            </div>  <!-- / page num -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block customscript %}
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/vue-resource.js"></script>
+<script type="text/javascript" src="/static/js/virtual/model.js"></script>
+{% endblock %}

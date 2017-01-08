@@ -1,0 +1,47 @@
+{% extends "public/monitor_layout.html" %}
+{% block title %}监控{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>
+        {% if data['type'] == "follow_host" %}
+            关注主机
+        {% elif data['type'] == "follow_pool" %}
+            关注POOL: {{ data['tips'] }}
+        {% elif data['type'] == "follow_rack" %}
+            关注机柜: {{ data['tips'] }}
+        {% endif %}
+    </span>
+    <input type="hidden" id="type" value="{{ data['type'] }}">
+    <input type="hidden" id="target_id" value="{{ data['target_id'] }}">
+    <a id="force_refresh" href="javascript:void(0)"  class="button radius right tiny"  style="margin-left: 5px;">强制刷新</a>
+    <span class="right">一分钟刷新一次</span>
+</h5>
+<hr>
+<div class="row"  style="margin:0">
+    <div style="margin:0 0 10px 0">
+        <div id="table-content">
+            加载中...
+        </div>
+    </div>
+    <ul class="button-group [radius round] right" id = "time_button"  style="display:none;margin-top: 11px;" >
+        <li><a data="1" href="javascript:void(0);" class=" tiny  button time ">实时</a></li>
+        <li><a data="90"  href="javascript:void(0);" class="tiny button time ">90天</a></li>
+    </ul>
+  </div>
+<div id="canvas" class="canvas"></div>
+<div id="canvas2"></div>
+
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/monitor_index.js", "js/common-lib.js","js/monitor/index.js","js/highcharts.js"%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript" src="/static/js/monitor/index.js"></script>
+    <script type="text/javascript" src="/static/js/common-lib.js"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+{% endassets %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        monitor_index_ops.init();
+    });
+</script>
+{% endblock %}

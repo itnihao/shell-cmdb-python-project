@@ -1,0 +1,42 @@
+{% extends "orders/layout.html" %}
+{% block main %}
+    <div>
+        <ul class="nav nav-tabs" id="myTab">
+            {% for item in type_name %}
+                <li role="presentation" {% if loop.index==1 %} class="active" {% endif %}><a href="#{{ item.name }}" data-toggle="tab">{{ item.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="tab-content" style="margin-top: 20px;">
+        {% for item in type_name %}
+            <div class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="{{ item.name }}" style="margin-top: 40px;">
+                {% for i in order_category %}
+                    {% if i.type_id == item.id %}
+                        <div class="col-md-5 row">
+                            <div class="col-sm-8">
+                                <span class="glyphicon glyphicon-th-list"></span>&nbsp;&nbsp;<a href="{{ url_for('orders.do_order',id=i.id) }}">{{ i.name }}</a>
+                            </div>
+                            <div class="col-sm-4" {% if current_user.identity == 'ops' %}style="display: block"{% else %}style="display: none;" {% endif %}>
+                                <a href="{{ url_for('orders.edit_category',id=i.id) }}"><span class="glyphicon glyphicon-edit" style="color: #333;"></span></a>&nbsp;&nbsp;
+                                <a onClick="return confirm('确认要删除?')" href="{{ url_for('orders.deleted',id=i.id) }}"><span class="glyphicon glyphicon-trash" style="color: #333;"></span></a>
+                            </div>
+                            <div class="col-sm-12">
+                                <hr>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+<script>
+    $(function () {
+        $('#myTab a:last').tab('show');//初始化显示哪个tab
+
+        $('#myTab a').click(function (e) {
+            e.preventDefault();//阻止a链接的跳转行为
+            $(this).tab('show');//显示当前选中的链接及关联的content
+        })
+    })
+</script>

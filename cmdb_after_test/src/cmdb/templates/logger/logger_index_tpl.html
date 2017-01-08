@@ -1,0 +1,398 @@
+{% extends "public/monitor_layout.html" %}
+{% block title %}CMDB - 日志中心 {% endblock %}
+{% block main %}
+
+
+<style>
+.content {
+    padding:0;
+    margin:0;
+}
+#webshell {
+    background-color: black;
+    color:green;
+    overflow: auto;
+    font-size:13px;
+    padding:5px;
+    font-family: "Mono space"
+}
+#log-content{
+    overflow: auto;
+    font-size:12px;
+    background: black;
+    padding:5px;
+    font-family: "Mono space"
+}
+#log-content p {
+    line-height: 20px;
+}
+.foll-host a {
+    font-weight: normal;
+} 
+m {
+    display: inline;
+    float: left;;
+    width:100%;
+}
+e ,kw{
+    color:red;
+}
+wa {
+    color:yellow;
+}
+if{
+    color:green;
+}
+.txt-header {
+    padding: 0 !important;
+    margin:0;
+}
+
+#loggerhost {
+    margin:0;
+}
+
+#loggerhost li {
+    padding:10px;
+    margin:0;
+    width:100px;
+}
+
+.log-input {
+    width:150px !important;display:inline;margin:0;padding:0;height:25px;
+}
+.log-row{
+    font-size:14px;
+    margin:0;padding: 0
+}
+.log-header{
+    font-size:19px;color:red;
+}
+.log-page-breaker{
+    padding:10px;
+    background-color: #0099cc;
+}
+.log-header-h3 {
+    background-color:#2980b9;padding:4px;color:white;font-size:16px;margin:0;
+    font-size:13px;
+}
+ </style>
+
+<script type="text/javascript">
+
+    /**
+    * @Author Robanlee@gmail.com
+    * @Desc   监控页面显示 隐藏功能
+    @ 如果关注的主机过多,则启用隐藏功能
+    */
+    $(function(){
+        monitor_index_ops.toggleFollwedHost("foll-host",3);
+        monitor_index_ops.slide("foll-host",3);
+
+
+        var __logFinder = new logFinder({container:"#log-content"});
+        __logFinder.find(1,__logFinder);
+
+        $("#btnLoadLogger").click(function(){
+                    __logFinder.find(1,__logFinder);
+        });
+
+        
+
+        //Bind txt-kw keydown event
+        $("#txt-kw,#txt-pagesize,#txt-host-name").keydown(function(e){
+            if(e.keyCode ==13) {
+                $("#btnLoadLogger").trigger('click');
+            }
+        });
+
+
+        $("#txt-host-tail,#txt-kw-tail,#txt-num-tail").keydown(function(e){
+            if(e.keyCode ==13) {
+                if ('none' ==   $("#icon-pause").css('display')  ){
+                    $("#icon-play").trigger('click');
+                }else {
+                    $("#btnClear").trigger('click');
+                }
+                
+            }
+        });
+
+        //加载自定义TAB
+        robTab('#rob-tab');
+
+        //$(".medium-2").hide();
+        //$(".medium-10").css('width','100%');
+        var __min_height = $(window).height()-148;
+        $("#webshell").css({
+            "min-height" : __min_height,
+            "height": __min_height
+        });
+
+        $("#log-content").css({
+            "min-height" : __min_height-43,
+            "height": __min_height-43
+        });
+        var container = $("#webshell");
+       
+        var __socket = openSocket();
+        eventBind(__socket,container);
+
+
+        $("#icon-pause").click(function(){
+            $("[name=txtPause]").val(1);
+            $(this).hide();
+            $("#icon-play").show();
+            refreshSocket(__socket,container);
+        });
+
+        monitor_index_ops.getPools(function(data){
+            $("#icon-play").trigger('click');
+        });
+
+        monitor_index_ops.getRacks(function(data){
+            $("#icon-play").trigger('click');
+        });
+
+        $("#icon-play").click(function(){
+            $("#webshell").html("");
+            if(! $("[name=txtHost]").val()) {
+                $("#webshell").append("<m>ERROR:主机名称不能为空!</m>");
+                return false;
+            }
+
+            $(this).hide();
+            $("#icon-pause").show();
+            $("[name=txtPause]").val(0);
+
+
+            if(!__socket.connected) {
+               __socket.open();
+                initSocket(__socket,container);
+            }else {
+                refreshSocket(__socket,container);
+            }
+
+        });
+
+        //Auto start 
+        var auto = '{{ auto }}';
+        if(~~auto ==1 ) {
+            $("#icon-play").trigger('click');
+        }
+
+
+        $("#btnClear").click(function(){
+            $("#webshell").html("");
+            refreshSocket(__socket,container);
+        });
+
+        $("#rob-tab >li ").click(function(){
+            $.cookie("log-last-tab", $(this).attr('id'));
+        });
+
+        var lastTab = $.cookie("log-last-tab");
+        $("#"+lastTab).trigger('click');
+  
+    });
+
+    var __socket_cached = undefined;
+
+    var openSocket = function (){
+        if(undefined != __socket_cached) {
+            return __socket_cached;
+        }
+        var __socket = io.connect('ws://10.10.3.156:8899',{autoConnect:false});
+        __socket_cached = __socket;
+        return __socket;
+    }
+
+    var refreshSocket = function (socket,container){
+        if(!socket || ! socket.connect) {
+            container.append("Socket not connected");
+            return false;
+        }
+        var opts = $("#frmInit").serialize();
+        socket.emit("init",opts);
+    }
+
+    var initSocket = function (socket,container){
+        socket.on('connect',function(msg){
+            logger(container,"Server connected! ");
+            var opts = $("#frmInit").serialize();
+            socket.emit("init",opts);
+        });
+    }
+
+
+   
+
+    var eventBind = function (socket,container){
+        socket.on('connect_error',function(msg){
+            logger(container,"Connecting " + msg);
+        });
+
+        socket.on('reconnecting',function(msg){
+            logger(container,"Reconnecting server .... ");
+        });
+
+        socket.on('reconnect_error',function(msg){
+            logger(container,"Reconnecting error:" +msg);
+        });
+
+        socket.on('message',function(msg){
+            logger(container,msg);
+            if( $("#webshell >m").size() > 1000 ) {
+                 $("#webshell >m:lt(100)").remove();
+            }
+            container.scrollTop(container[0].scrollHeight);
+        });
+
+        socket.on('disconnect',function(){
+            logger(container,'Remote server closed session!');
+        })
+
+    }
+
+    var logger = function (container,msg){
+         $("#webshell").append("<m>" +  msg + "</m>");
+    }
+
+    var events = {
+        connect: 1,
+        connect_error: 1,
+        connect_timeout: 1,
+        disconnect: 1,
+        error: 1,
+        reconnect: 1,
+        reconnect_attempt: 1,
+        reconnect_failed: 1,
+        reconnect_error: 1,
+        reconnecting: 1
+    };
+
+</script>
+ 
+
+<div style="background-color:#d1dade;padding:10px;padding:10px 0 0 20px;margin:0;height:42px">
+    <ul class='rob-tab-ul' id="rob-tab">
+        <li class='active' id="tab-a1">实时日志</li>
+        <li id="tab-a2">历史数据</li>
+    </ul>
+</div>
+
+<div class="rob-tab-content"  >
+        <div id="tab-a1-content">
+            <div class="row" style="margin:0">
+                <div style="margin:0 0 10px 0">
+                    <form id="frmInit" style="margin:0;padding:0">
+                        <h3 class='log-header-h3'>
+                             <div style="display:inline;">WebShell</div> 
+                             <div style="display:inline;margin-left:50px">
+                                    主机:
+                                    <input type="text" value="{{host_name and host_name or host_name_in_pool or ''}}" class="txt-header" id="txt-host-tail" name="txtHost" style="width:150px;display:inline;margin:0;padding:0;height:25px" />
+                                    关键字:
+                                    <input type="text" class="txt-header" id="txt-kw-tail" name="txtKW" style="width:150px;display:inline;margin:0;padding:0;height:25px" />
+                                    显示:<input type="text" class="txt-header" id="txt-num-tail" value="10" name="txtLines" style="width:50px;display:inline;margin:0;padding:0;height:25px" /> 行数据
+                                    <input type="hidden" name="txtPause" value="0" />
+                             </div>
+                             
+                             <div style="float:right;display:inline">
+
+                                <i class="fi-pause large rob-icon" id="icon-pause" style="display:none" title="暂停刷新"></i>  
+                                <i class="fi-play large rob-icon" id="icon-play" title="自动刷新"></i>  
+                                <i class="fi-refresh large rob-icon" id="btnClear" title="刷新"></i>              
+                                <i class='fi-wrench large rob-icon' title="设置" style="display:none"></i>
+                             </div>
+                        </h3>
+                    </form>
+                    <div id="table-content">
+                                     <div id="webshell">
+                                            <p style="padding:40px 0 0 80px;font-size:15px;color:#e67e22">
+                                                    Hi,请输入主机名后点击<i title="开始"  class="fi-play large rob-icon"></i> 开始接收实时日志.<br/>
+
+                                                    如果要重置搜索条件,请点击搜索头部右侧 <i title="刷新"  class="fi-refresh large rob-icon"></i> 图标<br/>
+
+                                                    您可以指定显示历史日志的数目,如果要获取更多日志,请点击 历史数据 进行查看<br/>
+
+                                                    要查询多个主机,请用逗号分隔,例如: app10-010,app10-020 <br/>
+
+                                                    如果想接入更多机器,请用* 匹配,例如: app*  db*  xapp* apc* 等 <br/>
+
+                                                    其他任何疑问请联系OPS,我们很乐意回答你的问题,Thanks!
+
+                                            </p>
+
+                                     </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="tab-a2-content" style="display:none">
+            <div class="row" style="margin:0">
+                <div style="margin:0 0 10px 0">
+                    <form id="frmInit" style="margin:0;padding:0">
+                        <h3 class='log-header-h3'>
+                             <div style="display:inline;">历史日志</div> 
+                             <div style="display:inline;margin-left:50px">
+                                    主机:
+                                    <input type="text" value="{{host_name and host_name or host_name_in_pool or ''}}" class="txt-header" id="txt-host-name" style="width:150px;display:inline;margin:0;padding:0;height:25px" />
+                                    关键字:
+                                    <input type="text" class="txt-header" id="txt-kw" style="width:150px;display:inline;margin:0;padding:0;height:25px" />
+                                    每页:<input type="text" class="txt-header" value="100" id="txt-pagesize" style="width:50px;display:inline;margin:0;padding:0;height:25px" /> 行数据
+                                    <input type="hidden" name="txtPause" value="0" />
+                             </div>
+                             
+                             <div style="float:right;display:inline">
+                                <i class="fi-refresh large rob-icon" id="btnLoadLogger" title="刷新"></i>              
+                             </div>
+
+                        </h3>
+                    </form>
+                    <div id="log-content" style="padding:10px">
+                           <p style="padding:40px 0 0 80px;font-size:15px;color:#d35400;line-height:24px">
+                                    Hi,请输入主机名进行查询.<br/>
+                                    如果要重置搜索条件,请点击搜索头部右侧 <i title="刷新"  class="fi-refresh large rob-icon"></i> 图标<br/>
+
+                                    如果要查询多台主机日志,请用逗号分隔,例如: app10-010, app10-020 <br/>
+
+                                    ! Notice: 历史日志查询不支持*号匹配 <br/>
+
+                                    其他任何疑问请联系OPS,我们很乐意回答你的问题,Thanks!
+                            </p>
+
+                    </div>
+                    
+                    <div style="padding:10px;border-top:2px solid #7f8c8d;">
+                        <div id="log-pagenation" style="float:left;width:200px">
+                        </div>
+                        <div id="pageInfo" style="  float:left;vertical-align:bottom;padding-top:15px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+</div>
+
+ 
+{% endblock %}
+
+{%block myhost%}
+{% for host in followdHost %}
+<li class="heading foll-host {%if host_name and  host_name == host.hostname %} active-nav {%endif%}">
+        <a href="{{ url_for('logger.index',host_name=host.hostname,auto=1) }}">{{host.hostname}}</a>
+</li>
+{% endfor %}
+{% endblock %}
+
+
+
+
+{% block customscript %}
+{% assets filters="jsmin", output="asset/monitor_index.js", "js/common-lib.js","js/monitor/index.js","js/socket.io-1.1.0.js","js/ejs-min.js","js/logger/logger.search.js"%}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

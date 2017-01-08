@@ -1,0 +1,666 @@
+{% extends "virtual/layout.html" %}
+
+{% block url %}
+    <link rel="stylesheet" href="static/css/select2.css"/>
+
+{% endblock %}
+
+{% block ul %}
+    <ul class="breadcrumb">
+        <li>
+            <i class="icon-home home-icon"></i>
+            <a href="#">用户平台</a>
+        </li>
+        <li class="active">主机申请</li>
+    </ul>
+{% endblock %}
+
+{% block main %}
+    <div class="page-header">
+        <h1>
+            主机申请
+        </h1>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="widget-box">
+                        <div class="widget-header widget-header-blue widget-header-flat">
+                            <h4 class="lighter">申请流程</h4>
+
+                        </div>
+
+                        <div class="widget-body">
+                            <div class="widget-main">
+                                <div id="fuelux-wizard" class="row-fluid" data-target="#step-container">
+                                    <ul class="wizard-steps">
+                                        <li data-target="#step1" class="active">
+                                            <span class="step">1</span>
+                                            <span class="title">选择集群与配置</span>
+                                        </li>
+
+                                        <li data-target="#step2">
+                                            <span class="step">2</span>
+                                            <span class="title">核对信息</span>
+                                        </li>
+
+                                        <li data-target="#step3">
+                                            <span class="step">3</span>
+                                            <span class="title">创建结果</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="hr hr-double hr-dotted hr18"></div>
+
+                                <div class="step-content row-fluid position-relative" id="step-container">
+                                    <div class="step-pane active" id="step1">
+                                        <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-primary arrowed-right" style="width: 80px">
+                                                    数据中心</label>
+                                            </div>
+                                            <div class=" col-sm-2  ">
+                                                <input type="radio" name="data-centre" class="ace" checked>
+                                                <span class="lbl">&nbsp;&nbsp;天津</span>
+                                            </div>
+
+                                            <div class=" col-sm-2 ">
+                                                <input name="data-centre" type="radio" class="ace"/>
+                                                <span class="lbl"> &nbsp;&nbsp;北京</span>
+                                            </div>
+                                        </div>
+                                        <div class="vspace-xs-6"></div>
+
+                                        <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-primary arrowed-right" style="width: 80px">
+                                                    可用集群</label>
+                                            </div>
+                                            <div class="col-sm-2  ">
+                                                <input type="radio" name="useful-cluster" class="ace" checked>
+                                                <span class="lbl">&nbsp;&nbsp;58集群</span>
+                                            </div>
+                                            <div class="  col-sm-2 ">
+                                                <input type="radio" name="useful-cluster" class="ace"/>
+                                                <span class="lbl"> &nbsp;&nbsp;赶集集群</span>
+                                            </div>
+                                            <div class=" col-sm-2 ">
+                                                <input type="radio" name="useful-cluster" class="ace"/>
+                                                <span class="lbl"> &nbsp;&nbsp;安居客集群</span>
+                                            </div>
+
+                                            <div class="col-sm-2 ">
+                                                <input type="radio" name="useful-cluster" class="ace"/>
+                                                <span class="lbl"> &nbsp;&nbsp;英才集群</span>
+                                            </div>
+                                        </div>
+
+                                        <hr/>
+
+                                        <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-primary arrowed-right" style="width: 80px">
+                                                   机型</label>
+                                            </div>
+                                            {#                                                                 <div class="col-sm-10">#}
+                                            {#                                                                     <button id="add_machine" class="btn  btn-sm btn-success">#}
+                                            {#												                        <i class="icon-desktop "></i>#}
+                                            {#												                        选择机型#}
+                                            {#                                                                     </button>#}
+                                            {#                                                                 </div>#}
+                                            <div class="col-sm-2  ">
+                                                <input type="radio" name="machine" value="nor" class="ace" checked>
+                                                <span class="lbl">&nbsp;&nbsp;标准型</span>
+                                            </div>
+                                            <div class="  col-sm-2 ">
+                                                <input type="radio" name="machine" value="hig" class="ace">
+                                                <span class="lbl"> &nbsp;&nbsp;高IO型</span>
+                                            </div>
+                                            <div class=" col-sm-2 ">
+                                                <input type="radio" name="machine" value="mem" class="ace" disabled>
+                                                <span class="lbl"> &nbsp;&nbsp;内存型</span>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top: 20px">
+                                            <div class="col-sm-2"></div>
+                                            <div id="normal" class="col-sm-10">
+                                                <select id="normal_model" style="width: 400px">
+                                                    <option value="id_num">机型编号:VA1;&nbsp;&nbsp;&nbsp;CPU:2核;&nbsp;&nbsp;内存:4G;&nbsp;&nbsp;硬盘:300G</option>
+                                                    <option value="id_num">VA1&nbsp;&nbsp;2核&nbsp;&nbsp;4G&nbsp;&nbsp;300G</option>
+                                                    <option value="id_num">VB1&nbsp;&nbsp;4核&nbsp;&nbsp;8G&nbsp;&nbsp;300G</option>
+                                                    <option value="id_num">VC1&nbsp;&nbsp;4核&nbsp;&nbsp;16G&nbsp;&nbsp;300G</option>
+                                                </select>
+                                            </div>
+                                            <div id="high" class="col-sm-10" style="display: none">
+                                                <select id="high_model" style="width: 400px">
+                                                    <option value="id_num">高IO型机型:VA1&nbsp;&nbsp;2核&nbsp;&nbsp;4G&nbsp;&nbsp;300G</option>
+                                                    <option value="id_num">VB1&nbsp;&nbsp;4核&nbsp;&nbsp;8G&nbsp;&nbsp;300G</option>
+                                                    <option value="id_num">VC1&nbsp;&nbsp;4核&nbsp;&nbsp;16G&nbsp;&nbsp;300G</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-10" id="memy" style="display: none">
+                                                <select id="mem_model" style="width: 400px">
+                                                    <option value="id_num">内存型机型:VA1&nbsp;&nbsp;2核&nbsp;&nbsp;4G&nbsp;&nbsp;300G</option>
+                                                    <option value="id_num">VB1&nbsp;&nbsp;4核&nbsp;&nbsp;8G&nbsp;&nbsp;300G</option>
+                                                    <option value="id_num">VC1&nbsp;&nbsp;4核&nbsp;&nbsp;16G&nbsp;&nbsp;300G</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {#                                                                     <table id="machine" class="table table-striped table-bordered table-hover center">#}
+                                        {#                                                                         <thead>#}
+                                        {#                                                                         <tr>#}
+                                        {#                                                                             <th class="center">机型编号</th>#}
+                                        {#                                                                             <th>CPU</th>#}
+                                        {#                                                                             <th>内存</th>#}
+                                        {#                                                                             <th>硬盘</th>#}
+                                        {#                                                                         </tr>#}
+                                        {#                                                                         </thead>#}
+                                        {#                                                                         <tbody id="machine_list">   </tbody>#}
+                                        {#                                                                     </table>#}
+
+                                        <div class="vspace-xs-6"></div>
+                                        <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-primary arrowed-right" style="width: 80px">
+                                                    操作系统</label>
+                                            </div>
+                                            <div class="col-sm-2  ">
+                                                <input type="radio" value="cent" name="os" class="ace" checked>
+                                                <span class="lbl">&nbsp;&nbsp;CentOS</span>
+                                            </div>
+                                            <div class="  col-sm-2 ">
+                                                <input type="radio" value="ubt" name="os" class="ace">
+                                                <span class="lbl"> &nbsp;&nbsp;Ubuntu</span>
+                                            </div>
+                                            <div class=" col-sm-2 ">
+                                                <input type="radio" value="wind" name="os" class="ace">
+                                                <span class="lbl"> &nbsp;&nbsp;Windows</span>
+                                            </div>
+                                        </div>
+                                        <div class="vspace-xs-6"></div>
+                                        <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-primary arrowed-right" style="width: 80px">
+                                                    系统版本</label>
+                                            </div>
+                                            <div class="col-sm-10 " id="os-CentOS">
+                                                <select id="centOS" style="width: 200px">
+                                                    <option value="id-num">os-CentOS</option>
+                                                    <option value="id-num">标准版64位中文版</option>
+                                                    <option value="id-num">64位英文版</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-10 " id="os-Ubuntu" style="display: none">
+                                                <select id="ubuntu" style="width: 200px">
+                                                    <option value="id-num">os-Ubuntu</option>
+                                                    <option value="id-num">标准版64位中文版</option>
+                                                    <option value="id-num">64位英文版</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-10 " id="os-Windows" style="display: none">
+                                                <select id="windows" style="width: 200px">
+                                                    <option value="id-num">os-Windows</option>
+                                                    <option value="id-num">标准版64位中文版</option>
+                                                    <option value="id-num">64位英文版</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="vspace-xs-6"></div>
+                                        <div class="row">
+                                            <div class="col-sm-2 ">
+                                                <label class="label label-lg label-primary arrowed-right" style="width: 80px">
+                                                    服务器数量</label>
+                                            </div>
+                                            <div class="col-sm-10 " id="server_num">
+                                                <input type="text" class="input-mini" id="spinner1">
+                                                <label>台</label>
+                                            </div>
+                                        </div>
+                                        <div class="vspace-xs-6"></div>
+                                        <div class="row">
+                                            <div class="col-sm-4 ">  </div>
+                                            <div class="col-sm-8 ">
+                                                <button id="join_in" class="btn btn-info btn-sm"  >
+                                                    <i class="icon-shopping-cart"></i>
+                                                    加入申请列表
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="step-pane" id="step2">
+                                        <div class="row-fluid">
+                                            <table id="check-info"
+                                                   class="table table-striped table-bordered table-hover ">
+                                                <thead>
+                                                <tr>
+                                                    <th class="center">数据中心</th>
+                                                    <th class="center">可用集群</th>
+                                                    <th class="center">机型</th>
+                                                    <th class="center">系统版本</th>
+                                                    <th class="center">虚机数量</th>
+                                                    <th class="center">操作</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="host-info">
+                                                <tr>
+                                                    <td>天津</td>
+                                                    <td>安居客集群</td>
+                                                    <td>标志性：VE1</td>
+                                                    <td>CentOS 6.6 64位</td>
+                                                    <td>5台</td>
+                                                    <td><button class="btn btn-xs btn-danger del_tr" >
+                                                        删除
+                                                       </button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>北京</td>
+                                                    <td>58集群</td>
+                                                    <td>标志性：VE1</td>
+                                                    <td>CentOS 6.6 64位</td>
+                                                    <td>3台</td>
+                                                    <td><button class="btn btn-xs btn-danger del_tr" >
+                                                        删除
+                                                       </button>
+                                                    </td>
+                                                </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="step-pane" id="step3">
+                                        <div class="row-fluid">
+                                            <table id="build-result"
+                                                   class="table table-striped table-bordered table-hover ">
+                                                <thead>
+                                                <tr>
+                                                    <th class="center">主机名</th>
+                                                    <th class="center">IP</th>
+                                                    <th class="center">所属宿主机</th>
+                                                    <th class="center">系统版本</th>
+                                                    <th class="center">VM状态</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="result-info">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="step-pane" id="step4">
+                                        <div class="center">
+                                            <h3 class="green">Congrats!</h3>
+                                            Your product is ready to ship! Click finish to continue!
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr/>
+                                <div class="row-fluid wizard-actions">
+                                    <button class="btn btn-prev">
+                                        <i class="icon-arrow-left"></i>
+                                        Prev
+                                    </button>
+
+                                    <button class="btn btn-success btn-next" data-last="Finish ">
+                                        Next
+                                        <i class="icon-arrow-right icon-on-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /widget-main -->
+                        </div>
+                        <!-- /widget-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col -->
+    </div>
+    <!--
+        <div id="mymodal" class="modal" >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="blue bigger">选择所需机型</h4>
+                    </div>
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active">
+                                 <a href="javascript:void(0)" onclick="gotopage(1)" data-toggle="tab">
+                                标准型
+                                </a>
+                        </li>
+
+                        <li >
+                             <a href="javascript:void(0)" onclick="gotopage(2)" data-toggle="tab">
+                                 高IO型
+                                </a>
+                        </li>
+                        <li >
+                             <a href="javascript:void(0)" onclick="gotopage(3)" data-toggle="tab">
+                                内存型
+                                </a>
+                        </li>
+                    </ul>
+
+                    <div id="normal_machine" class="modal-body">
+                            <label>标准型机型:</label>
+                                <select class="form-control" id="normal" multiple="multiple">
+                                   <option value="id_num">标准型机型:VA1&nbsp;&nbsp;2核&nbsp;&nbsp;4G&nbsp;&nbsp;300G</option>
+                                   <option value="id_num">VA1&nbsp;&nbsp;2核&nbsp;&nbsp;4G&nbsp;&nbsp;300G</option>
+                                   <option value="id_num">VB1&nbsp;&nbsp;4核&nbsp;&nbsp;8G&nbsp;&nbsp;300G</option>
+                                   <option value="id_num">VC1&nbsp;&nbsp;4核&nbsp;&nbsp;16G&nbsp;&nbsp;300G</option>
+                                </select>
+                    </div>
+                    <div id="high_machine" class="modal-body">
+                        <label>高IO型机型:</label>
+                                <select class="form-control" id="normal" multiple="multiple">
+                                   <option value="id_num">高IO型机型:VA1&nbsp;&nbsp;2核&nbsp;&nbsp;4G&nbsp;&nbsp;300G</option>
+                                   <option value="id_num">VB1&nbsp;&nbsp;4核&nbsp;&nbsp;8G&nbsp;&nbsp;300G</option>
+                                   <option value="id_num">VC1&nbsp;&nbsp;4核&nbsp;&nbsp;16G&nbsp;&nbsp;300G</option>
+                                </select>
+                    </div>
+                    <div id="mem_machine" class="modal-body">
+                         <label> 内存型机型:</label>
+                                <select class="form-control" id="normal" multiple="multiple">
+                                </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm" data-dismiss="modal">
+                            <i class="icon-remove"></i>
+                            Cancel
+                        </button>
+
+                        <button id="ok_machine" class="btn btn-sm btn-primary ok_machine">
+                            <i class="icon-ok"></i>
+                            Ok
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
+{% endblock %}
+{% block customscript %}
+    <script src="static/js/fuelux/fuelux.wizard.min.js"></script>
+    <script src="static/js/fuelux/fuelux.spinner.min.js"></script>
+    <script src="static/js/jquery.validate.min.js"></script>
+    <script src="static/js/additional-methods.min.js"></script>
+    <script src="static/js/bootbox.min.js"></script>
+    <script src="static/js/jquery.maskedinput.min.js"></script>
+    <script src="static/js/select2.min.js"></script>
+    <script type="text/javascript">
+
+
+          $(".del_tr").click(ace.click_event, function ( ) {
+              $(this).each(function () {
+                  if (confirm("确认删除吗?\r\n确认之后只能重新选择！")) {
+                      $(this).parent().parent().remove();
+                  }
+              });
+          });
+ {#        $("#del_tr").on(ace.click_event, function ( ) {
+           $(this).each(function () {
+                bootbox.confirm("确认删除吗?/r/n删除后只能重新选择！", function (result) {
+                    if (result) {
+                        $(this).parent().parent().remove();
+                    }
+                });
+             });
+        });#}
+
+        $("input[name='os']").click(function () {
+            var os_type = $('input[name="os"]:checked').val();
+            if (os_type == 'cent') {
+                $('#os-CentOS').css('display', 'block');
+                $('#os-Ubuntu').css('display', 'none');
+                $('#os-Windows').css('display', 'none');
+            }
+            else {
+                if (os_type == 'ubt') {
+                    $('#os-CentOS').css('display', 'none');
+                    $('#os-Ubuntu').css('display', 'block');
+                    $('#os-Windows').css('display', 'none');
+                }
+                else {
+                    $('#os-CentOS').css('display', 'none');
+                    $('#os-Ubuntu').css('display', 'none');
+                    $('#os-Windows').css('display', 'block');
+                }
+            }
+        });
+
+
+        $("input[name='machine']").click(function () {
+            var choose_machine = $('input[name="machine"]:checked').val();
+            if (choose_machine == 'nor') {
+                $("#normal").css('display', 'block');
+                $("#high").css('display', 'none');
+                $("#memy").css('display', 'none');
+            }
+            else {
+                if (choose_machine == 'hig') {
+                    $("#normal").css('display', 'none');
+                    $("#high").css('display', 'block');
+                    $("#memy").css('display', 'none');
+                }
+                else {
+                    $("#normal").css('display', 'none');
+                    $("#high").css('display', 'none');
+                    $("#memy").css('display', 'block');
+                }
+            }
+        });
+
+        $("#add_machine").click(function () {
+            $("#mymodal").modal('show');
+        });
+        add_machine_model = 1;
+        set_add_machine(1);
+
+        function set_add_machine(my_model) {
+            if (my_model == 1) {
+                $("#normal_machine").show();
+                $("#high_machine").hide();
+                $("#mem_machine").hide();
+            }
+            else {
+                if (my_model == 2) {
+                    $("#normal_machine").hide();
+                    $("#high_machine").show();
+                    $("#mem_machine").hide();
+                }
+                else {
+                    $("#normal_machine").hide();
+                    $("#high_machine").hide();
+                    $("#mem_machine").show();
+                }
+            }
+        }
+
+        function gotopage(my_model) {
+            add_machine_model = my_model
+            set_add_machine(my_model)
+        }
+        $("#mymodal").on("click", ".ok_machine", function () {
+            if (add_machine_model == 1) {
+
+            }
+
+            $("#mymodal").modal('hide');
+
+        });
+
+
+        $('#spinner1').ace_spinner({
+            value: 1,
+            min: 1,
+            max: 200,
+            step: 1,
+            on_sides: true,
+            icon_up: 'icon-plus smaller-75',
+            icon_down: 'icon-minus smaller-75',
+            btn_up_class: 'btn-success',
+            btn_down_class: 'btn-danger'
+        });
+
+        jQuery(function ($) {
+
+            $('[data-rel=tooltip]').tooltip();
+
+            $(".select2").css('width', '200px').select2({allowClear: true})
+                    .on('change', function () {
+                        $(this).closest('form').validate().element($(this));
+                    });
+
+
+            var $validation = false;
+            $('#fuelux-wizard').ace_wizard().on('change', function (e, info) {
+                if (info.step == 1 && $validation) {
+                    if (!$('#validation-form').valid()) return false;
+                }
+            }).on('finished', function (e) {
+                bootbox.dialog({
+                    message: "恭喜你！你已成功创建主机！",
+                    buttons: {
+                        "success": {
+                            "label": "OK",
+                            "className": "btn-sm btn-primary"
+                        }
+                    }
+                });
+            }).on('stepclick', function (e) {
+                //return false;//prevent clicking on steps
+            });
+
+
+            $('#skip-validation').removeAttr('checked').on('click', function () {
+                $validation = this.checked;
+                if (this.checked) {
+                    $('#sample-form').hide();
+                    $('#validation-form').removeClass('hide');
+                }
+                else {
+                    $('#validation-form').addClass('hide');
+                    $('#sample-form').show();
+                }
+            });
+
+
+            //documentation : http://docs.jquery.com/Plugins/Validation/validate
+
+
+            $.mask.definitions['~'] = '[+-]';
+            $('#phone').mask('(999) 999-9999');
+
+            jQuery.validator.addMethod("phone", function (value, element) {
+                return this.optional(element) || /^\(\d{3}\) \d{3}\-\d{4}( x\d{1,6})?$/.test(value);
+            }, "Enter a valid phone number.");
+
+            $('#validation-form').validate({
+                errorElement: 'div',
+                errorClass: 'help-block',
+                focusInvalid: false,
+                rules: {
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 5
+                    },
+                    password2: {
+                        required: true,
+                        minlength: 5,
+                        equalTo: "#password"
+                    },
+                    name: {
+                        required: true
+                    },
+                    phone: {
+                        required: true,
+                        phone: 'required'
+                    },
+                    url: {
+                        required: true,
+                        url: true
+                    },
+                    comment: {
+                        required: true
+                    },
+                    state: {
+                        required: true
+                    },
+                    platform: {
+                        required: true
+                    },
+                    subscription: {
+                        required: true
+                    },
+                    gender: 'required',
+                    agree: 'required'
+                },
+
+                messages: {
+                    email: {
+                        required: "Please provide a valid email.",
+                        email: "Please provide a valid email."
+                    },
+                    password: {
+                        required: "Please specify a password.",
+                        minlength: "Please specify a secure password."
+                    },
+                    subscription: "Please choose at least one option",
+                    gender: "Please choose gender",
+                    agree: "Please accept our policy"
+                },
+
+                invalidHandler: function (event, validator) { //display error alert on form submit
+                    $('.alert-danger', $('.login-form')).show();
+                },
+
+                highlight: function (e) {
+                    $(e).closest('.form-group').removeClass('has-info').addClass('has-error');
+                },
+
+                success: function (e) {
+                    $(e).closest('.form-group').removeClass('has-error').addClass('has-info');
+                    $(e).remove();
+                },
+
+                errorPlacement: function (error, element) {
+                    if (element.is(':checkbox') || element.is(':radio')) {
+                        var controls = element.closest('div[class*="col-"]');
+                        if (controls.find(':checkbox,:radio').length > 1) controls.append(error);
+                        else error.insertAfter(element.nextAll('.lbl:eq(0)').eq(0));
+                    }
+                    else if (element.is('.select2')) {
+                        error.insertAfter(element.siblings('[class*="select2-container"]:eq(0)'));
+                    }
+                    else if (element.is('.chosen-select')) {
+                        error.insertAfter(element.siblings('[class*="chosen-container"]:eq(0)'));
+                    }
+                    else error.insertAfter(element.parent());
+                },
+
+                submitHandler: function (form) {
+                },
+                invalidHandler: function (form) {
+                }
+            });
+
+
+            $('#modal-wizard .modal-header').ace_wizard();
+            $('#modal-wizard .wizard-actions .btn[data-dismiss=modal]').removeAttr('disabled');
+        })
+    </script>
+{% endblock %}

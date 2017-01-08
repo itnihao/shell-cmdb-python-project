@@ -1,0 +1,267 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+    {% assets filters="cssmin", output="asset/device_list.css","css/jquery-ui.min.css","css/jquery-ui.structure.min.css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+    {% endassets %}
+    <style type="text/css">
+        .margin_custom {
+            margin-right: 8px;
+            float: right;
+        }
+    </style>
+{% endblock %}
+{% block title %}CMDB - 设备管理{% endblock %}
+{% block main %}
+    <h5 class="content_title">
+        <span>设备列表</span>
+    </h5>
+    <hr>
+    <div class="row collapse">
+        <form method="get" action="/cmdb/device" id="searchForm">
+            <div class="row">
+{#                <div class="large-1 margin_custom columns">#}
+                    {% if show.add %}
+                    <a href="{{ url_for('device.add') }}" class="button radius right cmdb-tiny" style="margin-left: 8px;"> + 添加设备</a>
+                    {% endif %}
+{#                </div>#}
+{#                <div class="large-1 columns margin_custom">#}
+{#                    {% if show.add %}#}
+{#                    <a href="{{ url_for('device.add') }}" class="button radius right cmdb-tiny" style="margin-left: 8px;"> + 添加设备</a>#}
+{#                    {% endif %}#}
+                    <input type="submit" class="right radius button cmdb-tiny" value="搜索">
+{#                </div>#}
+                <div class="large-2 right columns margin_custom">
+                    <input type="text" value="{{ cond[6] }}" placeholder="请输入..." name="kw">
+                </div>
+                <div class="large-2 right columns margin_custom" style="width: 100px">
+                    <select name="status">
+
+                        <option value="-1">请选择状态</option>
+                        {% for (status_id,status_item) in status_name.items() %}
+                            <option value="{{ status_id }}" {% if cond[7] == "%s"%status_id %}
+                                    selected="selected" {% endif %}>{{ status_item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="large-2 right columns margin_custom" style="width: 100px">
+                    <select name="rack" id="rack">
+                        <option value="0">请选择机柜</option>
+                    </select>
+                </div>
+                <div class="large-2 right columns margin_custom" style="width: 130px">
+                    <select name="idc" id="idc">
+                        <option value="0" selected="selected">请选择机房</option>
+                        {% for idc_id in idc_names %}
+                            <option value="{{ idc_id }}"
+                                    {% if idc_id == cond[3] %}
+                                    selected="selected" {% endif %}>{{ idc_names[idc_id] }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" value="{{ idc_to_rack }}" id="test"/>
+                </div>
+                <div class="large-2 right columns margin_custom" style="width: 100px">
+                    <select name="cate" >
+                        <option value="0">请选择类型</option>
+                        {% for cate_id in cate_names %}
+                            <option value="{{ cate_id }}" {% if cate_id == cond[1] %}
+                                    selected="selected" {% endif %}>{{ cate_names[cate_id] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!--<div class="large-3 columns">-->
+                <!--<div class="large-11 columns">-->
+                <!--<label><input type="text" style="z-index:9998" id="date" name="date" value="{{ cond[5] }}"  placeholder="请选择时间"></label>-->
+                <!--</div>-->
+                <!--</div>-->
+            </div>
+        </form>
+        {% if show.add %}
+            <div class="row right">
+                {#            <input id="fileToUpload"  type="file"#}
+                {#                    name="fileToUpload"  class="input" style="width:200px;">#}
+                {#            <button class="button cmdb-tiny" id="buttonUpload"#}
+                {#                    onclick="return ajaxFileUpload(1);">导入设备</button>#}
+                {#            <button class="button cmdb-tiny" id="buttonUpload"#}
+                {#                    onclick="return UploadRemoteCard();">导入远控卡</button>#}
+                {% if show.export %}
+                <a href="{{ url_for('device.device_excel') }}" class="button radius right cmdb-tiny" style="margin-left: 8px;">导出</a>
+                {% endif %}
+                <a class="button radius right cmdb-tiny" id="import_host">导入</a>
+            </div>
+        {% endif %}
+    </div>
+    {% if devs %}
+        <table width="100%">
+            <thead>
+            <tr>
+                <th>资产编号</th>
+                <th>类型</th>
+                <th>机房/机柜</th>
+                <th>品牌</th>
+                <th>型号</th>
+                <th>CPU</th>
+                <th title="GB">内存</th>
+                <th title="GB">硬盘</th>
+                <th>保修</th>
+                <th title="RMB">价格</th>
+                {% if show.modify %}
+                    <th>操作</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for dev in devs %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('device.detail',id=dev.id) }}">{{ dev.device_label }}</a>
+                    </td>
+                    <td>{{ cate_names[dev.device_cat_id] }}</td>
+                    <td>{{ rack_idc_names[dev.rack_id] }}/{{ rack_names[dev.rack_id] }}</td>
+                    <td>{{ supp_names[dev.supplier_id] }}</td>
+                    <td>{{ dev.model_descri }}</td>
+                    <td>{{ dev.cpu_info() }}</td>
+                    <td>{{ dev.memory_info() }}</td>
+                    <td>{{ dev.storage_info() }}</td>
+                    <td>{{ dev.service_term() }}年</td>
+                    <td>{{ dev.price_rmb() }}</td>
+                    {% if show.modify %}
+                        <td>
+                            <a href="{{ url_for('device.modify', id=dev.id) }}">修改</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="pagination-centered right">
+
+        <ul class="pagination">
+            <li>当前{{ extendinfo['cur_total'] }}条,共{{ extendinfo['total'] }}条</li>
+            {% if pager %}
+                {% if pager.current > 1 %}
+                    <li class="arrow"><a href="{{ url_for('device.list', page=1) }}">&laquo;</a></li>
+                {% endif %}
+                {% for p in pager.pages %}
+                    {% if p == pager.current %}
+                        <li class="current"><a href="">{{ p }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('device.list') }}?page={{ p }}&{{ url }}">{{ p }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if pager.current < pager.page_num %}
+                    <li class="arrow">
+                        <a href="{{ url_for('device.list') }}?page={{ pager.page_num }}&{{ url }}">&raquo;</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </div>
+
+    <div id="import-form" class="reveal-modal" data-reveal>
+        <label>选择导入主机类型</label>
+        <input type="radio" name="host_type" value="1" id="true" checked="checked">
+        <label for="import_device">导入设备</label>
+        <input type="radio" name="host_type" value="0" id="vir" checked="checked">
+        <label for="import_remote_card">导入远控卡</label>
+
+        {#    <button class="button cmdb-tiny" id="buttonUpload"#}
+        {#            onclick="return ajaxFileUpload(1);">导入设备#}
+        {#    </button>#}
+        {#    <button class="button cmdb-tiny" id="buttonUpload"#}
+        {#            onclick="return UploadRemoteCard();">导入远控卡#}
+        {#    </button>#}
+        <a class="close-reveal-modal">&#215;</a>
+
+        <div class="row" style=" text-align:center;">
+            <input id="fileToUpload" type="file"
+                   name="fileToUpload" class="input">
+        </div>
+        <font color="#ff8c00">导入文件格式必须为.xlsx，导入内容请严格按照模板填写，导入完成后请认真检查数据！<a
+                href="{{ url_for('host.downmoudle') }}">下载模板</a></font>
+        <button class="button tiny right" id="my_import">导入</button>
+        <ul id="logul">
+
+        </ul>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+{% endblock %}
+
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/device_list.js","js/jquery-ui.min.js","js/list.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        <script type="text/javascript" src="/static/js/vendor/ajaxfileupload.js"></script>
+        {{ fujs.js }}
+        <script type="text/javascript">
+            function ajaxFileUpload(method) {
+                $("#logul").empty()
+                if (method == 1) {
+                    $.ajaxFileUpload({
+                        url: '/cmdb/device/import_device',   //submit to UploadFileServlet
+                        secureuri: false,
+                        fileElementId: 'fileToUpload',
+                        //dataType : 'text', //or json xml whatever you like~
+                        dataType: 'json',
+                        //type:'json',
+                        contentType: 'text/html',
+                        success: function (res) {
+                            if (res.code == 1) {
+                                if (res.data.length > 0) {
+{#                                    var url = flask_util.url_for('host.importinfo', {datas: res.data})#}
+{#                                    window.location.href = url;#}
+                                    datas=res.data
+                                    $.each(datas, function(i, item){
+                                        $("#logul").append('<li>'+item+'</li>')
+                                    })
+                                }
+                                else {
+                                    alert('success')
+                                }
+                            }
+                            else {
+                                alert(res.msg)
+                            }
+                        },
+                        error: function (res) {
+                            $("#result").append(res);
+                        }
+                    });
+                } else if (method == 0) {
+                    $.ajaxFileUpload({
+                        url: '/cmdb/device/import_remote_card',   //submit to UploadFileServlet
+                        secureuri: false,
+                        fileElementId: 'fileToUpload',
+                        //dataType : 'text', //or json xml whatever you like~
+                        dataType: 'json',
+                        //type:'json',
+                        contentType: 'text/html',
+                        success: function (res) {
+                            if (res.code == 1) {
+                                alert('success')
+                            }
+                            else {
+                                alert(res.msg)
+                            }
+                        },
+                        error: function (res) {
+                            $("#result").append(res);
+                        }
+                    });
+                }
+            }
+            ;
+
+            $('#import_host').click(function () {
+                $('#import-form').foundation('reveal', 'open');
+                $("#logul").empty()
+            })
+
+            $('#my_import').click(function () {
+                ajaxFileUpload($('input[name="host_type"]:checked ').val())
+            })
+        </script>
+    {% endassets %}
+{% endblock %}

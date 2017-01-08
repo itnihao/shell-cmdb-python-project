@@ -1,0 +1,273 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<dl class="tabs" data-tab>
+    {% if flag == "myhapply" %}
+        <dd><a class="list2" href="javascript:void(0);" data="{{ url_for('user.mypapply') }}">权限列表</a></dd>
+        <dd class="active"><a href="javascript:void(0);">主机列表</a></dd>
+        <dd><a class="list3"href="javascript:void(0);" data="{{ url_for('user.mydapply') }}">域名列表</a></dd>
+        <a href="{{ url_for('host.apply',id=0) }}" class="button tiny right radius" style="margin: 0 0;">申请主机</a>
+    {% elif flag == "mypapply" %}
+        <dd class="active"><a href="javascript:void(0);">权限列表</a></dd>
+        <dd><a class="list1" href="javascript:void(0) ;" data="{{ url_for('user.myhapply') }}">主机列表</a></dd>
+        <dd><a class="list3"href="javascript:void(0);" data="{{ url_for('user.mydapply') }}">域名列表</a></dd>
+        <a href="{{ url_for('bastion.index',id=0) }}" class="button tiny right radius" style="margin: 0 0;">申请权限</a>
+    {% elif flag == "mydapply" %}
+        <dd><a class="list2" href="javascript:void(0);" data="{{ url_for('user.mypapply') }}">权限列表</a></dd>
+        <dd><a class="list1" href="javascript:void(0) ;" data="{{ url_for('user.myhapply') }}">主机列表</a></dd>
+        <dd class="active"><a href="javascript:void(0);">域名列表</a></dd>
+        <a href="{{ url_for('dns.apply') }}" class="button tiny right radius" style="margin: 0 0;">申请域名</a>
+    {% endif %}
+</dl>
+<div class="tabs-content">
+    <div class="content active">
+        {% if flag == "myhapply" %}
+        {% if info %}
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th width="6%">编号</th>
+                <th width="6%">机房</th>
+                <th width="10%">类型</th>
+                <th width="21%">POOL</th>
+                <th width="15%">配置</th>
+                <th width="12%">主机名</th>
+                <th width="6%">数量</th>
+                <th width="16%">申请时间</th>
+                <th width="7%">状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in info %}
+            <tr title="描述: {{ item.content }}">
+                <td>{{ item.id }}</td>
+                <td>{{ item.idc }}</td>
+                <td>{{ item.type }}</td>
+                <td><a href="{{ url_for('pool.detail',id=item.pool_id) }}">{{ item.pool }}</a></td>
+                <td>{{ item.config|safe }}</td>
+                <td>
+                    {{ item.host_name|safe }}
+                    {% for hostinfo in item.host_info %}
+                    <a href="{{ url_for('host.host_detail',id=hostinfo.values()[0]) }}">{{ hostinfo.keys()[0]|safe}}</a>
+                    {% endfor %}
+                </td>
+                <td>{{ item.num }}</td>
+                <td>{{ item.date }}</td>
+                <td>
+                    {% if item.status_id == 1 %}
+                    <span class="round regular label">{{ item.status }}</span>
+                    {% elif item.status_id == 2 %}
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="{{ item.note }}">
+                        <span  class="fail_warning warning round  label">{{ item.status }}</span>
+                    </span>
+                    {% elif item.status_id == 3 %}
+                    <span class="round regular label">{{ item.status }}</span>
+                    {% elif item.status_id == 4 %}
+                    <span class="round success label">{{ item.status }}</span>
+                    {% elif item.status_id == 5 %}
+                    <span class="fail_warning round warning label">{{ item.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="row  collapse">
+            <div class="small-10 columns">您当前没有申请任何主机，如若要申请主机，请前往主机申请页面</div>
+            <div class="small-2 columns"><img src="{{ url_for('static', filename='img/array.jpg') }}"/></div>
+        </div>
+        <style type="text/css">
+            .button {
+                -webkit-animation-name: pulse;
+                -webkit-animation-duration: 2s;
+                -webkit-animation-iteration-count: infinite;
+                -moz-animation: pulse 2s infinite;
+            }
+        </style>
+        {% endif %}
+        {% elif flag == "mypapply" %}
+        {% if info %}
+        <table style="width: 100%;">
+            <thead>
+            <tr>
+                <th width="5%">编号</th>
+                <th width="15%"><span data-tooltip aria-haspopup="true" class="has-tip" title="主机或POOL">名称</span></th>
+                <th width="7%">权限</th>
+                <th width="8%">期限</th>
+                <th width="30%">描述</th>
+                <th width="20%">申请时间</th>
+                <th width="10%">状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in info %}
+            <tr>
+                <td>{{ item.id }}</td>
+                {% if item.type == 1 %}
+                <td><a href="{{ url_for('host.host_detail',id=item.target_id) }}">{{ item.name }}</a></td>
+                {% else %}
+                <td><a href="{{ url_for('pool.detail',id=item.target_id) }}">{{ item.name }}</a></td>
+                {% endif %}
+                <td>{{ item.role }}</td>
+                <td>{{ item.days }}天</td>
+                <td title="{{ item.content_all }}">
+                    {% if item.content_len > 15 %}
+                    {{ item.content }}...
+                    {% else %}
+                    {{ item.content }}
+                    {% endif %}
+                </td>
+                <td>{{ item.created }}</td>
+                <td>
+                    {% if item.status_id == 1 %}
+                    <span class="round regular label">{{ item.status }}</span>
+                    {% elif item.status_id == 2 %}
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="{{ item.note }}">
+                        <span  class="fail_warning warning round  label">{{ item.status }}</span>
+                    </span>
+                    {% elif item.status_id == 3 %}
+                    <span class="round regular label">{{ item.status }}</span>
+                    {% elif item.status_id == 4 %}
+                    <span class="round success label">{{ item.status }}</span>
+                    {% elif item.status_id == 5 %}
+                    <span class="fail_warning round warning label">{{ item.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <hr style="visibility: hidden;"/>
+        您当前没有需要任何主机的权限
+        {% endif %}
+        {% elif flag == "mydapply" %}
+        <table style="width: 100%">
+            <thead>
+            <tr>
+                <th>域名</th>
+                <th>类型</th>
+                <th>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="IP 或 域名">指向</span>
+                </th>
+                <th>用途</th>
+                <th>申请时间</th>
+                <th>审批人</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in apply_list %}
+            <tr>
+                <td><a href="http://{{ item.prefix }}.{{ item.zone }}" target="_blank">{{ item.prefix }}.{{ item.zone }}</a></td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.ip_domain }}</td>
+
+                <td title="{{ item.content }}">
+                    {% if item.content_len and  item.content_len > 15 %}
+                        {{ item.content_part }}...
+                    {% else %}
+                        {{ item.content_part }}
+                    {% endif %}
+                </td>
+                <td>{{ item.apply_time }}</td>
+                <td>{{ item.approver }}</td>
+                <td>
+                    {% if item.status == 1 or item.status == 3 %}
+                    <span class="round regular label">{{ item.status_descri }}</span>
+                    {% elif item.status == 2 or item.status == 5 %}
+                    <span class="fail_warning warning round  label">{{ item.status_descri }}</span>
+                    {% elif item.status == 4 %}
+                    <span class="round success label">{{ item.status_descri }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.status == 4 %}
+                    <a class="dns_modify" id="{{ item.id }}">修改</a>
+                    {% else %}
+                    --
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+<div id="dns_edit" class="reveal-modal small" data-reveal>
+    <h4>域名修改</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+        <div class="row">
+        <div class="small-10 columns">
+            <input type="text" id="zone" readonly="readonly">
+        </div>
+        <div class="small-2 columns"></div>
+        </div>
+    <div>
+        <div class="row">
+            <div class="small-10 columns">
+                <input type="text" id="dns_value" placeholder="请输入value">
+            </div>
+            <div class="small-2 columns">
+                <a href="javascript:void(0);" id="switch_ip" style="margin:20px 0 0 10px;display: block;font-size: 15px">CNAME</a>
+                <a href="javascript:void(0);" id="switch_cname" style="margin:20px 0 0 10px;display: none;font-size: 15px" class="radius tiny">IP</a>
+                <a href="javascript:void(0);" id="self_ip" style="margin:20px 0 0 10px;display: none;font-size: 15px" class="radius tiny">本机IP</a>
+            </div>
+        </div>
+    </div>
+    <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    <input id="deny_ip1" style="display: none" type="checkbox"><label id="deny_ip2" style="display: none" for="deny_ip1">禁止自动更新IP</label>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div class="pagination-centered right">
+    <ul class="pagination">
+        {% if p.previous %}
+        {% if flag == "myhapply" %}
+        <li class="arrow"><a href="{{ url_for('user.myhapply') }}?p=1">&laquo;</a></li>
+        {% elif flag == "mypapply" %}
+        <li class="arrow"><a href="{{ url_for('user.mypapply') }}?p=1">&laquo;</a></li>
+        {% elif flag == "mydapply" %}
+        <li class="arrow"><a href="{{ url_for('user.mydapply') }}?p=1">&laquo;</a></li>
+        {% endif %}
+        {% endif %}
+        {% for page in p.pages %}
+        {% if page == p.current %}
+        <li class="current"><a href="">{{ page }}</a></li>
+        {% else %}
+        <li>
+            {% if flag == "mypapply" %}
+            <a href="{{ url_for('user.mypapply') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% elif flag == "myhapply" %}
+            <a href="{{ url_for('user.myhapply') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% elif flag == "mydapply" %}
+            <a href="{{ url_for('user.mydapply') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% endif %}
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if p.next %}
+        <li class="arrow">
+            {% if flag == "myhapply" %}
+            <a href="{{ url_for('user.myhapply') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% elif flag == "mypapply" %}
+            <a href="{{ url_for('user.mypapply') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% elif flag == "mydapply" %}
+            <a href="{{ url_for('user.mydapply') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% endif %}
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/ucenter/myhapply.js","js/jquery-ui.min.js","js/myapply.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

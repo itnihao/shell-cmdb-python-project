@@ -1,0 +1,243 @@
+{% extends "virtual/layout.html" %}
+{% block ul %}
+    <ul class="breadcrumb">
+        <li>
+            <i class="icon-home home-icon"></i>
+            <a href="#">首页</a>
+        </li>
+        <li class="active">控制台</li>
+    </ul>
+{% endblock %}
+
+{% block main %}
+    <div class="page-header">
+        <h1>
+            欢迎使用云主机管理平台
+            <small>
+                V1.0
+            </small>
+        </h1>
+    </div>
+
+    <div class="col-xs-12">
+
+        <div class="row">
+
+            <div class="space-6"></div>
+
+            <div class="col-sm-6">
+                <div class="widget-box">
+                    <div class="widget-header widget-header-flat widget-header-small">
+                        <h5>
+                            <i class="icon-th-list"></i>
+                            平台信息
+                        </h5>
+                    </div>
+
+                    <div class="widget-body">
+
+                        <div class="widget-main" style="font-size: 16px">
+                            <dl class="dl-horizontal">
+                                <dt>数据中心:</dt>
+                                <dd>天津数据中心、北京数据中心</dd>
+                            </dl>
+                            <dl class="dl-horizontal">
+                                <dt>可用集群:</dt>
+                                <dd>58集群、赶集集群、安居客集群、英才集群</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="widget-box">
+                    <div class="widget-header widget-header-flat widget-header-small">
+                        <h5>
+                            <i class="icon-signal"></i>
+                            平台概况
+                        </h5>
+                    </div>
+
+                    <div class="widget-body">
+
+                        <div id="platform" class="widget-main">{#  style="min-width:700px;height:400px"#}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="space-6"></div>
+            <div class="col-sm-6">
+                <div class="widget-box">
+                    <div class="widget-header widget-header-flat widget-header-small">
+                        <h5>
+                            <i class="icon-signal"></i>
+                            58集群概况
+                        </h5>
+                    </div>
+                    <div class="widget-body">
+
+                        <div id="wuba_cluster" class="widget-main">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="widget-box">
+                    <div class="widget-header widget-header-flat widget-header-small">
+                        <h5>
+                            <i class="icon-signal"></i>
+                            赶集集群概况
+                        </h5>
+                    </div>
+                    <div class="widget-body">
+
+                        <div id="ganji_cluster" class="widget-main">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="space-6"></div>
+            <div class="col-sm-6">
+                <div class="widget-box">
+                    <div class="widget-header widget-header-flat widget-header-small">
+                        <h5>
+                            <i class="icon-signal"></i>
+                            安居客集群概况
+                        </h5>
+                    </div>
+                    <div class="widget-body">
+
+                        <div id="ajk_cluster" class="widget-main">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="widget-box">
+                    <div class="widget-header widget-header-flat widget-header-small">
+                        <h5>
+                            <i class="icon-signal"></i>
+                            英才集群概况
+                        </h5>
+                    </div>
+                    <div class="widget-body">
+
+                        <div id="yingcai_cluster" class="widget-main">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block customscript %}
+<script type="text/javascript" src="/static/js/highcharts.js"></script>
+<script type="text/javascript" src="/static/js/virtual/index.js"></script>
+
+{#    $(function () {#}
+{##}
+{#        var colors = Highcharts.getOptions().colors,#}
+{#                categories = ['MSIE', 'Firefox', 'Chrome', 'Safari', 'Opera'],#}
+{#                name = 'Browser brands',#}
+{#                data = [{#}
+{#                    y: 55.11,#}
+{#                    color: colors[0],#}
+{##}
+{#                }, {#}
+{#                    y: 21.63,#}
+{#                    color: colors[1],#}
+{##}
+{#                }, {#}
+{#                    y: 11.94,#}
+{#                    color: colors[2],#}
+{##}
+{#                }, {#}
+{#                    y: 7.15,#}
+{#                    color: colors[3],#}
+{##}
+{#                }, {#}
+{#                    y: 2.14,#}
+{#                    color: colors[4],#}
+{##}
+{#                }];#}
+{##}
+{#        function setChart(name, categories, data, color) {#}
+{#            chart.xAxis[0].setCategories(categories, false);#}
+{#            chart.series[0].remove(false);#}
+{#            chart.addSeries({#}
+{#                name: name,#}
+{#                data: data,#}
+{#                color: color || 'white'#}
+{#            }, false);#}
+{#            chart.redraw();#}
+{#        }#}
+{##}
+{#        var chart = $('#platform').highcharts({#}
+{#            chart: {#}
+{#                type: 'column'#}
+{#            },#}
+{#            title: {#}
+{#                text: 'Browser market share, April, 2011'#}
+{#            },#}
+{#            subtitle: {#}
+{#                text: ''#}
+{#            },#}
+{#            xAxis: {#}
+{#                categories: categories#}
+{#            },#}
+{#            yAxis: {#}
+{#                title: {#}
+{#                    text: 'Total percent market share'#}
+{#                }#}
+{#            },#}
+{#            plotOptions: {#}
+{#                column: {#}
+{##}
+{#                    dataLabels: {#}
+{#                        enabled: true,#}
+{#                        color: colors[0],#}
+{#                        style: {#}
+{#                            fontWeight: 'bold'#}
+{#                        },#}
+{#                        formatter: function () {#}
+{#                            return this.y + '%';#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{#            },#}
+{#            tooltip: {#}
+{#                formatter: function () {#}
+{#                    var point = this.point,#}
+{#                            s = this.x + ':<b>' + this.y + '% market share</b><br/>';#}
+{##}
+{#                    return s;#}
+{#                }#}
+{#            },#}
+{#            series: [{#}
+{#                name: name,#}
+{#                data: data,#}
+{#                color: 'white'#}
+{#            }],#}
+{#            exporting: {#}
+{#                enabled: false#}
+{#            }#}
+{#        })#}
+{#                .highcharts(); // return chart#}
+{#    });#}
+
+
+{% endblock %}
+

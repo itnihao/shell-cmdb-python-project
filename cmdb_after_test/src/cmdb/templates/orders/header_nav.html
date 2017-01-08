@@ -1,0 +1,39 @@
+<head>
+    <link rel="stylesheet" href="/static/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/static/css/orders/orders.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap-treeview.min.css"/>
+</head>
+{% block nav %}
+    <nav class="navbar navbar-anjuke">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <img height="50" width="53" alt="Brand" src="{{ url_for('static',filename='img/anjuke.png') }}">
+            </div>
+
+
+            <div  class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="header_nav nav navbar-nav">
+                    <li style="margin-top: 13px; margin-left: 30px;"><span style="font-size: 16px; color: #fff;">Anjuke工单系统</span></li>
+                    <li style="margin-left: 40px;" class="active"><a href="{{ url_for('orders.index') }}">个人工作台 <span class="sr-only">(current)</span></a></li>
+{#                    <li><a href="#">流程查询</a></li>#}
+                </ul>
+                <ul class="nav1 header_nav navbar-nav navbar-right">
+{#                    <li><a href="#">统计</a></li>#}
+                    <li><a href="/"><span class="glyphicon glyphicon-hand-right"></span> CMDB</a></li>
+                   {% if current_user.identity=='ops' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">后台 <span class="caret"></span></a>
+                         <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('orders.add_type') }}">添加工单类型</a></li>
+                            <li><a href="{{ url_for('orders.add_category') }}">添加工单分类</a></li>
+                        </ul>
+                    </li>
+                   {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+<script type="text/javascript" src="/static/js/jquery.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap-treeview.min.js"></script>

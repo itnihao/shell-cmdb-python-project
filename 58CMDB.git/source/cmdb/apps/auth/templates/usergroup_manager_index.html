@@ -1,0 +1,295 @@
+{%extends "admin_bases.html"%}
+{% block extra_head %}
+
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/dropzone.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/chosen.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.custom.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/proj/common.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/select2/select2.css"/>
+
+<script type="text/javascript" src="{{STATIC_URL}}plugin/select2/select2.min.js">  </script>
+<script src="{{STATIC_URL}}js/dropzone.min.js"></script>
+<script src="{{STATIC_URL}}js/bootbox.min.js"></script>
+<script src="{{STATIC_URL}}js/fuelux.tree.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.tableTools.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.colVis.min.js"></script>
+<script src="{{STATIC_URL}}plugin/sweetalert/sweet-alert.min.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+
+
+{% endblock %}
+{% block Hometitle %}权限管理{% endblock %}
+{% block actiontitle %}<a href="{% url 'busline.index' %}"> 用户组管理 </a>{% endblock %}
+{% block pagetitle %}用户组管理{% endblock %}
+{% block pagecontent %}
+
+<div class="main-container" id="main-container">
+  <div class="page-content">
+
+    <div>
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tapList_group">
+        <li role="presentation" class="active" id="tapList_group">
+          <a id="myTabDrop1_group" class="dropdown-toggle1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            分组
+            <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="myTabDrop1_group" id="myTabDrop1_group-contents">
+
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="home">
+          <div class="btn-group" role="group" aria-label="...">
+            <button type="button" class="btn btn-default" onclick="AddGroup()">增加分组</button>
+            <button type="button" class="btn btn-default" onclick="ResetRole()">修改角色</button>
+          </div>
+          <hr>
+          <div class="table-header" id="userListHeader">
+            用户组
+          </div>
+          <div>
+            <table id="dynamic-table" class="table table-striped table-bordered table-hover">
+              <thead>
+                <tr>
+                  <th style="text-align:center;">姓名</th>
+                  <th style="text-align:center;">账号</th>
+                  <th style="text-align:center;">部门</th>
+                  <th style="text-align:center;">上级</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+        <!-- Modal -->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="myModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">添加分组</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="list-group">
+            <input type="text" style="width:10%; border-left:0px; border-top:0px; border-right:0px; border-bottom:1px;"></input>
+            <input type="text" onchange="()" style="width:80%;" id="groupName_modal" placeholder="请输入分组名称"></input>
+          </div>
+        </div>
+        <div class="row">
+          <div class="list-group">
+            <input type="text" style="width:10%; border-left:0px; border-top:0px; border-right:0px; border-bottom:1px;"></input>
+            <input type="text" onchange="()" style="width:80%;" id="selectRole_modal" value="角色"></input>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveChange">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+      var selectID = '1';
+      var currentRole = '';
+
+			jQuery(function($) {
+				var oTable1 =
+				$('#dynamic-table')
+        .dataTable( {
+            "bLengthChange": false,
+            "bFilter": false,
+            "bSort": false,
+            "bInfo": true,
+            "bProcessing": true, // 加载条
+            "iDisplayLength": 10,
+            "bProcessing": false, // 是否显示取数据时的那个等待提示
+            "bServerSide": true,//这个用来指明是通过服务端来取数据
+            "sAjaxSource": "/api/auth/getusergroup/",//这个是请求的地址
+            "fnServerData": retrieveData, // 获取数据的处理函数
+            "oLanguage": {
+              "sProcessing": "正在加载中......",
+              "sLengthMenu": "每页显示 _MENU_ 条记录",
+              "sZeroRecords": "对不起，查询不到相关数据！",
+              "sEmptyTable": "表中无数据存在！",
+              "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+              "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
+              "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上一页",
+                    "sNext": "下一页",
+                    "sLast": "末页",
+                  },
+                },
+          bStateSave: true,
+          sScrollX: "100%",
+          bAutoWidth: true,
+
+          "aoColumns": [
+            { "mData": "name"},
+            { "mData": "account"},
+            { "mData": "org"},
+            { "mData": "leader"},
+          ],
+          "aaSorting": [],
+          // "aaData": data,
+          });
+
+          // 3个参数的名字可以随便命名,但必须是3个参数,少一个都不行
+          function retrieveData(sSource, aoData, fnCallback ) {
+            var startnum=aoData[3]['value'];
+            var range=aoData[4]['value'];
+            token = GetToken();
+            if(token == 'error'){
+              sweetAlert("O NO !", "TOKEN 失效!", "error");
+              return false;
+            }
+            token = token.data.token;
+
+            datas = {
+              'token':token,
+              'startnum':startnum,
+              'range':range,
+              'groupid':selectID,
+              };
+            datas = JSON.stringify(datas);
+              $.ajax({
+                  url : sSource,//这个就是请求地址对应sAjaxSource
+                  data : datas,//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
+                  type : 'post',
+                  dataType : 'json',
+                  async : false,
+                  success : function(result) {
+                    result['iTotalRecords'] = result.data.length;
+                    result['iTotalDisplayRecords']=result.data.length*range;
+                      fnCallback(result);//把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+                  },
+                  error : function(msg) {
+                  }
+              });
+
+          }
+
+        groups = GetUserGroupList().data;
+        for (var i = 0; i < groups.length; i++) {
+          var group = groups[i];
+          var tag = '<li><a href="#dropdown1" role="tab" id="dropdown1-tab" value=' + group.id + '>' + group.text + '</a></li>';
+          $('#myTabDrop1_group-contents').append(tag);
+        }
+
+        for (var i = 0; i < groups.length; i++) {
+          var group = groups[i];
+          if (group.id == selectID) {
+            $('#userListHeader').html(group.text);
+            break;
+          }
+        }
+        SetCurrentRole();
+
+        $('#myTabDrop1_group-contents li a').click(function (e) {
+
+          $('#userListHeader').html(e.target.innerHTML);
+          selectID = e.target.attributes[0].value;
+          SetCurrentRole();
+          ResetUserTable();
+
+        });
+
+			});
+
+      $('.dropdown-toggle1').on('click',function(){
+
+        $('#myTabDrop1_group-contents').next(".dropdown-menu").toggle();
+        // $('#myTabDrop1_group-contents').dropdown('toggle');
+
+      });
+
+      var editType = '';
+      function AddGroup(){
+        $('#myModalLabel').html("添加分组");
+        $('#groupName_modal').removeAttr('readonly');
+        $('#groupName_modal').val('');
+        var data = GetAllRoleList().data;
+        $('#selectRole_modal').select2({
+          data:data,
+        });
+        editType = '1';
+        $('#myModal').modal('show');
+      }
+
+      function ResetRole(){
+        $('#myModalLabel').html("修改角色");
+        $('#groupName_modal').attr('readonly', 'readonly');
+        var groupname = '';
+        for (var i = 0; i < groups.length; i++) {
+          var temp =  groups[i];
+          if (temp.id == selectID) {
+            groupname = temp.text;
+            break;
+          }
+        }
+        $('#groupName_modal').val(groupname);
+        var data = GetAllRoleList().data;
+        $('#selectRole_modal').select2({
+          data:data,
+          initSelection:function(element, callback){
+            for (var i = 0; i < data.length; i++) {
+              dic = data[i];
+              if (dic.id == currentRole.id) {
+                callback(dic);
+                break;
+              }
+            }
+          },
+        });
+        editType = '0';
+        $('#myModal').modal('show');
+      }
+
+      function SetCurrentRole(){
+        role = GetRoleForGroup(selectID).data;
+        currentRole = role[0];
+        console.log(currentRole);
+        var temp = $('#userListHeader').html() + ' —— 角色 : ' + currentRole.name;
+        $('#userListHeader').html(temp);
+      }
+
+      $('#saveChange').on('click', function(){
+        var groupid = '';
+        var groupname = '';
+        var roleid = '';
+        if (editType == '1') {
+          // 新增
+          groupname = $('#groupName_modal').val();
+          roleid = $('#selectRole_modal').select2('data').id;
+        }else if (editType == '0') {
+          // 编辑
+          groupid = selectID;
+          groupname = $('#groupName_modal').val();
+          roleid = $('#selectRole_modal').select2('data').id;
+        }
+
+        SaveGroupRoleChange(groupid, groupname, roleid);
+
+        editType = '';
+      });
+
+</script>
+{% endblock %}

@@ -1,0 +1,372 @@
+{%extends base%}
+{% block extra_head %}
+<script src="{{STATIC_URL}}js/fuelux.tree.min.js"></script>
+<link rel="stylesheet" href="{{STATIC_URL}}css/proj/common.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/select2/select2.css"/>
+
+
+
+<!-- page specific plugin scripts -->
+{% endblock %}
+{% block Hometitle %}组织信息管理 > <a href="{% url 'dpt.index' %}"> 组织架构管理 </a>{% endblock %}
+{% block actiontitle %}详细信息{% endblock %}
+{% block pagetitle %}{{dpt.dpt_name}}&详情{% endblock %}
+{% block pagecontent %}
+
+<body class="no-skin">
+<!-- start page  small-->
+<div class="row">
+	<!--  dpt_user start -->
+    <div class="col-sm-12">
+        <div class="widget-box transparent" id="recent-box">
+            <div class="widget-header">
+                <h4 class="widget-title lighter smaller">
+                    <i class="ace-icon fa fa-users  orange"></i>{{dpt.dpt_name}}
+                </h4>
+
+                <div class="widget-toolbar no-border">
+                    <ul class="nav nav-tabs" id="recent-tab">
+                        <li class="active">
+                            <a data-toggle="tab" href="#task-tab">使用人员</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#member-tab">运维人员</a>
+                        </li>
+
+                        <li>
+                            <a data-toggle="tab" href="#comment-tab">管理人员</a>
+                        </li>
+
+						<li>
+                            <a data-toggle="tab" href="#org-tab">关联的组织架构 </a>
+                        </li>
+
+						<li>
+                            <a data-toggle="tab" href="#level-tab">子代的组织关系 </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="widget-body">
+                <div class="widget-main padding-4">
+                    <div class="tab-content padding-8">
+                        <div id="task-tab" class="tab-pane active">
+                            <h4 class="smaller lighter green">
+                                <i class="ace-icon fa fa-list"></i>
+                                人员列表
+                            </h4>
+
+                            <ul id="tasks" class="item-list">
+                                {% for dpt_own in dpt_owns %}
+								{% ifequal dpt_own.is_admin '1' %}
+                                <li class="item-orange clearfix" >
+								{%endifequal%}
+
+								{% ifequal dpt_own.op_type '1' %}
+									{% ifequal dpt_own.is_admin '0' %}
+								<li class="item-green  clearfix" >
+									{% endifequal %}
+								{% endifequal %}
+
+								{% ifequal  dpt_own.op_type '0'  %}
+									{% ifequal dpt_own.is_admin '0' %}
+								<li class="item-pink  clearfix" >
+									{%endifequal%}
+								{% endifequal %}
+
+
+
+                                    <label class="inline">
+                                        <span class="lbl"> {{dpt_own.bsp_user.account}}</span>
+                                    </label>
+                                    {% ifequal dpt_own.is_admin '1' %}
+                                    <span class="label label-danger label-sm arrowed-in">admin</span>
+                                    {% endifequal %}
+                                    <div class="pull-right action-buttons">
+                                        <a href="#" class="blue">
+                                            <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                        </a>
+	                                        <span class="vbar"></span>
+                                        <a href="#" class="red">
+                                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                        </a>
+                                        <span class="vbar"></span>
+                                        <a href="#" class="green">
+                                            <i class="ace-icon fa fa-flag bigger-130"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
+							<div class="space-4"></div>
+							<div class="center">
+								<i class="ace-icon fa fa-users fa-2x green middle"></i>&nbsp;
+								<a href="/dpt/user/assoc/?id={{dpt.dpt_id}}" class="btn btn-sm btn-white btn-info">
+									查看所有的人员 &nbsp;
+									<i class="ace-icon fa fa-arrow-right"></i>
+								</a>
+							</div>
+                        </div>
+
+						<div id="member-tab" class="tab-pane">
+							<div class="clearfix">
+								<ul id="op_usera" class="item-list">
+
+                                {% for dpt_op in dpt_ops %}
+								{% ifequal dpt_op.is_admin '1' %}
+                                <li class="item-pink clearfix" >
+								{% endifequal%}
+								{% ifequal dpt_op.is_admin '0' %}
+								<li class="item-default clearfix" >
+								{% endifequal %}
+
+
+
+                                    <label class="inline">
+                                        <span class="lbl"> {{dpt_op.bsp_user.account}}</span>
+                                    </label>
+
+									{% ifequal dpt_op.is_admin '1' %}
+                                    <span class="label label-danger label-sm arrowed-in">admin</span>
+                                    {% endifequal %}
+                                    <div class="pull-right action-buttons">
+                                        <a href="#" class="blue">
+                                            <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                        </a>
+	                                        <span class="vbar"></span>
+                                        <a href="#" class="red">
+                                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                        </a>
+                                        <span class="vbar"></span>
+                                        <a href="#" class="green">
+                                            <i class="ace-icon fa fa-flag bigger-130"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
+							</div>
+							<div class="space-4"></div>
+							<div class="center">
+								<i class="ace-icon fa fa-users fa-2x green middle"></i>&nbsp;
+								<a href="/dpt/user/assoc/?id={{dpt.dpt_id}}" class="btn btn-sm btn-white btn-info">
+									查看所有的人员 &nbsp;
+									<i class="ace-icon fa fa-arrow-right"></i>
+								</a>
+							</div>
+
+						</div><!-- /.#member-tab -->
+						<div id="comment-tab" class="tab-pane">
+							<div class="comment">
+								<div class="clearfix">
+								<ul id="admin_user" class="item-list">
+
+                                {% for dpt_admin in dpt_admins %}
+
+
+								{% ifequal dpt_admin.op_type '1' %}
+                                <li class="item-orange clearfix" >
+								{% endifequal%}
+
+								{% ifequal dpt_admin.op_type '0' %}
+								<li class="item-default clearfix" >
+								{% endifequal %}
+
+
+                                    <label class="inline">
+                                        <span class="lbl"> {{dpt_admin.bsp_user.account}}</span>
+                                    </label>
+									{% ifequal dpt_admin.op_type '1' %}
+									<span class="label label-green label-sm arrowed-in">运维人员</span>
+									{% endifequal%}
+
+									{% ifequal dpt_admin.op_type '0' %}
+									<span class="label label-orange label-sm arrowed-in">管理人员</span>
+									{% endifequal %}
+
+
+
+                                    <div class="pull-right action-buttons">
+                                        <a href="#" class="blue">
+                                            <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                        </a>
+	                                        <span class="vbar"></span>
+                                        <a href="#" class="red">
+                                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                        </a>
+                                        <span class="vbar"></span>
+                                        <a href="#" class="green">
+                                            <i class="ace-icon fa fa-flag bigger-130"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
+							</div>
+							</div>
+						</div>
+
+						<!-- 关联的组织架构 start-->
+
+						<div id="org-tab" class="tab-pane">
+							<div class="comment">
+								<div class="clearfix">
+								<ul id="org_name" class="item-list">
+
+                                {% for org in orgs %}
+
+
+
+								<li class="item-default clearfix" >
+
+
+
+                                    <label class="inline">
+                                        <span class="lbl"> {{org.org.org_name}}</span>
+                                    </label>
+
+                                    <div class="pull-right action-buttons">
+                                        <a href="#" class="blue">
+                                            <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                        </a>
+	                                        <span class="vbar"></span>
+                                        <a href="#" class="red">
+                                            <i class="ace-icon fa fa-trash-o bigger-130"></i>
+                                        </a>
+                                        <span class="vbar"></span>
+                                        <a href="#" class="green">
+                                            <i class="ace-icon fa fa-flag bigger-130"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+								<div class="space-4"></div>
+								<div class="center">
+									<i class="ace-icon fa fa-users fa-2x red middle"></i>&nbsp;
+
+									<a href="/dpt/bsp/assoc/?id={{dpt.dpt_id}}" class="btn btn-sm btn-white btn-info">
+										编辑关联组织架构 &nbsp;
+										<i class="ace-icon fa fa-arrow-right"></i>
+									</a>
+								</div>
+							</div>
+
+
+							</div>
+
+
+						</div>
+
+						<!--关联的组织架构  end-->
+
+
+						<!--  下级的组织关系   start -->
+
+						<div id="level-tab" class="tab-pane">
+							<div class="comment">
+								<div class="clearfix">
+									<div class="widget-body">
+						<div class="widget-main padding-8">
+							<ul id="dpt_tree" class="tree tree-unselectable" role="tree" value="{{dpt.dpt_id}}">
+
+								<li aria-expanded="false" role="treeitem" data-template="treebranch" class="tree-branch hide">
+								<div class="tree-branch-header">
+									<span class="tree-branch-name">
+										<i class="icon-folder ace-icon fa fa-folder"></i>
+										<span class="tree-label"></span>
+									</span>
+								</div>
+									<ul role="group" class="tree-branch-children"></ul>
+									<div role="alert" class="tree-loader hide">
+										<div class="tree-loading">
+											<i class="ace-icon fa fa-refresh fa-spin blue"></i>
+										</div>
+									</div>
+								</li>
+								<li role="treeitem" data-template="treeitem" class="tree-item hide">
+									<span class="tree-item-name">
+										<span class="tree-label"></span>
+									</span>
+								</li>
+								<li aria-expanded="false" role="treeitem" class="tree-branch">
+									<div class="tree-branch-header">
+										<span class="tree-branch-name">
+											<i class="icon-folder ace-icon fa fa-folder red"></i>
+											<span class="tree-label">Pictures</span>
+										</span>
+									</div>
+									<ul role="group" class="tree-branch-children"></ul>
+									<div role="alert" class="tree-loader hide">
+										<div class="tree-loading">
+											<i class="ace-icon fa fa-refresh fa-spin blue"></i>
+										</div>
+									</div>
+								</li>
+								<li aria-expanded="true" role="treeitem" class="tree-branch tree-open">
+									<div class="tree-branch-header">
+										<span class="tree-branch-name">
+											<i class="icon-folder orange ace-icon fa fa-folder-open"></i>
+											<span class="tree-label">Music</span>
+										</span>
+									</div>
+									<ul role="group" class="tree-branch-children">
+										<li role="treeitem" class="tree-item">
+											<span class="tree-item-name">
+												<span class="tree-label"><i class="ace-icon fa fa-music blue"></i> song1.ogg</span>
+											</span>
+										</li>
+
+									</ul>
+									<div role="alert" class="tree-loader hide"><div class="tree-loading">
+										<i class="ace-icon fa fa-refresh fa-spin blue"></i>
+									</div>
+									</div>
+								</li>
+
+							</ul>
+						</div>
+					</div>
+								</div>
+							</div>
+						</div>
+						<!--  下级的组织关系   end -->
+
+
+
+
+						<div class="hr hr-double hr8"></div>
+					</div>
+				</div><!-- /.widget-main -->
+
+				<!--  返回上一级 -->
+			</div><!-- /.widget-body -->
+		</div><!-- /.widget-box -->
+	</div>
+	<!-- dpt_user end-->
+
+	</div>
+
+<!-- end page small -->
+
+<a href="javascript:history.back()" class="btn-lg btn-success">
+	<i class="ace-icon glyphicon glyphicon-hand-left"></i>
+	返回上一级
+</a>
+
+
+<script src="{{STATIC_URL}}plugin/sweetalert/sweet-alert.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}plugin/select2/select2.min.js">  </script>
+<script src="{{STATIC_URL}}js/dpt/dpt_detail.js"></script>
+
+</body>
+
+</html>
+
+
+{% endblock %}

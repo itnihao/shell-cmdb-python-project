@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}自动化Job平台{% endblock %}</title>
+    {% assets "layout_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+    {% assets "layout_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% block customstyle %}{% endblock %}
+    <link rel="stylesheet" href="/static/plugins/footable/css/footable.core.css"/>
+</head>
+<body>
+<nav class="top-bar" data-topbar>
+    {% include 'public/header_nav_tpl.html' %}
+</nav>
+<div class="row">
+    <div class="medium-2 columns" >
+        <ul class="side-nav" style="min-height: 800px">
+            <li class="heading">
+                <a class="click-hidden1" href="javascript:void(0);" >
+                    <i class="step fi-monitor size-24"></i>&nbsp;&nbsp;一次性操作
+                </a>
+                {% if workShow.runscripts %}
+                <li class="click-show1"><a href="{{ url_for('tools.runscripts') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;执行脚本</a></li>
+                {% endif %}
+                {% if workShow.givefiles %}
+                <li class="click-show1"><a href="{{ url_for('tools.givefiles') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;分发文件</a></li>
+                {% endif %}
+
+            </li>
+            <li class="heading">
+                <a class="click-hidden2" href="javascript:void(0);"> <i class="step fi-monitor size-24"></i>&nbsp;&nbsp;作业执行</a>
+                {% if workShow.workfilelist %}
+                <li class="click-show2"><a href="{{ url_for('work.workfilelist') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;脚本管理</a></li>
+                {% endif %}
+                {% if workShow.newwork %}
+                <li class="click-show2"><a href="{{ url_for('work.newwork') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;新建作业</a></li>
+                {% endif %}
+                {% if workShow.history %}
+                <li class="click-show2"><a href="{{ url_for('work.history') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;作业执行历史</a></li>
+                {% endif %}
+                {% if workShow.jobtemplate %}
+                <li class="click-show2"><a href="{{ url_for('work.jobtemplate') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;作业模板管理</a></li>
+                {% endif %}
+            </li>
+            <li class="heading">
+                <a href="javascript:void(0);"> <i class="step fi-monitor size-24"></i>&nbsp;&nbsp;作业脚本管理</a>
+            </li>
+            <li class="heading">
+                <a href="javascript:void(0);"> <i class="step fi-monitor size-24"></i>&nbsp;&nbsp;作业定时管理</a>
+            </li>
+            <li class="heading">
+                <a href="javascript:void(0);"> <i class="step fi-monitor size-24"></i>&nbsp;&nbsp;执行账户管理</a>
+                {% if workShow.main %}
+                <li class="click-show2"><a href="{{ url_for('workpermission.main') }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;用户角色</a></li>
+                {% endif %}
+            </li>
+            <li class="heading">
+                <a href="javascript:void(0);"> <i class="step fi-monitor size-24"></i>&nbsp;&nbsp;作业执行历史</a>
+            </li>
+
+        </ul>
+    </div>
+    <div class="medium-10 columns">
+        <div class="content">
+            {% block main %}{% endblock %}
+        </div>
+</div>
+</div>
+<div class="row">
+    <div class="medium-12 text-center footer">
+        <span class="copyright">Copyright © 2014 anjuke Inc 总部技术部运维团队</span>
+        <a href="http://gitlab.corp.anjuke.com/_infra/cmdb/issues/13" target="_blank">建议</a>
+        <a href="http://gitlab.corp.anjuke.com/_infra/cmdb/issues/16" target="_blank">ChangeLog</a>
+        <a href="http://wiki.corp.anjuke.com/OPS_Tech_Documentation" target="_blank">wiki</a>
+    </div>
+</div>
+<div class="tooltip-display-wrap">
+    <span class="content">
+
+    </span>
+    <span class="nub"></span>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+    $("[class*='click-hidden']").each(function()
+    {
+        $(this).click(function(){
+            b_id=$(this).attr('class')
+            b_id=b_id.charAt(b_id.length- 1)
+           $(".click-show"+b_id).toggle();
+        })
+    });
+});
+</script>
+<div style="display: none;">
+    <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1253583792'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1253583792%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+    <style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .load_table>tbody>tr:hover{
+            background:#ffffff;
+            color: #ffffff;
+        }
+    </style>
+{% endblock %}
+{% block main %}
+    <h5 class="content_title">
+        <span>记录详情:{{ data.info.model_desc }}</span>
+    </h5>
+    <table style="width: 100%;margin-top: 20px;" class="load_table">
+        <tr>
+            <th colspan="3">基本信息</th>
+        </tr>
+        <tr>
+            <td width="33%">型号:  {{ data.info.model_desc }}</td>
+            <td width="33%">类型:  {{ data.info.type_descri }}</td>
+            <td width="33%">状态:  {{ data.info.status_descri }}</td>
+        </tr>
+        <td width="33%">总量:  {{ data.info.num }}</td>
+        <td width="33%">
+            {% if data.info.status == 0 %}
+                可使用量:  {{ data.info.available }}
+            {% else %}
+                &nbsp;
+            {% endif %}
+        </td>
+        <td width="33%">&nbsp;</td>
+        </tr>
+        {% for i in ip %}
+            <tr>
+                {% for item in i %}
+                    <td width="33%">{{ item['name'] }}:{{ item['ip']}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    {% if data.history %}
+    <ul class="pricing-table">
+        <li class="price" style="font-size: 14px;">操作历史</li>
+        {% for item in data.history %}
+            <li class="bullet-item">{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+{% endblock %}
+
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/host_detail.js","js/follow.js", "js/alarm.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

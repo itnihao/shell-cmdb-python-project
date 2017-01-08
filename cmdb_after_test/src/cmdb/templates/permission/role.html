@@ -1,0 +1,63 @@
+{% extends "public/layout.html" %}
+<style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+ </style>
+{% block main %}
+<div id="permission-breadcrumbs">
+    <ul class="breadcrumbs">
+       <li><a href={{ url_for('user.role') }} class="unavailable" style="color:#d35400"  >角色编辑</a></li>
+        <li><a href={{ url_for('user.urllist') }}>资源管理</a></li>
+        <li><a href={{ url_for('user.permission') }}>用户角色</a></li>
+    </ul>
+</div>
+<h5 class="content_title">
+    <a id="addbtn" data-reveal-id="edit" href="javascript:void(0);" class="button radius right tiny">+ 添加角色</a>
+</h5>
+{% with messages = get_flashed_messages(1) %}
+{% if messages %}
+{% for message in messages %}
+<div data-alert
+     class="alert-box {% if message[0] == 1 %}info{% else %}warning{% endif %}">{{ message[1] }}<a
+        href="#" class="close">&times;</a></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th width="80%">角色名称</th>
+        <th width="20%s">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for role in roles %}
+    <tr>
+        <td>{{role.name}}</td>
+        <td>
+            <a href="{{url_for('user.roleaction',roleid=role.id)}}">角色权限</a>
+            <a href="javascript:getRoleDetail({{role.id}});void(0);">修改</a>
+            <a href="javascript:DeleteRole({{role.id}});void(0);">删除</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div id="edit" class="reveal-modal small" data-reveal>
+    <h4>添加角色</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="#" class="close">&times;</a>
+    </div>
+    <input type="text" id="role" placeholder="请输角色名称"/>
+    <input type="hidden" id="flag"/>
+    <a href="javascript:void(0);" id="doadd" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/role.js","js/addrole.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

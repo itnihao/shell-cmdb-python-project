@@ -1,0 +1,82 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>工单详情(需求方:{{ ticket.cname }}  状态:{% autoescape false %}{{ extend['ticket_tips'] }}{% endautoescape %})</span>
+    {% if ticket.opened %}
+        <a href="javascript:void(0);" class="button radius right tiny" id="docommmit">发表评论</a>
+    {% endif %}
+
+    {% if extend['is_owner']  and ticket.opened %}
+        <a href="{{ url_for('tickets.tickets_mod',id = ticket.id) }}" class="button radius right tiny" style="margin-right: 5px;">编辑</a>
+    {% endif %}
+</h5>
+<hr>
+{% if tasks %}
+<div class="tabs-content">
+    {% for item in tasks %}
+    <div class="row" style="margin: 0 0 0 0;">
+        <div class="large-12 columns">
+            <dl class="accordion" data-accordion>
+                <dd class="accordion-navigation">
+                    <a href="#ticket_{{ item.idx }}" class="tickets_bg">
+                        任务{{ item.idx }}
+                        分类:{{ item.tickets_cat_name }}
+                        处理人:{{ item.manage_cname }}
+                        状态:{{ item.status_desc }}
+                    {% if item.can_deleted  and ticket.opened %}
+                        <span class="right del" data="{{ item.id }}">删除</span>
+                    {% endif %}
+                    {% if item.can_closed  and ticket.opened %}
+                        <span class="right close" data="{{ item.id }}" style="margin-right: 5px;">关闭</span>
+                    {% endif %}
+                    </a>
+                    <div id="ticket_{{ item.idx }}" class="content active">
+                        <div class="row">
+                            {% autoescape false %} {{ item.content }} {% endautoescape %}
+                        </div>
+                    </div>
+                </dd>
+            </dl>
+        </div>
+    </div>
+    {% endfor %}
+    {% if history %}
+    <div class="row" style="margin: 0 0 0 0;">
+        <div class="large-12 columns">
+                <ul class="pricing-table">
+                <li class="price" style="font-size: 14px;">变更详情</li>
+                    {% for history_item in history %}
+                    <li class="bullet-item">
+                        {{ history_item.created }}   {{ history_item.uid_cname }}  {% autoescape false %} {{ history_item.content }} {% endautoescape %}
+                    </li>
+                    {% endfor %}
+                </ul>
+        </div>
+     </div>
+    {% endif %}
+
+</div>
+{% endif %}
+<div id="comments" class="reveal-modal small" data-reveal>
+    <h3>发表评论</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;"></div>
+    <div class="row">
+        <input type="hidden" id="ticket_id" value="{{ ticket.id }}"/>
+        <textarea id="content"  style="resize: none;" rows="5"></textarea><br/>
+        <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    </div>
+    <a class="close-reveal-modal" id="closebtn">&#215;</a>
+</div>
+{% endblock %}
+
+{% block customstyle %}
+    {% assets filters="cssmin", output="asset/sa/tickets/detail.css", "css/sa/tickets/add.css"%}
+        <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+{% endblock %}
+
+{% block customscript %}
+{% assets filters="jsmin", output="asset/sa/tickets/detail.js","js/kindeditor/kindeditor.js","js/sa/tickets/detail.js","js/sa/tickets/functions.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Qunee for HTML</title>
+</head>
+<body>
+
+<div id="canvas" style="height: 500px;"></div>
+
+<script src="/static/js/qunee-min.js"></script>
+<script>
+    var graph = new Q.Graph('canvas');
+    var hello = graph.createNode("Hello", -100, -50);
+    var qunee = graph.createNode("Qunee", 100, 50);
+    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
+</script>
+</body>
+</html>

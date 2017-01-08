@@ -1,0 +1,61 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 供应商管理{% endblock %}
+{% block main %}
+
+<h5 class="content_title">
+        <span>供应商列表</span>
+        {% if show.add %}
+        <a id="addbtn" data-reveal-id="edit" href="javascript:void(0);" class="button radius right tiny">+ 添加供应商</a>
+        {% endif %}
+</h5>
+<hr>
+
+<div class="row" style="margin:0 0 0 0">
+    <table width="100%">
+        <thead>
+        <tr>
+            <th width="30%">供应商名称</th>
+            <th width="10%">昵称</th>
+            <th width="55%">备注</th>
+            {% if show.modify %}
+            <th width="5%">操作</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in supinfo %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.short_name }}</td>
+            <td>{{ item.content_nr2br }}</td>
+            {% if show.modify %}
+            <td>
+            <a href="javascript:getSupplierDetail({{ item.id }});void(0);">修改</a>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="edit" class="reveal-modal small" data-reveal>
+    <h4>添加供应商</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="#" class="close">&times;</a>
+    </div>
+    <input type="text" id= "name" placeholder="请输入供应商名称"/>
+    <input type="text" id= "short_name" placeholder="请输入供应商昵称"/>
+    <textarea id="content" placeholder="请输入供应商备注信息"></textarea>
+    <input type="hidden" id="primaryid"/>
+    <a href="javascript:void(0);" id="doadd" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/supplier.js","js/supplier.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}

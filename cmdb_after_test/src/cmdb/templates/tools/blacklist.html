@@ -1,0 +1,83 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 工具管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>IP黑名单列表</span>
+    {% if show.push %}
+    <a id="pushbtn" data-reveal-id="push" href="javascript:void(0);" class="button radius right tiny" style="margin-left: 5px;">推送</a>
+    {% endif %}
+    {% if show.add %}
+    <a id="addbtn" data-reveal-id="edit" href="javascript:void(0);" class="button radius right tiny">+ 添加IP</a>
+    {% endif %}
+</h5>
+<hr>
+<dl class="tabs" data-tab>
+    {% for ip_item in ip_info %}
+        <dd class="{{ ip_item.status }}"><a href="#taba{{ ip_item.type }}">{{ ip_item.name }}</a></dd>
+    {% endfor %}
+</dl>
+<div class="tabs-content">
+    {% for ip_item in ip_info %}
+    <div class="content {{ ip_item.status }}" id="taba{{ ip_item.type }}">
+        <div class="row" style="margin:0 0 0 0">
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th>IP或IP段</th>
+                    <th>备注</th>
+                    <th>添加时间</th>
+                    {% if show.delete %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in ip_item.data %}
+                <tr>
+                    <td>{{ item.ip_address }}</td>
+                    <td>{{ item.content }}</td>
+                    <td>{{ item.created }}</td>
+                    {% if show.delete %}
+                    <td><a href="javascript:void(0)" ip_id="{{ item.id }}" class="ip_delete">删除</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="edit" class="reveal-modal small" data-reveal>
+    <h4>添加IP或IP段</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="#" class="close">&times;</a>
+    </div>
+    <input type="text" id="ip" placeholder="请输入需要屏蔽的IP或IP段"/>
+    <select id="lb" name = "aa" autocomplete ="off">
+        <option selected="selected" value="0">请选择生效机器</option>
+        <option value="1">lb-10</option>
+        <option value="2">lb-20</option>
+    </select>
+    <textarea id="content" placeholder="请输入备注"></textarea>
+    <a href="javascript:void(0);" id="doadd" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="push" class="reveal-modal small" data-reveal>
+    <h4>请选择需要推送到的远程机器</h4>
+    <input name="actionid" value="1" type="checkbox" checked="" style="width:18px; height: 18px">
+    <label class="url_label" style="font-size: 1.5rem;">lb-10</label><br>
+    <input name="actionid" value="2" type="checkbox" checked="" style="width:18px; height: 18px">
+    <label class="url_label" style="font-size: 1.5rem;">lb-20</label>
+    <a href="javascript:void(0);" id="dopush" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/tools.js","js/tools.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

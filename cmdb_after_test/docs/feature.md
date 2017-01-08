@@ -1,0 +1,73 @@
+URL设计规划
+====================
+* 要求
+  * 列表都用/,详细用id或者其他数据库字段(例如pool联系人搜索:ops_owner),添加都是add,删除都是delete/id,修改都是modify/id
+  * 显示模板都用GET方法,提交确认动作都用POST
+  * 对于一个操作对应一个URL ，例如添加机房:/datacenter/add ,GET方式模板(/datacenter/_add.html) ，post方法进行处理
+* URL规划
+  * 用户管理(/user/)
+    * 登录(/user/login)
+    * 登出(/user/logout)
+    * 列表(/user/)
+    * 详细(/user/(id|name))
+
+  * IDC管理
+    * 机房管理(/datacenter/)
+      * 机房列表(/datacenter/)
+      * 添加机房(/datacenter/add)
+      * 修改机房信息(/datacenter/modify/id)
+      * 删除机房(/datacenter/delete/id)
+    * 机柜管理(/rack/)
+      * 机柜列表(/rack/)
+      * 添加机柜房(/rack/add)
+      * 修改机柜信息(/rack/modify/id)
+      * 删除机柜(/rack/delete/id)
+    * 供应商管理(/supply/)
+      * 供应商列表(/supply/)
+      * 添加供应商(/supply/add)
+      * 删除供应商(/supply/delete/id)
+      * 修改供应商(/supply/modify/id)
+    * ip池管理(/ip/)
+      * ip列表(/ip/)
+      * 添加ip(/ip/add)
+      * 删除ip(/ip/delete/id)
+      * 修改ip(/ip/modify/id)
+  * 设备管理(/device/)
+    * 设备分类(/device/category/)
+      * 设备分类展示(/device/category/)
+      * 添加设备分类(/device/category/add)
+      * 删除设备分类(/device/category/delete/id)
+      * 修改设备分类(/device/category/modify/id)
+    * 设备
+      * 设备展示列表(/device/)
+      * 设备详细(/device/id)
+      * 添加设备(/device/add)
+      * 修改设备(/device/modify/id)
+      * 删除设备(/device/delete/id)
+      * 搜索设备(/device/search)
+  * 主机管理(/host/)
+    * 主机分类(/host/category/)
+      * 主机分类展示(/host/category/)
+      * 添加主机分类(/host/category/add)
+      * 删除主机分类(/host/category/delete/id)
+      * 修改主机分类(/host/category/modify/id)
+    * 主机
+      * 主机展示列表(/host/)
+      * 主机详细(/host/id)
+      * 添加主机(/host/add)
+      * 修改主机(/host/modify/id)
+      * 删除主机(/host/delete/id)
+      * 搜索主机(/host/search)
+    * 主机变更历史
+      * /host/history/pageNum
+  * pool管理(/pool/)
+    * pool详细
+      * pool列表展示(/pool/)
+      * 添加pool(/pool/add)
+      * 删除pool(/pool/delete/id)
+      * 修改pool(/pool/modify/id)
+      * 为pool添加主机(/pool/host/add)
+      * 为pool删除主机(/pool/host/delete/id)
+  * 日志(/log/)
+    * 日志添加(/log/add)
+    * 日志展示(/log/)

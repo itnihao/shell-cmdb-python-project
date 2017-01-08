@@ -1,0 +1,89 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 用户中心{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>用户信息</span>
+</h5>
+<hr>
+<dl id = "tt" class="tabs" data-tab>
+    <dd {% if type == "info" %} class="active" {% endif %}><a href="#tab-1">接警邮箱</a></dd>
+    <dd {% if type == "sshkey" %} class="active" {% endif %}><a href="#tab-2">我的公钥</a></dd>
+    <input type="hidden" id="primaryid"/>
+</dl>
+<div class="tabs-content">
+    <div id="tab-1" class="content {% if type == "info" %} active {% endif %}">
+{% with messages = get_flashed_messages(1) %}
+{% if messages %}
+{% for message in messages %}
+<div data-alert class="alert-box {% if message[0] == 1 %}info{% else %}warning{% endif %}" id="alert">{{ message[1] }}
+    <a href="#" class="close">&times;</a></div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+        <form action="{{ url_for('user.addemail') }}" method="post" class="form-horizontal">
+            <div class="controls" style="padding-top: 1.5rem;">
+              <textarea id="email"  name="mail" rows="5"  placeholder="请输入邮箱地址" style="width:50%">{{ email }}</textarea><i class="fi-info"></i> <font color="gray">可输入多个邮箱，以换行分隔。</font>
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <br><input id="save" type="submit" value="保存" class="button radius left tiny">
+            </div>
+          </div>
+        </form>
+    </div>
+    <div id="tab-2" class="content {% if type == "sshkey" %} active {% endif %}">
+        <a id="addbtn" data-reveal-id="edit" href="javascript:void(0);" class="button radius right tiny">+ 添加</a>
+        <table width="100%">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>公钥</th>
+                    <th>添加时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if sshkey %}
+                {% for item in sshkey %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td><a class="pubkey" href="javascript:void(0)" data_key = "{{ item.key }}">{{ item.short_key }}</a></td>
+                    <td>{{ item.created }}</td>
+                    <td><a href="javascript:void(0)" key_id="{{ item.id }}" class="key_delete">删除</a></td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                </tbody>
+        </table>
+    </div>
+</div>
+<div id="edit" class="reveal-modal small" data-reveal>
+    <h4>添加公钥</h4>
+    <div data-alert class="alert-box alert" id="msgtip" style="display: none;">
+    </div>
+    <input type="text" id="name" placeholder="请输入名称(不超过20个字符)"/>
+    <textarea id="content" placeholder="请输入公钥"></textarea>
+    <a href="javascript:void(0);" id="doadd" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="pubkey" class="reveal-modal" data-reveal>
+    <pre>Your couch.  It is mine.</pre>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+{% block customstyle %}
+<style type="text/css">
+    #pubkey pre{
+        word-break: break-all;
+        word-wrap: break-word;
+        white-space:normal;
+    }
+</style>
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/ucenter.js", "js/ucenter.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

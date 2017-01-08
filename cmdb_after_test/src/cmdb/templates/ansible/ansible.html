@@ -1,0 +1,97 @@
+{% extends "public/blank.html" %}
+
+{% block customstyle %}
+    <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
+
+{% endblock %}
+
+{% block title %}CMDB - Ansible {% endblock %}
+{% block main %}
+<p id='test'> Hello </p>
+<button id="start-bg-job">begin</button><br><br>
+<pre id="progress"></pre>
+
+{% block customscript %}
+<script type="text/javascript" src="/static/js/vendor/socket.io.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.3.7.js"></script>
+{% endblock %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    function start_long_task() {
+        $.ajax({
+            type: 'POST',
+            url: '/cmdb/ansible/test',
+            success: function (data, status, request) {
+                status_url = request.getResponseHeader('Location');
+                {#                    alert(status_url)#}
+                update_progress(status_url);
+            },
+            error: function () {
+                alert('Unexpected error');
+            }
+        });
+    }
+    function update_progress(status_url) {
+            // send GET request to status URL
+{#            $.getJSON(status_url, function(data) {#}
+{#                if (data['state'] == 'SUCCESS' ) {#}
+{#                    $('#progress').text(data['current']+'\n');#}
+{#                }#}
+{#                if (data['state'] == 'PROGRESS' ) {#}
+{#                    $('#progress').text(data['current']+'\n');#}
+{#                    update_progress(status_url)#}
+{#                }#}
+{#                var txt = '';#}
+{#                $.each(data.status, function(i, x){#}
+{#                    txt += x + '\n';#}
+{#                });#}
+{##}
+{#                if (data['state'] == 'PENDING' ) {#}
+{#                    // rerun in 2 seconds#}
+{#                    setTimeout(function() {#}
+{#                        update_progress(status_url);#}
+{#                    }, 2000);#}
+{#                }#}
+{#            });#}
+
+            $.getJSON(status_url, function(data) {
+                var txt = '';
+                $.each(data.status, function(i, x){
+                    txt += x + '\n';
+                });
+                $('#progress').text(txt);
+                if (data['state'] == 'PENDING' || data['state'] == 'PROGRESS') {
+                    // rerun in 2 seconds
+                    setTimeout(function() {
+                        update_progress(status_url);
+                    }, 2000);
+                }
+            });
+        }
+    $(function() {
+            $('#start-bg-job').click(start_long_task);
+    });
+{#            namespace = '/test'; #}
+{#            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);#}
+{##}
+{#            socket.on('connect', function(msg) {#}
+{#                socket.emit('my event', {data: 'I\'m connected!'});#}
+{#            });#}
+{##}
+{#            socket.on('message', function(msg){#}
+{#                console.log(msg.time)#}
+{#                $('#test').html('<p>' + msg.time + '</p>');#}
+{#            });#}
+
+
+
+        });
+</script>
+
+{% endblock %}
+
+
+
+

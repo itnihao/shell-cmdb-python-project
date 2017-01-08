@@ -1,0 +1,791 @@
+{%extends base%}
+{% block extra_head %}
+<!-- page specific plugin scripts -->
+<link rel="stylesheet" href="{{STATIC_URL}}css/dropzone.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/chosen.min.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}css/jquery-ui.custom.min.css" />
+<script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+<script src="{{STATIC_URL}}js/jquery.dataTables.bootstrap.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.tableTools.min.js"></script>
+<script src="{{STATIC_URL}}js/dataTables.colVis.min.js"></script>
+<script src="{{STATIC_URL}}js/dropzone.min.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+<script src="{{STATIC_URL}}js/bootbox.min.js"></script>
+<script src="{{ STATIC_URL }}plugin/sweetalert/sweet-alert.min.js"></script>
+<link rel="stylesheet" href="{{ STATIC_URL }}plugin/sweetalert/sweet-alert.css"/>
+{% endblock %}
+
+{% block Hometitle %}<a href="{% url 'home' %}"> 基础资源管理 </a>{% endblock %}
+{% block actiontitle %} <a href="{% url 'server.index' %}"> IP资源管理 </a> {% endblock %}
+
+{% block pagetitle %} <a href="{% url 'server.index' %}"> IP管理 </a>{% endblock %}
+
+{% block pagecontent %}
+
+<div class="main-container" id="main-container">
+  <div class="page-content">
+
+<div class="widget-box">
+  <div class="table-header">
+      查询条件
+  </div>
+  <div class="widget-header">
+  </div>
+
+  <div class="widget-body">
+	<div class="widget-main">
+		<div class="row">
+			<div class="col-sm-4">
+				<label for="Inputip">IP</label>
+				<textarea class="form-control" id="ip" placeholder="IP;多行用,隔开" style="margin: 0px -2.6875px 0px 0px; width: 350px; height: 35px;"></textarea>
+			</div>
+			<div class="col-sm-4">
+				<label for="Iputiptype">IP类型</label>
+				<select class="form-control" id="iptype">
+					{% for type in ip_types %}
+						{%if forloop.first%}
+							<option value=""></option>
+						{%endif%}
+						{%if type.ip_type == 0 %}
+							<option value={{type.ip_type}}>内网</option>
+						{% elif type.ip_type == 1 %}
+							<option value={{type.ip_type}}>外网</option>
+						{% elif type.ip_type == 2 %}
+							<option value={{type.ip_type}}>管理网</option>
+						{% endif %}
+					{%endfor%}
+				</select>
+			</div>
+			<div class="col-sm-4">
+				<label for="InputAccessno">资产编号</label>
+				<textarea class="form-control" id="accessno" placeholder="资产编号;多行用,隔开" style="margin: 0px -2.6875px 0px 0px; width: 350px; height: 35px;"></textarea>
+			</div>
+		</div>
+	</div>
+
+	<div class="widget-toolbox padding-4 clearfix">
+		<div class="col-md-offset-3 col-md-9">
+			<button class="btn btn-sm btn-success btn-white btn-round"  onclick=IpSearch() type="button">
+			<i class="ace-icon fa fa-check bigger-110"></i>
+				查询
+			</button>
+			&nbsp; &nbsp; &nbsp;
+			<button class="btn btn-sm btn-danger btn-white btn-round" onclick=IpReset() type="reset">
+			<i class="ace-icon fa fa-undo bigger-110"></i>
+			重置
+			</button>
+		</div>
+	</div>
+	</div>
+</div>
+
+                <div class="row">
+								<div class="col-xs-12">
+							<!--			<div class="clearfix">
+											<div class="pull-right tableTools-container"></div>
+										</div>
+              -->
+										<div class="table-header">
+											IP资源详细信息
+										</div>
+										<div>
+											<table id="dynamic-table" class="table table-striped table-bordered table-hover">
+												<thead>
+													<tr>
+														<th></th>
+														<th>服务器SN</th>
+														<th>IP</th>
+														<th>MAC</th>
+														<th>掩码</th>
+														<th>网关</th>
+														<th>IP类型</th>
+													</tr>
+												</thead>
+											</table>
+										</div>
+									</div>
+                  <div class="space-12"></div>
+                </div>
+
+                <div class="row">
+     								<div class="col-xs-12">
+    								<form role="form" class="form-horizontal" action="/api/upload/ip/ip/" enctype="multipart/form-data" method="post">
+
+    									<hr>
+    									<div class="row">
+    										<div class="col-sm-12">
+    											<div class="widget-box collapsed">
+    												<div class="widget-header">
+    													<h4 class="widget-title ace-icon fa fa-hand-o-right">批量导入请通过Excel文件上传方式导入</h4>
+
+    													<div class="widget-toolbar">
+    														<a data-action="collapse" href="#">
+    															<i id="arrow" class="ace-icon fa fa-chevron-up"></i>
+    														</a>
+
+    														<a data-action="close" href="#">
+    															<i class="ace-icon fa fa-times"></i>
+    														</a>
+    													</div>
+    												</div>
+
+    												<div class="widget-body">
+    													<div class="widget-main">
+
+
+    														<div class="form-group">
+    															<div class="col-xs-12">
+    																<input multiple="" type="file" id="id-input-file-3" name="title">
+    															</div>
+    														</div>
+
+    														<label>
+    															  <button class="btn btn-app btn-grey btn-xs ">
+    																<i class="ace-icon fa fa-floppy-o bigger-160"></i>
+
+    																保存
+    																<span class="badge badge-transparent">
+
+    											          </span>
+    										            </button>
+    														</label>
+
+    														<label>
+    															<a class="btn btn-app btn-primary btn-xs" href="#">
+    																<i class="ace-icon fa fa-pencil-square-o bigger-160"></i>
+    															  模板下载
+    														</a>
+    														</label>
+    													</div>
+    												</div>
+    											</div>
+    										</div>
+
+    									</div>
+
+
+    								</form>
+    							</div>
+    						</div>
+
+              </div><!-- /.page-content -->
+        </div><!-- /.main-container -->
+   <!-- Modal -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="myModal">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">服务器详情</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-md-3">
+            <label for="sn">sn</label>
+            <input type="text" class="form-control" id="sn" placeholder="sn" readonly>
+          </div>
+          <div class="col-md-3">
+            <label for="asset_type">设备类型</label>
+            <input type="text" class="form-control" id="asset_type" placeholder="asset_type" readonly>
+          </div>
+          <div class="col-md-3">
+            <label for="producer">厂商</label>
+            <input type="text" class="form-control" id="producer" placeholder="producer" readonly>
+          </div>
+          <div class="col-md-3">
+            <label for="shelf_time">上架时间</label>
+            <input type="text" class="form-control" id="shelf_time" placeholder="shelf time" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-3">
+            <label for="server_type">设备型号</label>
+            <input type="text" class="form-control" id="server_type" placeholder="server_type" readonly>
+          </div>
+          <div class="col-md-3">
+            <label for="purchase">采购日期</label>
+            <input type="text" class="form-control" id="purchase" placeholder="purchase" readonly>
+          </div>
+          <div class="col-md-3">
+            <label for="warranty">过保日期</label>
+            <input type="text" class="form-control" id="warranty" placeholder="warranty" readonly>
+          </div>
+          <div class="col-md-3">
+            <label for="os">操作系统信息</label>
+            <input type="text" class="form-control" id="os" placeholder="os" readonly>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <label for="inip_info">内网ip</label>
+            <input type="text" class="form-control" id="inip_info" placeholder="inip" readonly>
+          </div>
+          <div class="col-md-6">
+            <label for="inmask">掩码</label>
+            <input type="text" class="form-control" id="inmask" placeholder="inmask" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <label for="outip">外网ip</label>
+            <input type="text" class="form-control" id="outip_info" placeholder="outip" readonly>
+          </div>
+          <div class="col-md-6">
+            <label for="outmask">掩码</label>
+            <input type="text" class="form-control" id="outmask" placeholder="outmask" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label for="position">设备位置</label>
+            <input type="text" class="form-control" id="position" placeholder="position" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label for="dpt">服务关系</label>
+            <input type="text" class="form-control" id="dpt" placeholder="dpt" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label for="cpu">处理器</label>
+            <input type="text" class="form-control" id="cpu" placeholder="cpu" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label for="memory">内存</label>
+            <input type="text" class="form-control" id="memory" placeholder="memory" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label for="cpu">硬盘</label>
+            <textarea type="text" class="form-control" id="disk" placeholder="disk" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <label for="netcard">网卡</label>
+            <textarea type="text" class="form-control" id="netcard" placeholder="netcard" readonly></textarea>
+          </div>
+        </div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+			<!-- inline scripts related to this page -->
+		<script type="text/javascript">
+			jQuery(function($) {
+				//initiate dataTables plugin
+				var oTable1 =
+				$('#dynamic-table')
+				//.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+				.dataTable( {
+          "bLengthChange": false,
+          "bFilter": false,
+          "bSort": false,
+          "bInfo": true,
+          "sScrollX": true,
+          "iDisplayLength": 15,
+          //  "sPaginationType": "full_numbers",
+          //  'bPaginate': true,  //是否分页。
+
+          "bProcessing": true, // 是否显示取数据时的那个等待提示
+          "bServerSide": true,//这个用来指明是通过服务端来取数据
+          "sAjaxSource": "/api/ip/searchipinfo/",//这个是请求的地址
+          "fnServerData": retrieveData, // 获取数据的处理函数
+
+          "oLanguage": {
+              "sProcessing": "正在加载中......",
+              "sLengthMenu": "每页显示 _MENU_ 条记录",
+              "sZeroRecords": "对不起，查询不到相关数据！",
+              "sEmptyTable": "表中无数据存在！",
+              "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+              "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
+              "oPaginate": {
+                  "sFirst": "首页",
+                  "sPrevious": "上一页",
+                  "sNext": "下一页",
+                  "sLast": "末页",
+              },
+          },
+					"aoColumns": [
+					 	{ 	"mDataProp": "pk",
+							"sClass": "center",
+						  	"mRender": function(pk){
+						  	return "<label class='pos-rel'> <input type='checkbox' class='ace' value='"+pk+"'> <span class='lbl'></span> </label>"
+							},
+						  	//"sWidth":"5%",
+						  	"bSortable":false
+						},
+						{ "mDataProp": "sn",
+					  		"sClass": "center",
+						  	"mRender": function(fields,type,full){
+							return "<a class='tooltip-error'  title='详情' onclick='ShowServerList(" + full.pk + ");'>"+full.sn+"</a>"
+							},
+						  	"sWidth":"5%",
+						  	"bSortable":false
+					  },
+					  { "mData": "ip" },
+					  { "mData": "mac" },
+					  { "mData": "mask" },
+					  { "mData": "gateway" },
+					  { "mData": "ip_type",
+						"sClass": "center",
+						 "mRender": function(fields,type,full){
+								return fields;
+							},
+						  //	"sWidth":"5%",
+					  },
+					],
+					"aaSorting": [],
+					//,
+					//"sScrollY": "200px",
+					//"bPaginate": false,
+
+					//"sScrollX": "100%",
+					//"sScrollXInner": "120%",
+					//"bScrollCollapse": true,
+					//Note: if you are applying horizontal scrolling (sScrollX) on a ".table-bordered"
+					//you may want to wrap the table inside a "div.dataTables_borderWrap" element
+
+					//"iDisplayLength": 50
+			    } );
+          // 3个参数的名字可以随便命名,但必须是3个参数,少一个都不行
+
+                      function retrieveData(sSource, aoData, fnCallback) {
+                          var startnum = aoData[3]['value'];
+                          var range = aoData[4]['value'];
+                          var ip=$('#ip').val();
+                        	var iptype=$('#iptype').val();
+                        	var assetsn=$('#accessno').val();
+                          token = GetToken();
+                          if (token == 'error') {
+                              sweetAlert("O NO !", "TOKEN 失效!", "error");
+                              return false;
+                          }
+                          token = token.data.token;
+                          datas = {
+                              'token': token,
+                              'ip': ip,
+                              'iptype': iptype,
+                              'assetsn': assetsn,
+                              'startnum': startnum,
+                              'range': range,
+                          };
+                          datas = JSON.stringify(datas);
+                          $.ajax({
+                              url: sSource,//这个就是请求地址对应sAjaxSource
+                              data: datas,//这个是把datatable的一些基本数据传给后台,比如起始位置,每页显示的行数
+                              type: 'post',
+                              dataType: 'json',
+                              async: false,
+                              success: function (result) {
+                                  result['iTotalRecords'] = result.data.length;
+                                  result['iTotalDisplayRecords']=result.data.length*range;
+                                  fnCallback(result);//把返回的数据传给这个方法就可以了,datatable会自动绑定数据的
+                              },
+                              error: function (msg) {
+                              }
+                          });
+                      }
+
+
+				//TableTools settings
+				TableTools.classes.container = "btn-group btn-overlap";
+				TableTools.classes.print = {
+					"body": "DTTT_Print",
+					"info": "tableTools-alert gritter-item-wrapper gritter-info gritter-center white",
+					"message": "tableTools-print-navbar"
+				}
+
+				//initiate TableTools extension
+				var tableTools_obj = new $.fn.dataTable.TableTools( oTable1, {
+					"sSwfPath": "/static/swf/copy_csv_xls_pdf.swf",
+
+					"sRowSelector": "td:not(:last-child)",
+					"sRowSelect": "multi",
+					"fnRowSelected": function(row) {
+						//check checkbox when row is selected
+						try { $(row).find('input[type=checkbox]').get(0).checked = true }
+						catch(e) {}
+					},
+					"fnRowDeselected": function(row) {
+						//uncheck checkbox
+						try { $(row).find('input[type=checkbox]').get(0).checked = false }
+						catch(e) {}
+					},
+
+					"sSelectedClass": "success",
+			        "aButtons": [
+						{
+							"sExtends": "copy",
+							"sToolTip": "复制到剪贴板",
+							"sButtonClass": "btn btn-white btn-primary btn-bold",
+							"sButtonText": "<i class='fa fa-copy bigger-110 pink'></i>",
+							"fnComplete": function() {
+								this.fnInfo( '<h3 class="no-margin-top smaller">列表已拷贝</h3>\
+									<p>已拷贝 '+(oTable1.fnSettings().fnRecordsTotal())+' 行到剪贴板.</p>',
+									1500
+								);
+							}
+						},
+
+						{
+							"sExtends": "csv",
+							"sToolTip": "倒出为CSV",
+							"sButtonClass": "btn btn-white btn-primary  btn-bold",
+							"sButtonText": "<i class='fa fa-file-excel-o bigger-110 green'></i>"
+						},
+
+						{
+							"sExtends": "pdf",
+							"sToolTip": "导出为PDF",
+							"sButtonClass": "btn btn-white btn-primary  btn-bold",
+							"sButtonText": "<i class='fa fa-file-pdf-o bigger-110 red'></i>"
+						},
+
+						{
+							"sExtends": "print",
+							"sToolTip": "打印预览",
+							"sButtonClass": "btn btn-white btn-primary  btn-bold",
+							"sButtonText": "<i class='fa fa-print bigger-110 grey'></i>",
+
+							"sMessage": "<div class='navbar navbar-default'><div class='navbar-header pull-left'><a class='navbar-brand' href='#'><small>Optional Navbar &amp; Text</small></a></div></div>",
+
+							"sInfo": "<h3 class='no-margin-top'>Print view</h3>\
+									  <p>Please use your browser's print function to\
+									  print this table.\
+									  <br />Press <b>escape</b> when finished.</p>",
+						}
+			        ]
+			    } );
+				//we put a container before our table and append TableTools element to it
+			    $(tableTools_obj.fnContainer()).appendTo($('.tableTools-container'));
+
+				//also add tooltips to table tools buttons
+				//addding tooltips directly to "A" buttons results in buttons disappearing (weired! don't know why!)
+				//so we add tooltips to the "DIV" child after it becomes inserted
+				//flash objects inside table tools buttons are inserted with some delay (100ms) (for some reason)
+				setTimeout(function() {
+					$(tableTools_obj.fnContainer()).find('a.DTTT_button').each(function() {
+						var div = $(this).find('> div');
+						if(div.length > 0) div.tooltip({container: 'body'});
+						else $(this).tooltip({container: 'body'});
+					});
+				}, 200);
+
+
+
+				//ColVis extension
+				var colvis = new $.fn.dataTable.ColVis( oTable1, {
+					"buttonText": "<i class='fa fa-search'></i>",
+					"aiExclude": [0, 6],
+					"bShowAll": true,
+					//"bRestore": true,
+					"sAlign": "right",
+					"fnLabel": function(i, title, th) {
+						return $(th).text();//remove icons, etc
+					}
+
+				});
+
+				//style it
+				$(colvis.button()).addClass('btn-group').find('button').addClass('btn btn-white btn-info btn-bold')
+
+				//and append it to our table tools btn-group, also add tooltip
+				$(colvis.button())
+				.prependTo('.tableTools-container .btn-group')
+				.attr('title', '显示/隐藏 列').tooltip({container: 'body'});
+
+				//and make the list, buttons and checkboxed Ace-like
+				$(colvis.dom.collection)
+				.addClass('dropdown-menu dropdown-light dropdown-caret dropdown-caret-right')
+				.find('li').wrapInner('<a href="javascript:void(0)" />') //'A' tag is required for better styling
+				.find('input[type=checkbox]').addClass('ace').next().addClass('lbl padding-8');
+
+
+
+				/////////////////////////////////
+				//table checkboxes
+				$('th input[type=checkbox], td input[type=checkbox]').prop('checked', false);
+
+				//select/deselect all rows according to table header checkbox
+				$('#dynamic-table > thead > tr > th input[type=checkbox]').eq(0).on('click', function(){
+					var th_checked = this.checked;//checkbox inside "TH" table header
+
+					$(this).closest('table').find('tbody > tr').each(function(){
+						var row = this;
+						if(th_checked) tableTools_obj.fnSelect(row);
+						else tableTools_obj.fnDeselect(row);
+					});
+				});
+
+				//select/deselect a row when the checkbox is checked/unchecked
+				$('#dynamic-table').on('click', 'td input[type=checkbox]' , function(){
+					var row = $(this).closest('tr').get(0);
+					if(!this.checked) tableTools_obj.fnSelect(row);
+					else tableTools_obj.fnDeselect($(this).closest('tr').get(0));
+				});
+
+
+
+
+					$(document).on('click', '#dynamic-table .dropdown-toggle', function(e) {
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+					e.preventDefault();
+				});
+
+
+				//And for the first simple table, which doesn't have TableTools or dataTables
+				//select/deselect all rows according to table header checkbox
+				var active_class = 'active';
+				$('#simple-table > thead > tr > th input[type=checkbox]').eq(0).on('click', function(){
+					var th_checked = this.checked;//checkbox inside "TH" table header
+
+					$(this).closest('table').find('tbody > tr').each(function(){
+						var row = this;
+						if(th_checked) $(row).addClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', true);
+						else $(row).removeClass(active_class).find('input[type=checkbox]').eq(0).prop('checked', false);
+					});
+				});
+
+				//select/deselect a row when the checkbox is checked/unchecked
+				$('#simple-table').on('click', 'td input[type=checkbox]' , function(){
+					var $row = $(this).closest('tr');
+					if(this.checked) $row.addClass(active_class);
+					else $row.removeClass(active_class);
+				});
+
+
+
+				/********************************/
+				//add tooltip for small view action buttons in dropdown menu
+				$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
+
+				//tooltip placement on right or left
+				function tooltip_placement(context, source) {
+					var $source = $(source);
+					var $parent = $source.closest('table')
+					var off1 = $parent.offset();
+					var w1 = $parent.width();
+
+					var off2 = $source.offset();
+					//var w2 = $source.width();
+
+					if( parseInt(off2.left) < parseInt(off1.left) + parseInt(w1 / 2) ) return 'right';
+					return 'left';
+				}
+
+        $( "#input-size-slider" ).css('width','200px').slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 8,
+					step: 1,
+					slide: function( event, ui ) {
+						var sizing = ['', 'input-sm', 'input-lg', 'input-mini', 'input-small', 'input-medium', 'input-large', 'input-xlarge', 'input-xxlarge'];
+						var val = parseInt(ui.value);
+						$('#form-field-4').attr('class', sizing[val]).val('.'+sizing[val]);
+					}
+				});
+
+				$( "#input-span-slider" ).slider({
+					value:1,
+					range: "min",
+					min: 1,
+					max: 12,
+					step: 1,
+					slide: function( event, ui ) {
+						var val = parseInt(ui.value);
+						$('#form-field-5').attr('class', 'col-xs-'+val).val('.col-xs-'+val);
+					}
+				});
+
+
+
+				//"jQuery UI Slider"
+				//range slider tooltip example
+				$( "#slider-range" ).css('height','200px').slider({
+					orientation: "vertical",
+					range: true,
+					min: 0,
+					max: 100,
+					values: [ 17, 67 ],
+					slide: function( event, ui ) {
+						var val = ui.values[$(ui.handle).index()-1] + "";
+
+						if( !ui.handle.firstChild ) {
+							$("<div class='tooltip right in' style='display:none;left:16px;top:-6px;'><div class='tooltip-arrow'></div><div class='tooltip-inner'></div></div>")
+							.prependTo(ui.handle);
+						}
+						$(ui.handle.firstChild).show().children().eq(1).text(val);
+					}
+				}).find('span.ui-slider-handle').on('blur', function(){
+					$(this.firstChild).hide();
+				});
+
+
+				$( "#slider-range-max" ).slider({
+					range: "max",
+					min: 1,
+					max: 10,
+					value: 2
+				});
+
+				$( "#slider-eq > span" ).css({width:'90%', 'float':'left', margin:'15px'}).each(function() {
+					// read initial values from markup and remove that
+					var value = parseInt( $( this ).text(), 10 );
+					$( this ).empty().slider({
+						value: value,
+						range: "min",
+						animate: true
+
+					});
+				});
+
+				$("#slider-eq > span.ui-slider-purple").slider('disable');//disable third item
+
+				$('#id-input-file-1 , #id-input-file-2').ace_file_input({
+					no_file:'No File ...',
+					btn_choose:'Choose',
+					btn_change:'Change',
+					droppable:false,
+					onchange:null,
+					thumbnail:false //| true | large
+					//whitelist:'gif|png|jpg|jpeg'
+					//blacklist:'exe|php'
+					//onchange:''
+					//
+				});
+				//pre-show a file name, for example a previously selected file
+				//$('#id-input-file-1').ace_file_input('show_file_list', ['myfile.txt'])
+
+
+				$('#id-input-file-3').ace_file_input({
+					style:'well',
+					btn_choose:'点击上传文件',
+					btn_change:null,
+					no_icon:'ace-icon fa fa-cloud-upload',
+					droppable:true,
+					thumbnail:'small'//large | fit
+					//,icon_remove:null//set null, to hide remove/reset button
+					/**,before_change:function(files, dropped) {
+						//Check an example below
+						//or examples/file-upload.html
+						return true;
+					}*/
+					/**,before_remove : function() {
+						return true;
+					}*/
+					,
+					preview_error : function(filename, error_code) {
+						//name of the file that failed
+						//error_code values
+						//1 = 'FILE_LOAD_FAILED',
+						//2 = 'IMAGE_LOAD_FAILED',
+						//3 = 'THUMBNAIL_FAILED'
+						//alert(error_code);
+					}
+
+				}).on('change', function(){
+					//console.log($(this).data('ace_input_files'));
+					//console.log($(this).data('ace_input_method'));
+				});
+
+
+				//$('#id-input-file-3')
+				//.ace_file_input('show_file_list', [
+					//{type: 'image', name: 'name of image', path: 'http://path/to/image/for/preview'},
+					//{type: 'file', name: 'hello.txt'}
+				//]);
+
+
+
+
+				//dynamically change allowed formats by changing allowExt && allowMime function
+				$('#id-file-format').removeAttr('checked').on('change', function() {
+					var whitelist_ext, whitelist_mime;
+					var btn_choose
+					var no_icon
+					if(this.checked) {
+						btn_choose = "Drop images here or click to choose";
+						no_icon = "ace-icon fa fa-picture-o";
+
+						whitelist_ext = ["jpeg", "jpg", "png", "gif" , "bmp"];
+						whitelist_mime = ["image/jpg", "image/jpeg", "image/png", "image/gif", "image/bmp"];
+					}
+					else {
+						btn_choose = "Drop files here or click to choose";
+						no_icon = "ace-icon fa fa-cloud-upload";
+
+						whitelist_ext = null;//all extensions are acceptable
+						whitelist_mime = null;//all mimes are acceptable
+					}
+					var file_input = $('#id-input-file-3');
+					file_input
+					.ace_file_input('update_settings',
+					{
+						'btn_choose': btn_choose,
+						'no_icon': no_icon,
+						'allowExt': whitelist_ext,
+						'allowMime': whitelist_mime
+					})
+					file_input.ace_file_input('reset_input');
+
+					file_input
+					.off('file.error.ace')
+					.on('file.error.ace', function(e, info) {
+						//console.log(info.file_count);//number of selected files
+						//console.log(info.invalid_count);//number of invalid files
+						//console.log(info.error_list);//a list of errors in the following format
+
+						//info.error_count['ext']
+						//info.error_count['mime']
+						//info.error_count['size']
+
+						//info.error_list['ext']  = [list of file names with invalid extension]
+						//info.error_list['mime'] = [list of file names with invalid mimetype]
+						//info.error_list['size'] = [list of file names with invalid size]
+
+
+						/**
+						if( !info.dropped ) {
+							//perhapse reset file field if files have been selected, and there are invalid files among them
+							//when files are dropped, only valid files will be added to our file array
+							e.preventDefault();//it will rest input
+						}
+						*/
+
+
+						//if files have been selected (not dropped), you can choose to reset input
+						//because browser keeps all selected files anyway and this cannot be changed
+						//we can only reset file field to become empty again
+						//on any case you still should check files with your server side script
+						//because any arbitrary file can be uploaded by user and it's not safe to rely on browser-side measures
+					});
+
+				});
+			})
+		</script>
+{% endblock %}

@@ -1,0 +1,301 @@
+<div class="row collapse">
+    <div class="small-3 columns">
+        <label>设备分类
+            <select id="device-cate" name="device-cate">
+                {% for cate in cates %}
+                <option value="{{ cate.id }}"
+                {% if dev.device_cat_id == cate.id %}selected{% endif %}>{{cate.name}}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div class="small-3 columns">
+        <label>供应商
+            <select name="supplier">
+                {% for supplier in suppliers %}
+                <option value="{{supplier.id}}"
+                {%if dev.supplier_id == supplier.id %}selected{% endif %}>{{supplier.name}}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div class="small-1 columns"></div>
+</div>
+<div class="row collapse">
+    <div class="small-3 columns">
+        <label>序列号<input type="text" name="sn" value="{{dev.sn}}"/></label>
+    </div>
+    <div class="small-3 columns">
+        <label>设备型号<input type="text" id="model" name="model" value="{{dev.model}}"/></label>
+        <input type="hidden" name="model"  value="">
+    </div>
+    <div class="small-1 columns"></div>
+</div>
+
+<div class="row collapse">
+    <div class="small-3 columns">
+        <label>采购时间<input type="text" id="buy-time" name="buy-time"
+                          value="{{dev.buy_time.strftime('%m/%d/%Y')}}"/></label>
+    </div>
+    <div class="small-1 columns">
+        <label>保修年限<input type="text" class="number-only" name="service-term" value="{{dev.service_term()}}"/></label>
+    </div>
+    <div class="small-2 columns">
+        {% if dev.price_rmb() == "未知" %}
+        <label>价格<input class="number-only" type="text" name="price" value="0"/></label>
+        {% else %}
+        <label>价格<input class="number-only" type="text" name="price" value="{{dev.price_rmb()}}"/></label>
+        {% endif %}
+    </div>
+    <div class="small-1 columns"></div>
+</div>
+<div class="row collapse">
+    <div class="small-3 columns">
+        <label>机房
+            <select id="idc-droplist" name="idc">
+                {% for idc in idcs %}
+                {% if idc.id in idc_ids %}
+                <option value="{{idc.id}}"
+                {% if idc_id == idc.id %}selected{% endif %}>{{idc.short_name}}（{{idc.name}}）</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div class="small-1 columns">
+        <label>机柜
+            {% for id, racks in idc_racks.iteritems() %}
+            <select id="rack-droplist-{{id}}" name="{% if id == idc_id %}rack{% endif %}"
+                    class="rack-droplist {% if id != idc_id %}none{% endif %}">
+                {% for rack in racks %}
+                <option value="{{rack.id}}"
+                {% if dev.rack_id == rack.id %}selected{% endif %}>{{rack.name}}</option>
+                {% endfor %}
+            </select>
+            {% endfor %}
+        </label>
+    </div>
+    <div class="small-1 columns">
+        <label>机柜内位置<input type="text" class="number-only" name="rack-offset" value="{{dev.rack_offset}}"/></label>
+    </div>
+    <div class="small-1 columns">
+        <label>高度<input type="text" class="number-only" name="rack-unit" value="{{dev.rack_unit}}"/></label>
+    </div>
+    <div class="small-1 columns"></div>
+</div>
+<div id="frame" class="row collapse">
+    <div class="small-3 columns">
+        <label>多节点机框
+            <select id="frame-droplist" name="frame-droplist">
+                <option value=0>未选择</option>
+                {% for frame_label in frame_labels %}
+                <option value="{{frame_label.id}}" {% if dev.frame_id == frame_label.id %}selected{% endif %}>{{frame_label.device_label}}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+</div>
+<hr/>
+<div class="row collapse">
+    <div class="small-3 columns">
+        <label>内存(GB)<input type="text" name="memory" value="{{dev.memory_extra}}"/></label>
+    </div>
+</div>
+<fieldset>
+    <legend>CPU</legend>
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="small-3 columns" style="text-align: center; font-size: 14px;">核心数</div>
+        <div class="small-3 columns" style="text-align: center; font-size: 14px;">型号</div>
+        <div class="small-1 columns"></div>
+    </div>
+    {% for cpu in dev.cpu_list() %}
+    <div class="row cpu_row">
+        <div class="small-3 columns"><input type="text" class="number-only" name="cpu-num[]" value="{{cpu.num}}"/></div>
+        <div class="small-3 columns"><input type="text" name="cpu-model[]" value="{{cpu.model}}"/></div>
+        <div class="small-1 columns" style="text-align: center; line-height: 32px; height: 32px;">
+            <a href="#" class="delete-row-btn" style="font-size: 14px;">删除</a>
+        </div>
+        <div class="small-1 columns"></div>
+    </div>
+    {% else %}
+    <div class="row cpu_row">
+        <div class="small-3 columns"><input class="number-only" name="cpu-num[]" type="text"/></div>
+        <div class="small-3 columns"><input name="cpu-model[]" type="text"/></div>
+        <div class="small-1 columns" style="text-align: center; line-height: 32px; height: 32px;">
+            <a href="#" class="delete-row-btn" style="font-size: 14px;">删除</a>
+        </div>
+        <div class="small-1 columns"></div>
+    </div>
+    {% endfor %}
+    <a href="#" id="cpu-add-btn" style="font-size: 14px;">+添加CPU</a>
+</fieldset>
+<fieldset>
+    <legend>硬盘</legend>
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="small-2 columns" style="text-align: center; font-size: 14px;">容量(GB)</div>
+        <div class="small-2 columns" style="text-align: center; font-size: 14px;">型号</div>
+        <div class="small-2 columns" style="text-align: center; font-size: 14px;">接口</div>
+        <div class="small-2 columns" style="text-align: center; font-size: 14px;">尺寸</div>
+        <div class="small-1 columns">&nbsp;</div>
+        <div class="small-1 columns" style="text-align: center; font-size: 14px;">数量</div>
+        <div class="small-1 columns">&nbsp;</div>
+
+    </div>
+    {% for disk in dev.storage_list() %}
+    <div class="row storage_row">
+        <div class="small-2 columns"><input type="text" class="number-only" name="disk-capacity[]"
+                                            value="{{disk.capacity}}"/></div>
+        <div class="small-2 columns">
+            <input type="hidden" class="number-only" name="disk-speed[]" value="{{disk.speed}}"/>
+            <select name="disk-type[]">
+                <option value=""
+                {% if not disk.type %}selected{% endif %}>未登记</option>
+                <option value="0"
+                {% if disk.type == 0 %}selected{% endif %}>Intel SSD DC S3710</option>
+                <option value="1"
+                {% if disk.type == 1 %}selected{% endif %}>Intel SSD DC S3700</option>
+                <option value="2"
+                {% if disk.type == 2 %}selected{% endif %}>Intel SSD DC S3610</option>
+                <option value="3"
+                {% if disk.type == 3 %}selected{% endif %}>Intel SSD DC S3510</option>
+                <option value="4"
+                {% if disk.type == 4 %}selected{% endif %}>Intel SSD DC S3500</option>
+            </select>
+        </div>
+        <div class="small-2 columns"><input type="text" name="disk-inter[]" value="{{disk.interface}}"/></div>
+        <div class="small-2 columns">
+            <select name="disk-size[]">
+                <option value=""
+                {% if not disk.szie %}selected{% endif %}>未登记</option>
+                <option value="1.8"
+                {% if disk.size == 1.8 %}selected{% endif %}>1.8英寸</option>
+                <option value="2.5"
+                {% if disk.size == 2.5 %}selected{% endif %}>2.5英寸</option>
+                <option value="3.5"
+                {% if disk.size == 3.5 %}selected{% endif %}>3.5英寸</option>
+                <option value="5.25"
+                {% if disk.size == 5.25 %}selected{% endif %}>5.25英寸</option>
+            </select>
+        </div>
+        <div class="small-1 columns" style="text-align: center; font-size: 25px;">
+            ×
+        </div>
+        <div class="small-1 columns"><input class="number-only" name="disk-count[]" type="text" value="{{disk.count}}"/></div>
+        <div class="small-1 columns" style="text-align: center; line-height: 32px; height: 32px;">
+            <a href="#" class="delete-row-btn" style="font-size: 14px;">删除</a>
+        </div>
+        <div class="small-1 columns"></div>
+    </div>
+    {% else %}
+    <div class="row storage_row">
+        <div class="small-2 columns"><input class="number-only" name="disk-capacity[]" type="text"/></div>
+        <div class="small-2 columns"><input class="number-only" name="disk-speed[]" type="hidden"/>
+            <select name="disk-type[]">
+                <option  value="">未登记</option>
+                <option value="0">Intel SSD DC S3710</option>
+                <option value="1">Intel SSD DC S3700</option>
+                <option value="2">Intel SSD DC S3610</option>
+                <option value="3">Intel SSD DC S3510</option>
+                <option value="4">Intel SSD DC S3500</option>
+            </select>
+        </div>
+        <div class="small-2 columns"><input name="disk-inter[]" type="text"/></div>
+        <div class="small-2 columns">
+            <select name="disk-size[]">
+                <option value="">未登记</option>
+                <option value="1.8">1.8英寸</option>
+                <option value="2.5">2.5英寸</option>
+                <option value="3.5">3.5英寸</option>
+                <option value="5.25">5.25英寸</option>
+            </select>
+        </div>
+        <div class="small-1 columns" style="text-align: center; font-size: 25px;">
+            ×
+        </div>
+        <div class="small-1 columns"><input class="number-only" name="disk-count[]" type="text"/></div>
+        <div class="small-1 columns" style="text-align: center; line-height: 32px; height: 32px;">
+            <a href="#" class="delete-row-btn" style="font-size: 14px;">删除</a>
+        </div>
+        <div class="small-1 columns"></div>
+    </div>
+    {% endfor %}
+    <a href="#" id="storage-add-btn" style="font-size: 14px;">+添加硬盘</a>
+</fieldset>
+<fieldset>
+    <legend>网卡</legend>
+    <input type="hidden" id="net-names" value="{{' '.join(net_names)}}"/>
+
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="small-1 columns" style="text-align: center; font-size: 14px;">名称</div>
+        <div class="small-3 columns" style="text-align: center; font-size: 14px;">IP</div>
+        <div class="small-3 columns" style="text-align: center; font-size: 14px;">MAC</div>
+        <div class="small-1 columns">&nbsp;</div>
+        <div class="small-1 columns">&nbsp;</div>
+    </div>
+    {% for k, net in nets.iteritems() %}
+    <div class="row net-row">
+        <div class="small-1 columns" style="text-align: center">
+            <select name="net-name[]">
+                {% for name in net_names %}
+                <option value="{{loop.index - 1}}"
+                {% if net.net_name_id == loop.index - 1 %}selected{% endif %}>{{name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="small-3 columns">
+            <input type="hidden" name="net-ip-id[]" value="{{net.ip_id}}"/>
+            <input type="text" class="number-only" name="net-ip[]" value="{{net.ip}}"/>
+        </div>
+        <div class="small-3 columns">
+            <input type="text" name="net-mac[]" value="{{net.mac}}"/>
+        </div>
+        <div class="small-1 columns" style="text-align: center; line-height: 32px; height: 32px;">
+            <a href="#" class="delete-row-btn" style="font-size: 14px;">删除</a>
+        </div>
+        <div class="small-1 columns">&nbsp;</div>
+    </div>
+    {% else %}
+    <div class="row net-row">
+        <div class="small-1 columns" style="text-align: center">
+            <select name="net-name[]">
+                {% for name in net_names %}
+                <option value="{{loop.index - 1}}"
+                {% if net.net_name_id == loop.index - 1 %}selected{% endif %}>{{name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="small-3 columns">
+            <input type="hidden" name="net-ip-id[]"/>
+            <input class="number-only" name="net-ip[]" type="text"/>
+        </div>
+        <div class="small-3 columns"><input name="net-mac[]" type="text"/></div>
+        <div class="small-1 columns" style="text-align: center; line-height: 32px; height: 32px;">
+            <a href="#" class="delete-row-btn" style="font-size: 14px;">删除</a>
+        </div>
+        <div class="small-1 columns">&nbsp;</div>
+    </div>
+    {% endfor %}
+    <a href="#" id="net-add-btn" style="font-size: 14px;">+添加网卡</a>
+</fieldset>
+<div class="row collapse">
+    <div class="small-7 columns">
+        <label>备注<textarea name="content" rows="5">{{dev.content}}</textarea></label>
+    </div>
+</div>
+{% if act == 'add' %}
+<div class="row collapse">
+    <div class="small-1 columns">
+        <label>批量生成数目
+            <input class="number-only" type="text" id="batch-num" value="1"/>
+        </label>
+    </div>
+</div>
+{% endif %}
+<button class="button small radius" data-batch-add="{{url_for('device.ajax_add')}}" id="device-form-submit">确定</button>
+
+
+<div id="batch-add-form" class="reveal-modal small" data-reveal>
+    <h5>正在创建设备记录</h5>
+    <a class="button tiny radius" id="batch-add-result" href="{{url_for('device.list')}}" style="margin-top: 20px">返回列表</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>

@@ -1,0 +1,70 @@
+{% extends "public/sa_layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>我的任务</span>
+</h5>
+<hr>
+{% if tasks %}
+<div class="tabs-content">
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;"></div>
+    <table style="width: 100%">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>工单分类</th>
+        <th>需求方</th>
+        <th>状态</th>
+        <th>时间</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in tasks %}
+    <tr>
+        <td>{{ item.idx }}</td>
+        <td><a href="{{ url_for('tickets.detail', id = item.tickets_id) }}" class="tooltip-display" data="{{ item.content }}">{{ item.tickets_cat_name }}</a></td>
+        <td>{{ item.uid_cname }}</td>
+        <td>{{ item.status_desc }}</td>
+        <td>{{ item.created }}</td>
+        <td>
+            {% if item.status != 2 %}
+            <a href="javascript:void(0);" data="{{ item.id }}" class="del_taks">关闭任务</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="pagination-centered right">
+        <ul class="pagination">
+            <li class="arrow">当前{{ extend['cur_total'] }}条,共{{ extend['total'] }}条</li>
+            {% if p.previous %}
+                <li class="arrow"><a href="{{ url_for('tickets.task_my') }}?p=1">&laquo;</a></li>
+            {% endif %}
+            {% for page in p.pages %}
+                {% if page == p.current %}
+                    <li class="current"><a href="javascript:void(0);">{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('tickets.task_my',p = page) }}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if p.next %}
+                <li class="arrow"><a href="{{ url_for('tickets.task_my',p= p.page_num) }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/sa/tickets/my.js","js/sa/tickets/functions.js","js/sa/tickets/my.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block customstyle %}
+<style type="text/css">
+    .tooltip-display{
+        	color: #0078a0;
+    }
+</style>
+{% endblock %}

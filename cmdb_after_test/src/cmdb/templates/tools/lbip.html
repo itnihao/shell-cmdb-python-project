@@ -1,0 +1,44 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<dl class="tabs" data-tab>
+     <dd><a id="list1" href="javascript:void(0);" data="{{ url_for('tools.lblog') }}" >请求统计</a></dd>
+     <dd class="active" ><a href="javascript:void(0);">IP统计</a></dd>
+</dl>
+<h5 class="content_title">
+<a id="force_refresh" href="javascript:void(0)"  class="button radius right tiny"  style="margin-left: 5px;">刷新</a>
+</h5>
+
+        <table class="table toggle-arrow-circle-filled footable-loaded footable" style="width: 100%;">
+            <thead>
+            <tr>
+                <th data-toggle="true" class="footable-sortable"  width="15%">IP
+                <span class="footable-sort-indicator"></span>
+                </th>
+                <th class="footable-sortable" width="11%">最近几分钟请求次数
+                <span class="footable-sort-indicator"></span>
+                </th>
+                <th width="7%">流量
+                    <span class="footable-sort-indicator"></span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in ret %}
+            <tr>
+                <td>{{ item.ip }}</td>
+                <td>{{ item.count }}</td>
+                <td>{{ item.flow }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+{% endblock %}
+
+{% block customscript %}
+{% assets filters="jsmin", output="asset/lblog.js", "js/common-lib.js","js/tools/lbip.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript" src="/static/js/tools/lbip.js"></script>
+{% endassets %}
+{% endblock %}

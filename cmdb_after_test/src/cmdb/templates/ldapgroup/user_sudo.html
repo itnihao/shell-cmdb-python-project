@@ -1,0 +1,186 @@
+{% extends "public/layout.html" %}
+
+{% block customstyle %}
+    <link rel="stylesheet" href="/static/css/jquery.typeahead.css"/>
+
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+</style>
+{% endblock %}
+
+{% block title %}CMDB - 用户命令管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>用户查找</span>
+     <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+    <div class="row collapse">
+        <div class="row" id="usersearch">
+            <div class="large-12 columns">
+                <div class="typeahead-container" style="text-align:center;margin:0 auto">
+                    <div class="typeahead-field" style="width: 700px" >
+
+                        <span class="typeahead-query" style="width: 600px">
+                            <input id="q"
+                                   name="q"
+                                   type="search"
+                                   placeholder="Search"
+                                   autocomplete="off">
+
+                        </span>
+                        <span class="typeahead-button">
+                            <button type="submit" id="find">
+                                <i class="search-icon" herf="{{ url_for('ldapgroup.usersudodetails',name='chaojin')}}"></i>
+                            </button>
+
+                        </span>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</h5>
+<hr>
+
+{% block content %}
+<div class="content">
+    {% block mainsudo %}{% endblock %}
+</div>
+{% endblock %}
+
+
+{% block customscript %}
+
+    <script type="text/javascript" src="/static/js/vendor/jquery.typeahead.min.js"></script>
+    {{ fujs.js }}
+{% endblock %}
+
+<script>
+
+
+var data_user={}
+data_user.cn=[{%for cn in   users.cn%}
+
+    "{{ cn }}"
+    ,
+    {% endfor %}
+];
+data_user.ping=[{%for ping in   users.ping%}
+    "{{ ping }}"
+    ,{% endfor %}];
+
+$('#q').typeahead({
+            minLength: 1,
+            order: "asc",
+            group: true,
+            hint: true,
+            list: false,
+            backdrop: true,
+            source: {
+                en_name: {
+                    data: data_user.ping
+                },
+                cn_name:{
+                    data:data_user.cn
+                }
+            },
+
+            debug: true
+        });
+
+var dp = {
+    bindevents: function () {
+
+        $("#find").click(function () {
+            var name = $.trim($("#q").val());
+            if (name.length <= 0) {
+                dp.msgtips("请输入用户名称", 0);
+                return false;
+            } else {
+                dp.msgtips("");
+            }
+
+            var url=flask_util.url_for('ldapgroup.usersudodetails',{name:name})
+             window.location.href = url;
+        });
+        $(".dep_delete").click(function () {
+            dp.dpdelete($(this).attr("dep_id"));
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    },
+
+    getDcDetail: function (id) {
+        $.ajax({
+            'url': '/cmdb/ldapgroup/group/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    $($("#depdiv h3").get(0)).html("编辑组");
+                    dp.msgtips("");
+                    $("#name").val(res.name);
+                    $("#description").val(res.description_r);
+                    $("#primaryid").val(res.id);
+                    $("#dp_id").val(res.department.id);
+
+                    $("#depdiv").foundation('reveal', 'open');
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+    },
+
+    dpdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/groupdelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+$(document).ready(function () {
+    dp.bindevents();
+});
+</script>
+{% endblock %}
+
+
+

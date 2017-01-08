@@ -1,0 +1,517 @@
+{% extends "public/joblayout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.min.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap-treeview.min.css"/>
+<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+    .ui-autocomplete {
+        z-index: 9000;
+    }
+    .givefiles label {
+        text-align: right;
+        margin-right: 50px;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>分发文件</span>
+</h5>
+<hr>
+<div class="panel panel-default ">
+    <div class="page-header none"></div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="medium-2 columns">
+                        <label class="label">作业名称</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+                    </div>
+                    <div class="medium-2 columns">
+                        <input id="job-name" type="text">
+                    </div>
+                    <div class="medium-8 columns"></div>
+                </div>
+                <div class="row">
+                    <div class="medium-2 columns">
+
+                        <label class="label">原始文件</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+                    </div>
+                    <div class="medium-2 columns">
+                        <input type="radio" name="pokemon-type" value="1" id="pokemonlocal" checked><label for="pokemonlocal">本地文件</label>
+                    </div>
+                    <div class="medium-2 columns">
+                        <input type="radio" name="pokemon-type" value="2" id="pokemonremote"><label for="pokemonremote">远程文件</label>
+                    </div>
+                    <div class="medium-6 columns">
+                        <label><font color="red">注意：本地文件上传会有同名文件覆盖风险</font> </label>
+                    </div>
+                    <div class="medium-2 columns">&nbsp;</div>
+                </div>
+                <div id="localfile" class="row" style="display: block">
+                    <iframe style="width:0; height:0; margin-top:-10px; display: none;" name="submitFrame" src="about:blank"></iframe>
+                    <form action="{{ url_for('tools.upload_file') }}" method=post enctype=multipart/form-data target="submitFrame">
+                        <div class="medium-2 columns">&nbsp;</div>
+                        <div class="medium-5 columns">
+                            <input id="view1" type="text" name="fileinput">
+                        </div>
+                        <div class="medium-2 columns">
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="button tiny radius fileinput-button">
+                                    <span>浏览...</span>
+                                    <input id="fileupload" type="file" name="files[]" multiple="">
+                                </span>
+                        </div>
+                        <div class="medium-1 columns"></div>
+                        <div class="medium-1 columns">
+                            &nbsp;<input  type="submit" id="export" value="导入" class="button tiny radius success start">
+                        </div>
+                        <div class="medium-1 columns"></div>
+                    </form>
+                </div>
+                <div id="ip" class="row" style="display:none;">
+                     <div class="medium-1 columns"></div>
+                    <div class="medium-2 columns">
+                        <label style="margin-left: 20px" class="label-warning">IP 地址</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+
+                    </div>
+                    <div class="medium-4 columns">
+                        <input id="remote_ip" type="text">
+                    </div>
+                    <div class="medium-5 columns"></div>
+                </div>
+                <div id="filelist" class="row" style="display: none">
+                    <div class="medium-1 columns"></div>
+                    <div class="medium-2 columns">
+                        <label style="margin-left: 20px" class="label-warning">文件列表</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+                    </div>
+                    <div class="medium-4 columns">
+                        <input id="remote_file" type="text">
+                    </div>
+                    <div class="medium-5 columns"></div>
+                </div>
+                <div id="add-table" class="row" style="display: none;">
+                    <div class="medium-2 columns">&nbsp;</div>
+                    <div class="medium-7 columns">
+                        <table style="width: 100%;">
+                            <tbody id="tb-files">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="medium-3 columns"></div>
+                </div>
+                <div class="row">
+                    <div class="medium-2 columns">
+
+                        <label class="label">分发路径</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+                    </div>
+                    <div class="medium-5 columns">
+                        <input  type="text" id="remote_dir" placeholder="请填写分发路径">
+                    </div>
+                    <div class="medium-5 columns">&nbsp;</div>
+                </div>
+{#                <div class="row">#}
+{#                    <div class="medium-2 columns">#}
+{#                        <label>限速 <span style="color: red">*</span></label>#}
+{#                    </div>#}
+{#                    <div class="medium-5 columns">#}
+{#                        <input  type="text" id="limit_speed" placeholder="上传小于500M的本地文件">#}
+{#                    </div>#}
+{#                    <div class="medium-5 columns">&nbsp;</div>#}
+{#                </div>#}
+                <div class="row">
+                    <div class="medium-2 columns">
+                        <label class="label">目标机器</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+                    </div>
+                    <div class="medium-10 columns">
+                        <button class="btn btn-success add_machine" id="add_machine" >
+                            <i class="fi fi-monitor" ></i>&nbsp;选择机器
+                        </button>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px">
+                   <div class="medium-2 columns">
+
+                   </div>
+                   <div class="medium-10 columns">
+                        <table class="table table-out-bordered table-condensed" >
+                            <thead>
+                                <tr role="row">
+                                    <th class="text-left sorting_disabled" rowspan="1" colspan="1" >机器名</th>
+                                    <th class="text-left sorting_disabled" rowspan="1" colspan="1" >IP</th>
+                                    <th class="text-left sorting_disabled" rowspan="1" colspan="1" >部门</th>
+                                    <th class="text-center sorting_disabled" rowspan="1" colspan="1" >Pool</th>
+                                    <th class="text-center sorting_disabled" rowspan="1" colspan="1">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="machine_list" id="machine_list">
+
+                            </tbody>
+                         </table>
+                   </div>
+               </div>
+                <div class="row">
+                    <div class="medium-2 columns">&nbsp;</div>
+                    <div id="server" class="medium-5 columns"></div>
+                    <div class="medium-5 columns">&nbsp;</div>
+                </div>
+                <div class="row">
+                    <div class="medium-2 columns">
+                        <label class="label">执行账户</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+
+                    </div>
+                    <div class="medium-2 columns">
+                        <select id="run_user" style="height: 35px">
+                            <option value="1">root</option>
+                            <option value="2">work</option>
+                        </select>
+                    </div>
+                    <div class="medium-6 columns"></div>
+                </div>
+                <div class="row" style="margin-top: 15px">
+                    <div class="medium-2 columns">&nbsp;</div>
+                    <div class="medium-4 columns">
+{#                        <a id="push_form" href="javascript:void(0);"  class="button tiny radius"><span>开始传输</span></a>#}
+                        <button class="btn btn-success" type="button" id="push_form" style="background-color: #0077b3">
+                            <i class="fa fa-life-saver"></i> 执行
+                        </button>
+            {#            <a class="success" type="button" id="push_form" style="background-color: #0077b3">#}
+            {#                <i class="fa fa-life-saver"></i> 开始传输#}
+            {#            </a>#}
+                    </div>
+                    <div class="medium-3 columns">&nbsp;</div>
+                    <div id="msgtip" class="medium-3 columns" style="display: none;color: red;font-size: 18px;line-height: 18px;">
+                        <span class="content">This is an alert - alert that is rounded.</span>
+                        <a href="javascript:void(0);" class="close">&times;</a>
+                    </div>
+
+                </div>
+                <div class="row" style="margin-top: 15px">
+                    <div class="medium-2 columns">
+
+                        <label class="label">输出信息</label><span><font color="red">&nbsp;*&nbsp;&nbsp;</font> </span>
+                    </div>
+                    <div class="medium-10 columns">
+                        <textarea rows="10" id="retrun_log" style="max-width: 500px"></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add-server-host" class="reveal-modal small" data-reveal>
+    <h5>选择目标主机</h5>
+    <hr>
+    <label id="label">
+       <input type="text" name="hostname" placeholder="请输入主机名或者POOL" value="" id="select_host" >
+    </label>
+    <button class="button tiny right radius" id="ok1" data_type="" data_id="">添加</button>
+    <div id="msgtip1" style="display: none;color: red;font-size: 18px;line-height: 18px;">
+        <span class="content">This is </span>
+    </div>
+    <a id="close" class="close-reveal-modal">&#215;</a>
+</div>
+
+<div class="modal fade form-horizontal" style="height: auto" id="mymodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+				<h4 id="poptitle" class="modal-title">选择机器:&nbsp;&nbsp;<i id="loadmachine" class="fa fa-spinner fa-spin"></i></h4>
+
+			</div>
+            <ul id="myTab" class="nav nav-tabs">
+               <li class="active">
+                  <a href="javascript:void(0)" onclick="gotopage(1)" data-toggle="tab">
+                     选择机器
+                  </a>
+               </li>
+
+                 <li >
+                  <a href="javascript:void(0)" onclick="gotopage(2)" data-toggle="tab">
+                     输入机器
+                  </a>
+               </li>
+            </ul>
+			<div id="s_machine" class="modal-body">
+                <input type="input" class="form-control" id="input-check-node" placeholder="Search..." >
+                <div id="tree"></div>
+			</div>
+            <div id="i_machine" class="modal-body">
+                <textarea  name="code" class="brush: js;" id="input_machine" rows="20" placeholder="请输入机器ip，逗号分割"></textarea>
+			</div>
+			<div class="modal-footer">
+                <div data-alert class="alert-box alert pull-left" id="msgtips" style="display: none;">
+                    This is an alert - alert that is rounded.<a class="close" href="#">x</a>
+{#                    <a href="javascript:void(0);" class="close">&times;</a>#}
+                </div>
+				<button type="button" class="btn btn-warning btn-lg" data-dismiss="modal">close</button>
+				<button id="ok_machine" type="button" class="btn btn-primary btn-lg ok_machine">确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% block customscript %}
+{% assets filters="jsmin", output="asset/givefile.js","js/jobplat/givefile.js","js/jquery-ui.min.js" %}
+{#<script type="text/javascript" src="{{ ASSET_URL }}"></script>#}
+<script type="text/javascript" src="/static/js/jobplat/givefile.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap-treeview.min.js"></script>
+<script>
+var defaultData=''
+$("#add_machine").click(function(){
+          $("#mymodal").modal('show')
+          $("#loadmachine").show()
+          if(defaultData){
+              setTree()
+              $("#loadmachine").hide()
+          }
+          else {
+              loadhost()
+          }
+
+     })
+
+
+add_machine_model=1
+set_add_machine(1)
+
+function set_add_machine(my_model){
+if(my_model==1){
+    $("#s_machine").show()
+    $("#i_machine").hide()
+}
+else{
+    $("#s_machine").hide()
+    $("#i_machine").show()
+}
+}
+
+function gotopage(my_model){
+        add_machine_model=my_model
+        set_add_machine(my_model)
+    }
+$("#mymodal").on("click",".ok_machine",function(){
+        s_count=0
+        if(add_machine_model==1) {
+            $.each($('#tree').treeview('getChecked'), function (i, item) {
+
+                if (item) {
+                    if (item.level == 3) {
+
+                        $('#machine_list').append('<tr id="tr_machine" role="row" ' + ' class="odd tr_script"><td>' + item.name + '</td>' +
+                                '<td >' + item.ip + '</td><td>' + item.depname + '</td><td>' + item.poolname + '</td>' +
+                                '<td >' +
+                                '<div class="btn-list btn-xs span7 text-center" >' +
+                                '<button class="btn btn-danger btn-xs del_machine">删除</button><input class="machine_id" ip=' + item.ip + ' value=' + item.id + ' id=' + item.id + ' type="hidden"/></div></td ></tr>')
+                        {#                     $("#server").append('<div id='+host_pool+' class="alert-box success radius small-2 columns left "><span>'+host_pool+'</span><div><a class="close" href="javascript:void(0);"><font color="red">×</font></a></div></div>')#}
+                    }
+                }
+            })
+        }
+        else{
+               add_items=[]
+               level3=[]
+               ips=$("#input_machine").val().split(',')
+                if(ips.length==1){
+                    ips=$("#input_machine").val().split('\n')
+               }
+                $.each(defaultData,function(i,item){
+                     $.each(item.nodes,function(j,item1){
+                         $.each(item1.nodes,function(k,item2){
+                              $.each(ips,function(v,ip){
+                                  if(ip==item2.ip){
+                                      level3.push(item2)
+                                  }
+                              })
+                         })
+                     })
+                })
+                 $.each(level3,function(i,item){
+
+                     $('#machine_list').append('<tr id="tr_machine" role="row" '+' class="odd tr_script"><td>'+item.name+'</td>' +
+                             '<td >'+item.ip+'</td><td>'+item.depname+'</td><td>'+item.poolname+'</td>' +
+                             '<td >' +
+                             '<div class="btn-list btn-xs span7 text-center" >' +
+                             '<button class="btn btn-danger btn-xs del_machine">删除</button><input class="machine_id" ip='+item.ip+' value='+item.id+' id='+item.id+' type="hidden"/></div></td ></tr>')
+
+                 })
+           }
+
+        $("#mymodal").modal('hide')
+})
+
+$("#machine_list").on("click",".del_machine",function(){
+         $(this).parents('tr')[0].remove()
+
+     })
+
+function loadhost(){
+         $.ajax({
+                  'url': '/cmdb/work/gethost',
+                  'type': 'post',
+                  'dataType': 'json',
+                  'data': {},
+                  success: function (res) {
+                      if (!defaultData) {
+                          defaultData = res
+                          setTree()
+                          $("#loadmachine").hide()
+                      }
+                  },
+                  error: function (res) {
+                      console.log(res)
+                  }
+      })
+     }
+
+var findCheckableNodess = function(type) {
+         if (type==1) {
+             return $checkableTree.treeview('search', [$('#input-check-node').val(), {
+                 ignoreCase: true,
+                 exactMatch: false,
+                 revealResults: true,
+             }]);
+         }
+
+    };
+var checkableNodes = ''
+        // Check/uncheck/toggle nodes
+ $('#input-check-node').on('keyup', function (e) {
+      checkableNodes = findCheckableNodess(1);
+      $('.check-node').prop('disabled', !(checkableNodes.length >= 1));
+});
+
+var $checkableTree=''
+var $scriptTree=''
+function setTree(){
+         $checkableTree = $('#tree').treeview({
+              data: defaultData,
+              showIcon: false,
+              showCheckbox: true,
+              showTags:true,
+
+              onNodeChecked: function(event, node) {
+{#                $('#checkable-output').prepend('<p>' + node.text + ' was checked</p>');#}
+{#                    node.nodes[0].state.checked=true#}
+                    var children = node.nodes;
+
+{#                    if (node.state.expanded==false) {#}
+{#                        $('#tree').treeview('expandNode', node['nodeId']);#}
+{#                    }#}
+                    if (children) {
+                        for (var i = 0; i < children.length; i++) {
+                            var childNode = children[i];
+                            var nodeId = childNode['nodeId'];
+                            $('#tree').treeview('checkNode', nodeId);
+{#                            $('#tree').treeview('expandNode', nodeId);#}
+                        }
+                    }
+                },
+              onNodeUnchecked: function (event, node) {
+{#                $('#checkable-output').prepend('<p>' + node.text + ' was unchecked</p>');#}
+                  var children = node.nodes;
+                    if (children) {
+                        for (var i = 0; i < children.length; i++) {
+                            var childNode = children[i];
+                            var nodeId = childNode['nodeId'];
+                            $('#tree').treeview('uncheckNode', nodeId);
+                        }
+                    }
+              }
+          });
+         $('#tree').treeview('collapseAll', { silent: true });
+     }
+
+var filelist = new Array();
+filecount=0
+$("#export").click(function(){
+            var filename = $('#fileupload').val();
+            //var tr_id = filename+'tr'
+            if(filename.length == 0){
+                alert('请选择文件');
+                return;
+            }
+            filecount+=1
+            add_id='file'+filecount.toString()
+            var tr_id = 'tr'+filecount.toString()
+            filelist.push(filename)
+            $("#add-table").css('display','block');
+            var table_tr = '<tr id='+tr_id+'><td>'+filename+'</td><td style="text-align:right;"><a id='+add_id+' class='+add_id+' href="javascript:void(0);">删除</a></td></tr>'
+            $("#tb-files").append(table_tr)
+            $("#"+add_id).click(function(){
+                $("#"+tr_id).remove()
+                if ($('table tr').length == 0) {
+                    $("#add-table").css('display', 'none')
+                }else{
+                    $("#add-table").css('display','block')
+                    }
+        });
+        });
+
+$("#push_form").click(function(){
+            var job_name = $("#job-name").val();
+            var upload_type = $('input[name="pokemon-type"]:checked').val();
+            var script_name = $("#view1").val();
+            var remote_dir = $("#remote_dir").val();
+            var limit_speed = $("#limit_speed").val();
+            var run_user = $("#run_user").val();
+            var remote_ip=$("#remote_ip").val();
+            var remote_file=$("#remote_file").val();
+
+             machines=[]
+             $('#machine_list').find('.machine_id').each(function () {
+                  machines.push({id:$(this).val(),ip:$(this).attr('ip')})
+             })
+
+             if (machines.length == 0){
+                alert("请选择机器");
+                return false;
+             }
+             if(filelist.length==0){
+                 alert("请导入文件");
+                 return false;
+             }
+             $("#retrun_log").val('正在执行...');
+            $.ajax({
+                    'url': '/cmdb/tools/jobplat/givefiles',
+                    'traditional': true,
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data':{data:JSON.stringify({'job_name':job_name,'upload_type': upload_type, 'script_name':script_name,
+                        'run_user': run_user,'remote_dir': remote_dir, 'filelist': filelist, 'input_list': machines,'remote_ip':remote_ip,'remote_file':remote_file})} ,
+                    success: function (res) {
+                        if (res.code == 1) {
+                            that.msgtips('上传失败!', 0);
+                        } else {
+                            if (res.data.issuccess_r==1 ||res.data.issuccess_r=='1') {
+                                //that.msgtips('上传成功!', 1);
+                                $("#retrun_log").val(res.data.show_log)
+                                //alert('success')
+                                //window.location.href = '/cmdb/tools/jobplat/givefiles'
+                            }
+                            else{
+                                //that.msgtips('上传失败!', 0);
+                                $("#retrun_log").val(res.data.show_log)
+                            }
+                        }
+                    },
+                  error:function(res){
+                      alert('failed')
+                  }
+                })
+
+        });
+</script>
+{% endassets %}
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "public/layout.html" %}
+
+{% block title %}CMDB - 用户Pool添加{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>为"{{ pool_user.cn_name }}"添加Pool <a href="{{ url_for('ldapgroup.usersudodetails',name=pool_user.name) }}">返回</a>
+        <input type="hidden" value="{{ pool_user.id }}" id="user_id"/> </span>
+        <input type="hidden" value="{{ pool_user.name }}" id="user_name"/> </span>
+    <a id="pickpool" href="javascript:void(0);" class="button radius right tiny">确认</a>
+</h5>
+<hr>
+<div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+     <span></span>
+</div>
+<div class="row collapse">
+    <form action="{{ url_for('ldapgroup.pickpool',id=pool_user.id) }}" method="get" id="searchForm">
+        <div class="row">
+            <div class="large-1 columns margin_custom">
+                <input type="submit" class="postfix radius button" value="搜索" id="searchBtn">
+            </div>
+            <div class="large-2 columns margin_custom">
+                <input type="text" name="q" placeholder="请输入..." value="{{ q }}">
+            </div>
+        </div>
+    </form>
+</div>
+{% if poollist %}
+<table style="width: 100%">
+    <thead>
+        <tr>
+            <th >ID</th>
+            <th >名称</th>
+            <th data-sort-ignore="true">pool负责人</th>
+            <th data-sort-ignore="true">业务负责人</th>
+            <th data-sort-ignore="true">运维负责人</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pool in poollist %}
+        <tr>
+            <td><input value="{{ pool.id }}" type="checkbox" class="large-6 columns pools"></td>
+            <td>{{ pool.name }}</td>
+            <td>{{ pool.team_owner_name }}</td>
+            <td>{{ pool.biz_owner_name }}</td>
+            <td>{{ pool.ops_owner_name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<script>
+;
+var dp = {
+    bindevents: function () {
+
+        var that=this;
+        $("#pickpool").click(function(){
+           var poolids=new Array();
+           var user_id= $.trim($("#user_id").val());
+           var user_name= $.trim($("#user_name").val());
+           $(".pools").each(function(){
+              if($(this).prop("checked")){
+                    poolids.push($(this).val())
+              }
+           });
+          if(poolids.length>0){
+              $.ajax({
+                 url:'/cmdb/ldapgroup/userpooladd',
+                 type:'POST',
+                 dataType:'json',
+                 data:{"user_id":user_id, "pool_ids":poolids.join(",")},
+                 success:function(res){
+                    if (res.code == 1) {
+                        that.msgtips(res.msg,0);
+                    } else {
+                        that.msgtips(res.msg+",正在跳转user",1);
+                        setTimeout(function(){
+                           window.location.href = "/cmdb/ldapgroup/sudouser/usersudodetails/"+user_name;
+                        },2000);
+                    }
+                 }
+              });
+          }else{
+              that.msgtips("请至少选择一个Pool!!",0);
+          }
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    },
+
+    dpdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/usergroupdelete/' +id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+$(document).ready(function () {
+    dp.bindevents();
+});
+</script>
+{% endblock %}
+
+

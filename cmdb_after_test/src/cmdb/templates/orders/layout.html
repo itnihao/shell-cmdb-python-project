@@ -1,0 +1,43 @@
+<head>
+    {% block customstyle %}{% endblock %}
+</head>
+<body>
+{% include 'orders/header_nav.html' %}
+<div class="row" style="margin-left: 5px; margin-top: 20px;">
+    <div class="col-md-2">
+        <div style="margin-bottom:15px;">
+            <a class="btn btn-anjuke" href="{{ url_for('orders.add') }}" type="button">
+                <span class="glyphicon glyphicon-edit"></span> 发起工单
+            </a>
+        </div>
+        <div id="side_nav">
+            <ul class="left_nav nav-tabs nav-stacked" style="background: #eee">
+                <li role="presentation"><a href="{{ url_for('orders.order_claim') }}" {% if current_user.identity=='user' %} style="display: none{% endif %}"><span class="glyphicon glyphicon-leaf">&nbsp;待认领任务</span>&nbsp;&nbsp;<span id="wait_claim" class="badge" style="background: #62ab00;"></span></a></li>
+                <li role="presentation"><a href="{{ url_for('orders.handling') }}" {% if current_user.identity=='user' %} style="display: none{% endif %}"><span class="glyphicon glyphicon-inbox">&nbsp;待处理任务</span>&nbsp;&nbsp;<span id="wait_do" class="badge" style="background: #62ab00;"></span></a></li>
+                <li role="presentation"><a href="{{ url_for('orders.my') }}"  ><span class="glyphicon glyphicon-user">&nbsp;我的工单</span></a></li>
+                <li role="presentation"><a href="{{ url_for('orders.list') }}" {% if current_user.identity=='user' or current_user.identity=='leader' %} style="display: none{% endif %}"><span class="glyphicon glyphicon-saved">&nbsp;工单列表</span></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-10">
+        {% block url %}{% endblock %}
+    </div>
+    <div class="col-md-10">
+        <div class="content">
+            {% block main %}{% endblock %}
+        </div>
+    </div>
+</div>
+<div class="footer col-md-12" style="text-align:center;">
+    <div class="footer-inner">
+        <div class="footer-content">
+            <span class="bigger-120">
+                <span class="blue bolder">Copyright</span>
+                &copy; 2016 总部技术部运维团队
+            </span>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="/static/js/orders/layout.js"></script>
+{% block customscript %}{% endblock %}

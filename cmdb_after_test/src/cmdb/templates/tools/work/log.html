@@ -1,0 +1,240 @@
+{% extends "public/joblayout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap-theme.min.css"/>
+<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>作业&nbsp;&nbsp;{{ task.name }}&nbsp;&nbsp;日志</span>
+</h5>
+<hr>
+<div id="logdiv">
+{#    <pre id="progress"></pre>#}
+</div>
+{% block customscript %}
+{#{% assets filters="jsmin", output="asset/runscripts.js","js/jquery-ui.min.js","js/jobplat/runscripts.js" %}#}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+{{ fujs.js }}
+{#{% endassets %}#}
+{% endblock %}
+<script>
+
+    logs={{ logs|tojson|safe }}
+    task={{ task|tojson|safe}}
+
+    initlog=function(){
+        txt=''
+        current_pro=''
+        isTableInit=0
+        $.each(logs, function(p1, p2){
+{#            txt +=format_log(p2);#}
+            addinfo=format_log(p2)
+            if(addinfo.state==0){
+                if (!current_pro && isTableInit==0) {
+                    pid = 'progress' + p1.toString()
+                    $('#logdiv').append('<pre id=' + pid + '></pre>')
+                    $('#' + pid).append(addinfo.data)
+                    current_pro=$('#' + pid)
+                }
+                else{
+                    $(current_pro).append(addinfo.data)
+                }
+            }
+            else{
+                tid='tbody'+p1.toString()
+               $('#logdiv').append('<table class="table table-out-bordered table-condensed" style="">'+
+                                    '<thead>'+
+                                        '<tr role="row">'+
+                                            '<th class="text-left sorting_disabled">IP</th>'+
+                                            '<th class="text-left sorting_disabled">unreachable</th>'+
+                                            '<th class="text-left sorting_disabled">skipped</th>'+
+                                            '<th class="text-left sorting_disabled">ok</th>'+
+                                            '<th class="text-left sorting_disabled">changed</th>'+
+                                            '<th class="text-left sorting_disabled">failures</th>'+
+                                        '</tr>'+
+                                    '</thead><tbody id='+tid+'>'+
+                                    '</tbody></table>')
+                $.each(addinfo.data, function(_index, p2) {
+
+                    ip=''
+                    unreachable=''
+                    skipped=''
+                    ok=''
+                    changed=''
+                    failures=''
+                    for (var key in p2) {
+                         ip=key
+                         unreachable=p2[key].unreachable
+                        skipped=p2[key].skipped
+                        ok=p2[key].ok
+                        changed=p2[key].changed
+                        failures=p2[key].failures
+                     }
+                     if(parseInt(unreachable)!=0){
+                         unreachable='<font color="red">'+unreachable+'</font>'
+                     }
+                     if(parseInt(failures)!=0){
+                         failures='<font color="red">'+failures+'</font>'
+                     }
+                    $('#'+tid).append('<tr id="tr_machine" role="row" ' + ' class="odd tr_script">' +
+                                        '<td>' + ip + '</td>' +
+                                        '<td>' + unreachable + '</td>' +
+                                        '<td>' + skipped + '</td>' +
+                                        '<td>' + ok + '</td>' +
+                                        '<td>' + changed + '</td>' +
+                                        '<td>' + failures + '</td>' +
+                                        '</tr>')
+                })
+
+                isTableInit=1
+                pid2 = 'progress' + (p1+1).toString()
+                $('#logdiv').append('<pre id=' + pid2 + '></pre>')
+                current_pro=$('#' + pid2)
+
+            }
+        });
+{#        $('#progress').text(txt);#}
+        if(task.state==2 ||task.state=='2'){
+            var url=flask_util.url_for('work.taskstatus',{task_id:task.task_id})
+            update_progress_info(url)
+        }
+        label_red()
+{#        http://10.249.6.30:5000/cmdb/work/taskstatus/2f2885e9-fd93-4bb8-9a0b-98953c89d102#}
+    }
+
+    isx=0
+    function update_progress_info(status_url) {
+            // send GET request to status URL
+            $.getJSON(status_url, function(data) {
+
+                try{
+                    if (isx==0){
+                        $('#logdiv').append('<pre id="progressx"></pre>')
+                    }
+                    isx=1
+                    $('#progressx').text('');
+                    if(data.status.msg){
+                        txt=''
+                         $.each(data.status.msg, function(p1, p2){
+                            txt += format_log2(p2);
+                        });
+                        $('#progressx').text(txt);
+
+                        label_red()
+                    }
+                }
+
+                catch(e){
+
+                }
+
+{#                if (data['state'] == 'PENDING' || data['state'] == 'PROGRESS') {#}
+                  if (data['state'] !='MYFINSHIED') {
+                    // rerun in 2 seconds
+                    setTimeout(function() {
+                        update_progress_info(status_url);
+                    }, 1000);
+                }
+            });
+        }
+
+    function label_red(){
+
+        $("#progress").each(function(i,n){
+            t=$(this).text()
+            error_c=['1','2','3','4','5','6','7','8','9']
+            $.each(error_c, function(p1, p2) {
+                var regExp = new RegExp("'unreachable': "+p2, "g")
+                t = t.replace(regExp, ("<font color='red'>'unreachable: '"+p2+"</font>"));
+                var regExp = new RegExp("'failures': "+p2, "g")
+                t = t.replace(regExp, ("<font color='red'>'failures: '"+p2+"</font>"));
+
+            })
+            $('#progress').html(t);
+        })
+    }
+
+    function format_log(_info){
+        if(_info.indexOf('unreachable')>-1){
+            sp1=_info.split("failures'")
+            sp2=''
+            if(sp1.length>1){
+                $.each(sp1, function(_ind, p2){
+                    if(_ind<sp1.length-1){
+                        s_add=p2+"failures'"+sp1[_ind+1].split(',')[0]
+                        sp1[_ind+1]=sp1[_ind+1].replace(sp1[_ind+1].split(',')[0],'')
+                        sp2+=s_add+'\n'
+                    }
+                    else{
+                        s_add=p2+sp1[_ind+1]
+{#                        sp2+=s_add+'\n'#}
+                    }
+                })
+            }
+             sp3=[]
+             s_sp2=sp2.split('\n')
+             if (s_sp2){
+                 s_sp2.pop()
+             }
+             $.each(s_sp2, function(ind, p3){
+                 if(ind==0){
+                     if(p3.indexOf('}}')==-1) {
+                         sp3.push(strToJson(p3 + '}'))
+                     }
+                     else{
+                         sp3.push(strToJson(p3 ))
+                     }
+                 }
+                 else if(ind==s_sp2.length-1){
+                     var a = p3.replace(/,/,"{");
+                     sp3.push(strToJson(a))
+                 }
+                 else{
+                     var b = p3.replace(/,/,"{")+'}';
+                     sp3.push(strToJson(b))
+                 }
+             })
+            return {state:1,data:sp3}
+        }
+        else{
+            return {state:0,data:_info+'\n'}
+        }
+    }
+
+    function format_log2(_info){
+        if(_info.indexOf('unreachable')>-1){
+            sp1=_info.split("failures'")
+            sp2=''
+            if(sp1.length>1){
+                $.each(sp1, function(_ind, p2){
+                    if(_ind<sp1.length-1){
+                        s_add=p2+"failures'"+sp1[_ind+1].split(',')[0]
+                        sp1[_ind+1]=sp1[_ind+1].replace(sp1[_ind+1].split(',')[0],'')
+                        sp2+=s_add+'\n'
+                    }
+                    else{
+                        s_add=p2+sp1[_ind+1]
+                        sp2+=s_add+'\n'
+                    }
+                })
+            }
+            return sp2
+        }
+        else{
+            return _info+'\n'
+        }
+    }
+
+    function strToJson(str){
+     var json = eval('(' + str + ')');
+     return json;
+    }
+
+
+    initlog()
+
+</script>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+        .alert-box{
+             @include alert();
+            margin: 5px;
+        }
+</style>
+{% endblock %}
+{% block title %}CMDB - 组信息{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>{{ current_group.name }}组用户列表</span>
+
+</h5>
+<hr>
+<a href="javascript:adduser({{current_group.id}});void(0);" id="usaddbtn" class="button radius right tiny"> + 添加用户</a>
+{% if maps %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th>用户名</th>
+        <th>邮件地址</th>
+        <th>电话</th>
+        {% if show.modify %}
+        <th>操作</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for dep in maps %}
+    <tr>
+        <td>
+            <a href="{{url_for('ldapgroup.usersudodetails',name=dep.user.name)}}">{{ dep.user.name }}</a>
+        </td>
+        <td>{{ dep.user.email}}</td>
+        <td>{{ dep.user.mobile}}</td>
+        {% if show.modify %}
+        <td>
+            {% if show.delete %}
+                <a href="javascript:void(0);" dep_id="{{ dep.id }}" class="dep_delete">删除</a>
+            {% endif %}
+
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<div id="devdiv" class="reveal-modal small" data-reveal>
+    <h3>添加用户</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+    </div>
+    <a href="javascript:void(0);" class="close">&times;</a>
+    <input type="text" id="user" name="user_s" placeholder="请输人中文人名或英文名"/>
+    <input type="hidden"  id="userid" name="user_s" value="0"/>
+    <input type="hidden" id="flag">
+    <input type="hidden" id="groupid">
+    <input type="hidden" id="primaryid"/>
+    <a id="devadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    <a class="close-reveal-modal" id="devclosebtn">&#215;</a>
+</div>
+
+
+{% block customscript %}
+
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+
+{% endblock %}
+<script>
+;
+var dp = {
+    bindevents: function () {
+
+        $("input[name=user_s]").autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: "/user/search",
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        maxRows: 12,
+                        keyword: request.term
+                    },
+                success: function (data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item[1],
+                            value: item[0]
+                        }
+                    }));
+                }
+            });
+        },
+        minChars: 1,
+        max: 5,
+        scroll: true,
+        autoFill: true,
+        mustMatch: true,
+        matchContains: false,
+        scrollHeight: 50,
+        select: function (event, ui) {
+            $(this).val(ui.item.label);
+            $(this).next().val(ui.item.value);
+            return false;
+        }
+    });
+
+        $(".dep_delete").click(function () {
+            dp.dpdelete($(this).attr("dep_id"));
+        });
+
+        $("#devadd").click(function () {
+            var group_id = $.trim($("#groupid").val());
+            var user_id = $.trim($("#userid").val());
+            var name   = $.trim($("#user").val());
+            if (name.length == 0)
+            {
+                msgtips("请输人名", 0);
+                return false;
+            }
+            if (userid == 0)
+            {
+                msgtips("请选择人名", 0);
+                return false;
+            }
+            $.ajax({
+                'url': '/cmdb/ldapgroup/usergroupadd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {group_id:group_id,user_id:user_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#devdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    },
+
+    dpdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/usergroupdelete/' +id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+$(document).ready(function (id) {
+    dp.bindevents();
+
+
+
+});
+function adduser(id) {
+    $($("#devdiv h3").get(0)).html("添加"+"用户");
+
+    $($("#groupid")).val(id);
+    $("#devdiv").foundation('reveal', 'open');
+}
+</script>
+{% endblock %}
+
+

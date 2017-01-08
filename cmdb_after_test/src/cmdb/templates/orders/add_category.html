@@ -1,0 +1,153 @@
+{% block customstyle %}
+    <link rel="stylesheet" href="/static/css/jquery-ui.min.css"/>
+{% endblock %}
+{% extends "orders/layout.html" %}
+{% block main %}
+    <ol class="breadcrumb">
+        <li>后台</li>
+        {% if target == 1 %}
+            <li class="active">添加工单分类</li>
+        {% else %}
+            <li class="active">修改工单分类</li>
+        {% endif %}
+    </ol>
+    <div class="alert" role="alert" id="msgtip" style="display: none;">
+        {#        <a href="#" class="close" data-dismiss="alert">&times;</a>#}
+        <span id="waining_text">....</span>
+    </div>
+    <div class="form-group" style="margin-left: 35px;">
+        <div class="row">
+            <div class="col-md-2">
+                工单分类&nbsp;<span style="color: red;">*</span>
+            </div>
+            <div class="col-md-5">
+                <input id="ordercate_name" type="text" class="form-control"  {% if target ==2 %}value="{{ category_name }}" {% endif %}  placeholder="请输入工单分类名字">
+            </div>
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-md-2">
+                请选择工单类型&nbsp;<span style="color: red;">*</span>
+            </div>
+            <div class="col-md-5">
+                <select id="select_type" class="form-control">
+                    {% for item in target_info %}
+                        {% if item.id == type_id %}
+                            <option value="{{ item.id }}" selected="selected">{{ item.name }}</option>
+                        {% else %}
+                            <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-md-2">
+                请选择工单处理人&nbsp;<span style="color: red;">*</span>
+            </div>
+            <div class="col-md-5">
+                <input id="user" data_id="" type="text" class="form-control" {% if target == 2 %}value="{{ approver }}"  user_id="{{ uid }}"  {% endif %} placeholder="请选择工单处理人">
+            </div>
+            <div class="col-md-2">
+                <input type="button" id="adduser" value="选择用户" class="btn btn-normal" >
+            </div>
+        </div>
+        <div id="test" data_label="" data_content="">
+        </div>
+        <div style="margin-top: 20px;">
+            <button id="click_add" type="button" class="btn btn-normal" data-toggle="modal" data-target="#newadd">{% if target == 1 %}+  新增选项{% else %}修改选项{% endif %}</button>
+        </div>
+        <div class="row" style="margin-top: 100px;">
+            <div class="col-md-4"></div>
+            <div class="col-md-6">
+                <button id="ok" type="button" class="btn btn-normal">提交</button>
+            </div>
+        </div>
+        <div class="modal fade bs-example-modal-lg" id="newadd">
+            <div class="modal-dialog modal-lg">
+                <div id="modal_content" class="modal-content">
+                    <div class="modal-header" id="message">
+                        <button id="close" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">添加分类选项</h4>
+                        <div class="alert" role="alert" id="msgtip1" style="display: none;">
+                            <span id="waining_text1">....</span>
+                        </div>
+                    </div>
+                    {% if target == 1 %}
+                        <div id="add_order" target=1 >
+                        </div>
+                    {% else %}
+                        <div id="add_order" target=2 category_id="{{ category_id }}">
+                        {% for item in dec %}
+                            <div name="jinbang" class="modal-body row">
+                                <div class="col-md-3">
+                                    <input name="order_label" type="text" class="form-control" value="{{ item.label }}" placeholder="标题">
+                                </div>
+                                <div class="col-md-5">
+                                    <textarea name="order_content" type="text" class="form-control" placeholder="分类描述,如果选择select下拉框，请将选项以英文下的分号分隔">{{ item.content }}</textarea>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="input_type" class="form-control">
+                                        {% if item.input_type == "1" %}
+                                            <option value="1" selected="selected">input</option>
+                                            <option value="2">text</option>
+                                            <option value="3">select</option>
+                                        {% elif item.input_type == "2" %}
+                                            <option value="2" selected="selected">text</option>
+                                            <option value="1">input</option>
+                                            <option value="3">select</option>
+                                        {% else %}
+                                            <option value="2">text</option>
+                                            <option value="1">input</option>
+                                            <option value="3" selected="selected">select</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2" style="margin-top: 7px;">
+                                    <button class="glyphicon glyphicon-arrow-up"></button>
+                                    <button class="glyphicon glyphicon-arrow-down"></button>
+                                    <button name="del_content" id="reduce" class="glyphicon glyphicon-minus"></button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="row1 modal-footer">
+                        <div class="col-md-1">
+                            <button id="add_content" class="glyphicon glyphicon-plus"></button>
+                        </div>
+                        <div class="col-md-11">
+                            <button id="add" type="button" class="btn btn-normal" data-dismiss="modal">确定</button>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <div class="modal fade form-horizontal" style="height: auto" id="usermodal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span
+                                class="sr-only">Close</span></button>
+                        <h4 id="poptitle" class="modal-title">选择用户&nbsp;&nbsp;<i id="loaduser"
+                                                                                 class="fa fa-spinner fa-spin"></i></h4>
+
+                    </div>
+                    <div class="alert alert-danger" role="alert" id="user_alert"></div>
+                    <div class="modal-body">
+                        <input type="input" class="form-control" id="input-check-node" placeholder="Search...">
+
+                        <div id="usertree"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning btn-lg " data-dismiss="modal">close</button>
+                        <button id="ok_user" type="button" class="btn btn-primary btn-lg ok_machine">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block customscript %}
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/orders/add_category.js"></script>
+{% endblock %}

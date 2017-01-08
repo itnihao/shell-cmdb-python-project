@@ -1,0 +1,73 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+        .alert-box{
+             @include alert();
+            margin: 5px;
+        }
+</style>
+{% endblock %}
+{% block main %}
+<div id="permission-breadcrumbs">
+    <ul class="breadcrumbs">
+        <li><a href={{ url_for('user.role') }}>角色编辑</a></li>
+        <li><a href={{ url_for('user.urllist') }}>资源管理</a></li>
+        <li><a href={{ url_for('user.permission') }} class="unavailable" style="color:#d35400" >用户角色</a></li>
+    </ul>
+</div>
+<table width="100%">
+    <thead>
+    <tr>
+        <th width="10%">角色</th>
+        <th width="80%">用户</th>
+        <th width="10%">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+   {% for item in role_users %}
+    <tr>
+    <td>{{ item.name }}</td>
+    <td>
+       <div class="row collapse">
+           {% for user in item.users %}
+                    <div data-alert class="alert-box success radius large-1 columns left ">
+                    <span>{{user.name }}</span>
+                    <div>
+                        <a href="javascript:void(0);" data="{{ item.roleid }}_{{ user.id }}" class="close">&times;</a>
+                    </div>
+               </div>
+           {% endfor %}
+       </div>
+    </td>
+    <td>
+           <a href="javascript:adduser({{item.roleid}});void(0);">添加人员</a>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div id="edit" class="reveal-modal small" data-reveal>
+<h4>添加人员</h4>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="#" class="close">&times;</a>
+    </div>
+<input type="text" id="user" name="user" placeholder="请输人中文人名或英文名"/>
+<input type="hidden"  id="userid" name="user" value="0"/>
+<input type="hidden" id="flag">
+<input type="hidden" id="roleid">
+<a href="javascript:void(0);" id="ajxuser" class="button  radius tiny right">确认</a>
+<a class="close-reveal-modal">&#215;</a>
+</div>
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/userrole.js","js/jquery-ui.min.js", "js/userrole.js"%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

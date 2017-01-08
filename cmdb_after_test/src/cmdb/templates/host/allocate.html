@@ -1,0 +1,78 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<style type="text/css" >
+    table tr.even, table tr.alt, table tr:nth-of-type(even) {
+        background: #ffffff;hostname
+    }
+</style>
+{% if code %}
+<h5 class="content_title">
+    <span>分配服务器</span>
+    <input type="hidden" value="{{ pool_id }}" id="pool_id"/>
+    <input type="hidden" value="{{ num }}" id="check_num"/>
+    <input type="hidden" value="{{ apply_id }}" id="apply_id"/>
+    <a id="return" href="javascript:void(0);" class="button radius right tiny" style="margin-left: 20px">返回</a>
+    <a id="allocate" href="javascript:void(0);" class="button radius right tiny">确认</a>
+
+</h5>
+<table style="width: 100%;">
+    <tr>
+        <th>申请信息</th>
+    </tr>
+    <tr>
+        <td width="33%">申请人: {{ content.name }}  </td>
+        <td width="33%">数量: {{ content.num }} </td>
+        <td width="33%">Pool: {{ content.pool_name }} </td>
+    </tr>
+    <tr>
+        <td width="33%">Cpu: {{ content.cpu }}Core</td>
+        <td width="33%">Memory: {{ content.mem }}G</td>
+        <td width="33%">Disk: {{ content.disk }}G</td>
+    </tr>
+    <tr>
+        {% if content.len > 20 %}
+        <td>描述: <span data-tooltip aria-haspopup="true" class="has-tip" style="font-size: 15px; font-weight:normal" title="描述:{{ content.desc}}">
+           {{ content.short }}... </span>&nbsp;&nbsp;</td>
+            {% else %}
+          <td>描述: {{ content.desc }}</td>
+            {% endif %}
+    </tr>
+</table>
+<div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+     <span></span>
+</div>
+    <table style="width: 100%;">
+    <thead>
+    <tr>
+        <th width="5%">ID</th>
+        <th width="25%">主机名称</th>
+        <th width="25%">机柜名称</th>
+        <th width="15%">CPU</th>
+        <th width="15%">内存</th>
+        <th width="15%">硬盘</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in data %}
+    <tr>
+        <td><input value="{{ item.id }}" type="checkbox" class="large-6 columns hosts"></td>
+        <td><a href="{{ url_for('host.index')}}{{ item.id }}">{{ item.hostname }}</a></td>
+        <td><a href="{{ url_for('rack.showDetail',id=item.rack_id)}}">{{ item.idc_info }}</a></td>
+        <td>{{ item.cpu }} Core</td>
+        <td>{{ item.mem }}G</td>
+        <td>{{ item.disk }}G</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+ {% else %}
+    <span>{{ msg }}</span>
+    <a href="{{ url_for('user.happroval') }}">返回</a>
+ {% endif %}
+{% endblock %}
+
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/host_allocate.js","js/host/allocate.js","js/jquery-ui.min.js"%}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

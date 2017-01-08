@@ -1,0 +1,237 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+    <style type="text/css">
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+
+        .margin_custom {
+            margin-right: 8px;
+            float: right;
+        }
+
+        .ui-autocomplete {
+            z-index: 9000;
+        }
+
+        .remote_card_div input {
+
+        }
+    </style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>{{ cate.name }}:{{ dev.device_label }}</span>
+    <a href="{{ url_for('device.modify',id=dev.id) }}" class="button radius right tiny">修改</a>
+</h5>
+<table style="width: 100%;">
+    <tr>
+        <th>基本信息</th>
+    </tr>
+    <tr>
+        {% if rack %}
+            <td width="33%">机房信息:
+                <a href="{{ url_for('host.index') }}?rack_id={{ rack.id }}">
+                    {{ idc.name }}/{{ rack.name }}/{{ dev.rack_offsets() }}
+                </a>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="机房/机柜/机架位">
+                        <img src="{{ url_for('static', filename='img/tooltip.png') }}" width="15" height="15">
+                    </span>
+            </td>
+        {% else %}
+            <td width="33%">机房信息: 未知</td>
+        {% endif %}
+        <td width="33%">供应商: {{ supplier.name }}  </td>
+        <td width="33%">设备型号: {{ dev.model }} </td>
+    </tr>
+    <tr>
+        <td width="33%">采购时间: {{ dev.buy_time.strftime('%Y-%m-%d') }}</td>
+        <td width="33%">价格: {{ dev.price_rmb() }}</td>
+        <td width="33%">序列号: {{ dev.sn }}</td>
+    </tr>
+    {% for i in nets_ip %}
+        <tr>
+            {% for item in i %}
+                {% if item['net_name'] == '远控卡' %}
+                    <td width="33%">{{ item['net_name'] }}: <a class="remote_card">{{ item['ip'] }}</a></td>
+                    <div class="remote_card_details" style="top: 225px;display: none;position: absolute;background: white;text-align: center;border-style: ridge;width:240px;height:120px;">
+                        <div style="position: absolute"><a class="card_remove" style="color:#000;"><i class="fi-x left"></i></a></div>
+                        </br>
+                        <div><input id="remotecard_user" type="text" readonly="readonly" value="{{ item['user'] }}" style="display: inline;width:132px;height:21px;">
+                        <input id="copyuser" type="button" value="复制用户"></div>
+                        <div><input id="remotecard_pass" type="password" readonly="readonly" value="{{ item['pass'] }}" style="display: inline;width:132px;height:21px;">
+                        <input id="copypass" type="button" value="复制密码"></div>
+                        <a target="_Blank" href="http://{{ item['ip'] }}/" style="text-decoration:underline;">登陆</a>
+                        <span id="copyOK" style="display: none;color:#FF0000;position: absolute;left: 10px;bottom: 10px;">复制成功!</span>
+                    </div>
+                {% else %}
+                    <td width="33%">{{ item['net_name'] }}: {{ item['ip'] }}</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+<table style="width: 100%;">
+    <tr>
+        <th>配置信息</th>
+    </tr>
+    <tr>
+    <tr>
+        <td width="33%">cpu_core: {{ dev.cpu_info() }} </td>
+        <td width="33%">cpu_num: {{ cpu_info.cpu_num }}  </td>
+        <td width="33%" colspan="2">cpu_model: {{ cpu_info.cpu_model }}  </td>
+    </tr>
+    <tr>
+        <td width="33%">磁盘总量: {{ dev.storage_info() }}</td>
+        <td width="33%">内存总量: {{ dev.memory_info() }}</td>
+        <td width="33%" colspan="2"></td>
+    </tr>
+    {% for disk in disks %}
+        <tr>
+            <td width="30%">硬盘容量: {{ disk.cap }}G</td>
+            {% if disk.type=='未知' %}
+                <td width="25%">型号: 未登记</td>{% endif %}
+            {% if disk.type == 0 %}
+                <td width="25%">型号: Intel SSD DC S3710</td>{% endif %}
+            {% if disk.type == 1 %}
+                <td width="25%">型号: Intel SSD DC S3700</td>{% endif %}
+            {% if disk.type == 2 %}
+                <td width="25%">型号: Intel SSD DC S3610</td>{% endif %}
+            {% if disk.type == 3 %}
+                <td width="25%">型号: Intel SSD DC S3510</td>{% endif %}
+            {% if disk.type == 4 %}
+                <td width="25%">型号: Intel SSD DC S3500</td>{% endif %}
+
+            <td width="25%">接口: {{ disk.inter }} </td>
+            <td width="20%">数量: {{ disk.counter }} </td>
+        </tr>
+    {% endfor %}
+</table>
+{% if cate.name == "服务器" %}
+    <table style="width: 100%;">
+        <thead>
+        <tr>
+            <th width="12%">主机名称</th>
+            <th width="12%">IP</th>
+            <th width="12%">类型</th>
+            <th width="12%">虚拟机?</th>
+            <th width="12%">状态</th>
+            <th width="12%">CPU</th>
+            <th width="12%">内存</th>
+            <th width="12%">硬盘</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if hosts_info %}
+            {% for item in hosts_info %}
+                <tr>
+                    <td><a href="{{ url_for('host.index') }}{{ item.id }}">{{ item.name }}</a></td>
+                    <td>{{ item.ip }}</td>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.vir }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.cpu }}</td>
+                    <td>{{ item.mem }}</td>
+                    <td>{{ item.sto }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            {% if show.host_add %}
+                <tr>
+                    <td colspan="8">
+                        此设备下还没有主机,马上去<a href="javascript:void(0);" data-reveal-id="add-entity-form"
+                                        id="addEntityHostBtn" style="margin-left: 5px;">添加主机</a>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
+        </tbody>
+    </table>
+{% endif %}
+{% if cate.name == "机框" %}
+    <table style="width: 100%;">
+        <thead>
+        <tr>
+            <th width="20%">资产编号</th>
+            <th width="10%">类型</th>
+            <th width="15%">机房/机柜</th>
+            <th width="10%">品牌</th>
+            <th width="15%">型号</th>
+            <th width="10%">CPU</th>
+            <th width="10%">内存</th>
+            <th width="10%">硬盘</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if device_infos %}
+            {% for device in device_infos %}
+                <tr>
+                    <td><a href="{{ url_for('device.detail',id=device.id) }}">{{ device.device_label }}</a></td>
+                    <td>{{ device.cat_name }}</td>
+                    <td>{{ device.rack }}</td>
+                    <td>{{ device.supplier }}</td>
+                    <td>{{ device.model }}</td>
+                    <td>{{ device.cpu }}</td>
+                    <td>{{ device.memory }}</td>
+                    <td>{{ device.storage }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            {% if show.host_add %}
+                <tr>
+                    <td colspan="8">
+                        此设备下还没有服务器,马上去<a href="javascript:void(0);"
+                                        id="addEntityDeviceBtn" style="margin-left: 5px;">添加服务器</a>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
+        </tbody>
+    </table>
+{% endif %}
+{% if dev.content %}
+    <table style="width: 100%;">
+        <tr>
+            <th>备注信息</th>
+        </tr>
+        <tr>
+            <td>{{ dev.content }}</td>
+        </tr>
+    </table>
+{% endif %}
+{% if dev.history %}
+<ul class="pricing-table">
+    <li class="price" style="font-size: 14px;">变更历史<a href="{{ url_for('device.history',id=dev.id) }}"
+                                                      class="right">更多</a></li>
+    {% for item in dev.history %}
+    <li class="bullet-item">{{ item.created }} {{ item.username }} {% autoescape false %} {{ item.content }} {% endautoescape %}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<div id="add-entity-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('device.frame_add_services') }}" method="post" id="addEntityDeviceForm">
+    <h5>添加服务器</h5>
+    <hr/>
+    <div class="tips"></div>
+    <input type="text" name="device_name" list="device_list" placeholder="服务器名字(自动提示为建议服务器名字)"/>
+    <datalist id="device_list"></datalist>
+    <input type="hidden" value="{{ dev.id }}" name="now_id">
+    <button type="submit" class="button tiny right" id="add_device_button">确定</button>
+    </form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="add-entity-form" class="reveal-modal small" data-reveal>
+    <form action="{{ url_for('host.add') }}" method="post" id="submitEntityForm"></form>
+    <input type="hidden" value="{{ dev.id }}" id="d_id">
+    <input type="hidden" value="{{ dev.device_label }}" id="d_label">
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/device.js","js/jquery-ui.min.js","js/host.js" %}
+        <script type="text/javascript" src="/static/plugins/zclip/jquery.zclip.min.js"></script>
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

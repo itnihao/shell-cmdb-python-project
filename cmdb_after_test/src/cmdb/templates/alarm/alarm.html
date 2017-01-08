@@ -1,0 +1,91 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 我接警的主机列表 {% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>我的订阅</span>
+</h5>
+<hr>
+<div>
+    <dl class="tabs tab-title" data-tab>
+         <dd class="active"><a href="#tab-a1">接警的主机</a></dd>
+         <dd><a href="#tab-a2">接警的POOL</a></dd>
+    </dl>
+
+<div class="tabs-content">
+    <div id="tab-a1" class="content active">
+        <table style="width: 100%" class="table">
+            <thead>
+            <tr>
+                <th>主机名</th>
+                <th>IP</th>
+                <th>CPU</th>
+                <th>内存</th>
+                <th>硬盘</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if not alarmHost %}
+            <tr>
+                <td colspan="6" style="color:Red">您尚未接警任何主机,您可以<a href="{{url_for('host.index')}}">进入主机列表</a>选择接警!
+                </td>
+            </tr>
+            {% else %}
+
+            {% for item in alarmHost %}
+            <tr fid="{{item.fid}}" class="fid_{{item.fid}}">
+                <td><a href="/cmdb/host/{{item.id}}" target=_blank>{{ item.hostname }}</a></td>
+                <td>{{ item.ipv4 }}</td>
+                <td>{{ item.cpu_descri}}</td>
+                <td>{{ item.memory_descri }}</td>
+                <td>{{ item.storage_descri}}</td>
+                <td><a data-option='{"id":{{ item.id }}, "type":2 ,"act":"unalarm" ,"fid": {{item.fid}} }'
+                       href='javascript:void 0;'>取消接警</a></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div id="tab-a2" class="content">
+        <table style="width: 100%" class="table">
+            <thead>
+            <tr>
+                <th>名称</th>
+                <th>pool负责人</th>
+                <th>业务负责人</th>
+                <th>运维负责人</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if not alarmPool %}
+            <tr>
+                <td colspan="6" style="color:Red">您尚未接警任何POOL,您可以<a href="{{url_for('pool.index')}}">进入POOL列表</a>选择关注!
+                </td>
+            </tr>
+            {% else %}
+            {% for item in alarmPool %}
+            <tr fid="{{item.fid}}" class="fid_{{item.fid}}">
+                <td><a href="{{ url_for('pool.detail',id=item.id) }}" target="_blank">{{ item.name }}</a></td>
+                <td>{{ users[item.team_owner] and users[item.team_owner] or '未知' }}</td>
+                <td>{{ users[item.biz_owner] and users[item.biz_owner] or '未知' }}</td>
+                <td>{{ users[item.ops_owner] and users[item.ops_owner] or '未知'}}</td>
+                <td>
+                    <a data-option='{"id":{{ item.id }}, "type":1 ,"act":"unalarm" ,"fid": {{item.fid}}}'
+                       href='javascript:void(0);'>取消接警</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/user_alarm.js", "js/alarm.js"%}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}

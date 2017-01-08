@@ -1,0 +1,20 @@
+$ORIGIN .
+$TTL 60
+
+a.ajkdns.com  IN SOA a.ajkdns.com. root.a.ajkdns.com. (
+                {{date}} ; serial
+                1800       ; refresh (30 minutes)
+                86400      ; retry (1 day)
+                2419200    ; expire (4 weeks)
+                604800     ; minimum (1 week)
+
+)
+
+    NS  lns5.a.ajkdns.com.
+    NS  lns6.a.ajkdns.com.
+    NS  lns9.a.ajkdns.com.
+
+$ORIGIN a.ajkdns.com.
+
+{%for item in domain%}
+{{item.prefix}} {{item.type}} {{item.value}}{%endfor%}

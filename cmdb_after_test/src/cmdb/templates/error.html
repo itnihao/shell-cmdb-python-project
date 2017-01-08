@@ -1,0 +1,17 @@
+{% extends "public/layout.html" %}
+{% block main %}
+{% block customstyle %}
+<style type="text/css" >
+    .content {
+            padding: 7.25rem;
+        }
+ </style>
+{% endblock %}
+<h5 class="content_title">
+    <center class="unauthorized">
+        <h1 class="http_status_code">{{ status }}</h1>
+        <h3 class="page_title">{{ title }}</h3>
+        <h3>{{ msg }}</h3>
+    </center>
+</h5>
+{% endblock %}

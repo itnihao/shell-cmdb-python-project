@@ -1,0 +1,28 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/iPicture.css') }}"/>
+<style type="text/css">
+    .content {
+        padding: 0 0;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<section id="businessLargeMarquee" data-interaction="hover">
+    <h1>CMDB</h1>
+    <h4>运维一体化管理工具V1.4.4</h4>
+</section>
+
+{% endblock %}
+{% block customscript %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.ipicture.js') }}"></script>
+<script type="application/javascript">
+    $("#businessLargeMarquee").iPicture();
+    $(function () {
+        $(".side-nav").css("min-height", $(document.body).height() - 73);
+        $("#businessLargeMarquee").css("min-height", $(".side-nav").get(0).offsetHeight);
+    });
+</script>
+{% endblock %}
+

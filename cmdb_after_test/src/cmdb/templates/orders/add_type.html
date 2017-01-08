@@ -1,0 +1,90 @@
+{% extends "orders/layout.html" %}
+{% block main %}
+    <ol class="breadcrumb">
+        <li>后台</li>
+        <li class="active">添加工单类型</li>
+    </ol>
+    <div class="alert" role="alert" id="msgtip" style="display: none;">
+        {#        <a id="guanbi" href="#" class="close" data-dismiss="alert">&times;</a>#}
+        <span id="waining_text">....</span>
+    </div>
+    <div class="form-group" style="margin-left: 35px;">
+        <div class="row">
+            <div class="col-md-2">
+                工单类型&nbsp;<span style="color: red;">*</span>
+            </div>
+            <div class="col-md-5">
+                <input id="type_name" type="text" class="form-control" placeholder="请输入工单类型">
+            </div>
+        </div>
+        <div class="row" style="margin-top: 60px;margin-bottom: 30px;">
+            <div class="col-md-4"></div>
+            <div class="col-md-6">
+                <button id="add" class="btn btn-normal">提交</button>
+            </div>
+        </div>
+        {% if type_info %}
+            <table class="table table-bordered" style="font-size: 14px;">
+                <thead>
+                <tr>
+                    <td>工单类型编号</td>
+                    <td>工单类型名字</td>
+                    <td>操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in type_info %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.name }}</td>
+                        <td type_id="{{ item.id }}">
+                            <a type_id="{{ item.id }}" class="edit" data-toggle="modal" data-target="#newadd" href="#"><span class="glyphicon glyphicon-edit" style="color: #333;"></span></a>&nbsp;&nbsp;&nbsp;
+                            <a type_id="{{ item.id }}" class="del" href="#"><span class="glyphicon glyphicon-trash" style="color: #333;"></span></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        <div class="modal fade" role="dialog" id="newadd">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">修改工单类型</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>修改工单类型&nbsp;<span style="color: red;">*</span></label>
+                            </div>
+                            <div class="col-md-6">
+                                <input id="categorytype_name" value="" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 20px;">
+                                <div class="col-md-3">
+                                    <label>迁移工单分类&nbsp;<span style="color: red;">*</span></label>
+                                </div>
+                                <div class="col-md-6">
+                                    <select id="move_type" type="text" class="form-control">
+                                        {% for item in type_info %}
+                                            <option value="{{ item.id }}">{{ item.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="row1 modal-footer">
+                        <div>
+                            <button id="ok" type="button" class="btn btn-normal" data-dismiss="modal">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block customscript %}
+    <script type="text/javascript" src="/static/js/orders/add_type.js"></script>
+    <script type="text/javascript" src="/static/js/orders/del_type.js"></script>
+{% endblock %}

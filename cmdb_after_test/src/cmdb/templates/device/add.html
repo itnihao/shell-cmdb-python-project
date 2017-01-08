@@ -1,0 +1,31 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 添加设备{% endblock %}
+{% block customstyle %}
+{% assets filters="cssmin", output="asset/device-form.css","css/jquery-ui.min.css","css/jquery-ui.structure.min.css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+{% endassets %}
+    <style type="text/css">
+    .ui-autocomplete {
+        z-index: 9000;
+    }
+    </style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>添加设备</span>
+    <a href="{{url_for('device.list')}}" class="button radius right tiny">&lt;&lt;返回</a>
+</h5>
+<hr>
+{%  if errors | length > 0 %}
+<div data-alert class="alert-box warning">{{ errors[0] }}<a href="#" class="close">&times;</a></div>
+{% endif %}
+<form action="{{url_for('device.add')}}" method="post" >
+    {% include 'device/_form.html' %}
+</form>
+{% endblock %}
+
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/device-form.js","js/jquery-ui.min.js","js/device-form.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}

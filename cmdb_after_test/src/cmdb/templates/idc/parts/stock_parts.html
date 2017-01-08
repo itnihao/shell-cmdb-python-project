@@ -1,0 +1,129 @@
+{% extends "public/layout.html" %}
+{% block title %}CMDB - 配件库管理{% endblock %}
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='plugins/footable/css/footable.core.css') }}"/>
+<style type="text/css">
+    .ui-autocomplete {
+        z-index: 9000;
+    }
+</style>
+{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <a id="model" href="{{ url_for('parts.model_memory') }}">型号列表</a>
+    <span style="margin-left: 10px;">库存列表</span>
+    <a id="history" href="{{ url_for('parts.out_history_memory') }}" style="margin-left: 10px;">历史详情</a>
+</h5>
+<hr>
+<dl class="tabs" data-tab>
+    <dd {% if type == 'mem' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.memory') }}">内存</a></dd>
+    <dd {% if type == 'disk' %} class="active" {% endif %}><a class="list" data="{{ url_for('parts.disk') }}">硬盘</a></dd>
+</dl>
+<div class="tabs-content">
+    <div class="content active">
+    <div class="row">
+        <a id="discard" href="javascript:void(0);" class="button radius right tiny" style="margin-left: 15px;">+ 添加报废</a>
+        <a id="add" href="javascript:void(0);" class="button radius right tiny" style="margin-left: 15px;">+ {% if type=="mem" %}添加内存{% else %}添加硬盘{% endif %}</a>
+        <form id="search" {% if type=='mem' %}action="{{url_for("parts.memory")}}"{% else %}action="{{url_for("parts.disk")}}"{% endif %} method="GET">
+        <div class="large-2 columns margin_custom right" style="margin-left: 15px;">
+            <select id="model_select" name="model_select">
+                <option value="0" {% if m_model == "0" %} selected="selected"{% endif %}>请选择型号</option>
+                {% for item in model %}
+                <option value="{{ item.id }}" {% if m_select == "%s"%item.id %}selected="selected" {% endif %}>{{ item.content }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="large-2 columns margin_custom right">
+            <select id="status_select" name="status_select">
+                <option value="-1" {% if s_model == "-1" %} selected="selected"{% endif %}>请选择状态</option>
+                <option value="0" {% if s_select == "0" %} selected="selected" {% endif %}>采购入库</option>
+                <option value="1" {% if s_select == "1" %} selected="selected" {% endif %}>报废入库</option>
+            </select>
+        </div>
+        </form>
+    </div>
+        <table class="table toggle-arrow-circle-filled" style="width: 100%">
+            <thead>
+                <tr>
+                    <th width="5%" data-sort-ignore="true">序号</th>
+                    {% if type=="mem" %}
+                        <th width="11%" data-type="numeric">型号</th>
+                        <th width="11%" data-type="numeric">容量</th>
+                        <th width="12%" data-type="numeric">频率</th>
+                    {% else %}
+                        <th width="7%" data-type="numeric">容量</th>
+                        <th width="9%" data-type="numeric">尺寸</th>
+                        <th width="7%" data-sort-ignore="true">接口</th>
+                        <th width="7%" data-type="numeric">转速</th>
+                        <th width="9%" data-sort-ignore="true">接口速率</th>
+                    {% endif %}
+                    <th width="10%" data-sort-ignore="true">状态</th>
+                    <th width="8%" data-sort-ignore="true">总数量</th>
+                    <th width="10%" data-sort-ignore="true">可使用数量</th>
+                    <th width="18%" data-type="numeric">录入日期</th>
+                    <th width="10%" data-sort-ignore="true">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if data %}
+                {% for item in data %}
+                <tr>
+                    <td>{{ item.idx }}</td>
+                    {% if type=="mem" %}
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.model }}">{{ item.model }}</a></td>
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.storage }}">{{ item.storage }}</a></td>
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.frequency }}">{{ item.frequency }}</a></td>
+                    {% else %}
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.storage }}">{{ item.storage }}</a></td>
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.size }}">{{ item.size }}</a></td>
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" >{{ item.interface }}</a></td>
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.speed }}">{{ item.speed }}</a></td>
+                    <td><a href="{{ url_for('parts.history_detail',id=item.id)}}" data-value="{{ item.if_rate }}">{{ item.if_rate }}</a></td>
+                    {% endif %}
+                    <td>{{ item.status_descri }}</td>
+                    <td>{{ item.num }}</td>
+                    <td>{% if item.status == 0 %}{{ item.available }}{% else %}--{% endif %}</td>
+                    <td data-value="{{ item.ts }}">{{ item.created }}</td>
+                    <td><a href="javascript:void(0);" data="{{ item.id }}" data1="{{ item.model_id }}" data2="{{item.status}}" class="modify">{% if item.status == 0 %}入库{% else %}报废{% endif %}</a>
+                        {% if item.available>0 %}<a href="javascript:void(0);" data="{{ item.id }}" data1="{{ item.model_id }}" class="out">/ 出库</a>{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="edit" class="reveal-modal small" data-reveal>
+        <h4 id="title"></h4>
+        <hr>
+        <div data-alert class="alert-box alert" name="msgtips" style="display: none;">
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <select id="select_model">
+            <option selected="selected" value="0">请选择型号</option>
+            {% for item in model %}
+                <option value="{{ item.id }}">{{ item.content }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" id="num" placeholder="请输入数量"/>
+        <input type="text" class="device" placeholder="请输入主机名" value=""/>
+        <input type="hidden" class="device_id" value="0">
+        <textarea type="text" id="content" placeholder="请输入备注(PS:如果主机名称没有填写请写明使用原因)"></textarea>
+        <input type="hidden" id="type" name="type" value="{{type}}"/><!--内存or硬盘-->
+        <input type="hidden" class="ids" value="0"><!--型号 m_id-->
+        <input type="hidden" id="status" value=0><!--购买0or报废1-->
+        <input type="hidden" id="btn" value=0>
+        <a href="javascript:void(0);" id="doadd" class="button radius tiny right" style="display: block;">确认</a>
+        <a href="javascript:void(0);" id="gray" class="button radius tiny right" style="display: none; background-color: #808080">确认</a>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/stock_parts.js","js/jquery-ui.min.js", "js/common-lib.js", "js/idc/parts/stock_parts.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}

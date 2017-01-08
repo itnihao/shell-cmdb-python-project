@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}CMDB{% endblock %}</title>
+    {% assets "layout_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+    {% assets "layout_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% block customstyle %}{% endblock %}
+    <link rel="stylesheet" href="/static/plugins/footable/css/footable.core.css"/>
+
+</head>
+<body>
+<nav class="top-bar" data-topbar>
+      {% include 'public/header_nav_tpl.html' %}
+</nav>
+<div class="row">
+    <div class="medium-2 columns">
+        <ul class="side-nav">
+            {% if current_user.href_button.datacenter or current_user.href_button.rack or current_user.href_button.ip or current_user.href_button.supplier or current_user.href_button.parts %}
+                <li class="heading">IDC管理</li>
+                {% if current_user.href_button.datacenter %}
+                <li><a data-search="" href="{{ url_for('datacenter.index') }}">机房管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.rack %}
+                <li><a data-search="Styles" href="{{ url_for('rack.index') }}">机柜管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.supplier %}
+                <li><a data-search="Sass" href="{{ url_for('supplier.index') }}">供应商管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.ip %}
+                <li><a data-search="Sass" href="{{ url_for('ip.index') }}">IP 池管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.parts %}
+                <li><a data-search="" href="{{ url_for('parts.memory') }}">配件库管理</a></li>
+                {% endif %}
+                <li class="divider"></li>
+            {% endif %}
+            {% if current_user.href_button.device_cat or current_user.href_button.device %}
+                <li class="heading">设备管理</li>
+                {% if current_user.href_button.device_cat %}
+                <li><a data-search="Breakpoints" href="{{ url_for('device.category_list') }}">设备分类管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.device %}
+                <li><a data-search="" href="{{ url_for('device.list') }}">设备管理</a></li>
+                {% endif %}
+                <li class="divider"></li>
+            {% endif %}
+
+            {% if current_user.href_button.host or current_user.href_button.pool %}
+                <li class="heading">主机</li>
+                {% if current_user.href_button.host %}
+                <li><a href="{{ url_for('host.index') }}">主机管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.pool %}
+                <li><a data-search="Off Canvas" href="{{ url_for('pool.index') }}">POOL 管理</a></li>
+                {% endif %}
+                <li class="divider"></li>
+            {% endif %}
+
+                <li class="heading">日志</li>
+                    <li><a href="{{ url_for('log.index') }}">日志查看</a></li>
+                    {% if current_user.href_button.log %}
+                    <li><a href="{{ url_for('host.host_apply') }}">申请管理</a></li>
+                    {% endif %}
+                <li class="divider"></li>
+
+                <li class="heading">工具管理</li>
+                    {% if current_user.href_button.blacklist %}
+                        <li><a href="{{ url_for('tools.blacklist') }}">IP 黑名单</a></li>
+                    {% endif %}
+                    {% if current_user.href_button.publish %}
+                    <li><a href="{{ url_for('tools.publish') }}">CMDB 助手</a></li>
+                    {% endif %}
+               <li class="divider"></li>
+
+            {% if current_user.href_button.ldap %}
+            <li class="heading">域管理</li>
+                {% if current_user.href_button.ldapdep %}
+                    <li><a  href="{{ url_for('ldapgroup.deplist') }}">部门管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.ldapgroup %}
+                    <li><a  href="{{url_for('ldapgroup.grouplist') }}">组管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.ldapsudouser %}
+                    <li><a  href="{{url_for('ldapgroup.sudouser') }}">用户管理</a></li>
+                {% endif %}
+                {% if current_user.href_button.ldapsudo %}
+                    <li><a href="{{url_for('ldapgroup.sudolist') }}">命令管理</a></li>
+                {% endif %}
+            <li class="divider"></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="medium-10 columns">
+        <div class="content">
+            {% block main %}{% endblock %}
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="medium-12 text-center footer">
+        <span class="copyright">Copyright © 2014 anjuke Inc 总部技术部运维团队</span>
+        <a href="http://gitlab.corp.anjuke.com/_infra/cmdb/issues/13" target="_blank">建议</a>
+        <a href="http://gitlab.corp.anjuke.com/_infra/cmdb/issues/16" target="_blank">ChangeLog</a>
+        <a href="http://wiki.corp.anjuke.com/OPS_Tech_Documentation" target="_blank">wiki</a>
+    </div>
+</div>
+<div class="tooltip-display-wrap">
+    <span class="content">
+
+    </span>
+    <span class="nub"></span>
+</div>
+{% block customscript %}{% endblock %}
+<script type="text/javascript">
+    $(document).foundation();
+    $(function(){
+        var path = location.pathname;
+        $(".side-nav >li >a").each(function(){
+            var href = $(this).attr("href");
+            var pos = href.lastIndexOf('/');
+            var basepath = href.substr(0,pos);
+            var idx = path.indexOf(basepath);
+            if((/publish/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/publish']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/lblog/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/lblog']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/lbip/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/lblog']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/apply\/add/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/host/']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/dns\/apply/).test(path)){
+                return false;
+            }
+            if((/\/apply/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/host/apply']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/deplist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/deplist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/grouplist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/grouplist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/sudouser/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/sudouser']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/sudolist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/sudolist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/blacklist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/blacklist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/blacklist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/blacklist']").parent().addClass("active-nav");
+                return false;
+            }
+            if(idx>=0){
+                $(this).parent().addClass("active-nav");
+                return false;
+            }
+        });
+    });
+    $(function () {
+        $(".side-nav").css("min-height", $(document.body).height() - 73);
+    })
+
+
+</script>
+<div style="display: none;">
+
+    <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1253583792'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1253583792%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+</div>
+</body>
+</html>

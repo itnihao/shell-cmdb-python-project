@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/css/daterangepicker.css"/>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="container">
+    <span class="navbar-header pull-right" role="navigation">
+    <ul class="nav">
+        <li>
+            <button data-toggle="dropdown" class="btn-message dropdown-toggle">
+                <i class=" icon-chevron-down bigger-125"></i>
+                下拉菜单
+            </button>
+
+            <ul class="user-menu pull-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                <li style="margin-left: 10px">
+                    <label>
+                        <input name="counter_list" type="radio" class="ace"/>&nbsp;
+                        <span class="lbl">aaa</span>
+                    </label>
+                </li>
+                <li style="margin-left: 10px">
+                    <label>
+                        <input name="counter_list" type="radio" class="ace"/>&nbsp;
+                        <span class="lbl">bbb</span>
+                    </label>
+                </li>
+
+                {#                                        <li class="divider"></li>#}
+                {##}
+                {#                                        <li class="align-right" style="margin-right: 10px">#}
+                {#                                            <button class="btn btn-grey btn-sm">取消</button>#}
+                {#                                            <button class="btn btn-success btn-sm">确定</button>#}
+                {#                                        </li>#}
+            </ul>
+        </li>
+    </ul>
+        </span>
+</div>
+{#date:<input type="text" id="date" style="width: 400px" value="01/01/2015 1:30 PM - 01/01/2015 2:00 PM">#}
+{#<script type="text/javascript" src="/static/js/jquery-ui-1.10.3.full.min.js"></script>#}
+<script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="/static/js/date-time/moment.min.js"></script>
+<script type="text/javascript" src="/static/js/date-time/bootstrap-timepicker.min.js"></script>
+<script type="text/javascript" src="/static/js/date-time/daterangepicker.min.js"></script>
+<script type="text/javascript" src="/static/js/highcharts.js"></script>
+{#<script type="text/javascript" src="/static/js/virtual/pool_info.js"></script>#}
+{#<script type="text/javascript" src="/static/js/virtual/chart.js"></script>#}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#date').daterangepicker({
+            timePicker: true,
+            timePickerIncrement: 1,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            locale: {
+                format: 'MM/DD/YYYY h:mm A'
+            }
+        });
+    });
+</script>
+</body>
+</html>

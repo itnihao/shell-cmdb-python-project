@@ -1,0 +1,13 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>历史详情:{{ info.hostname }}</span>
+    <a href="{{ url_for('host.host_detail',id=info.id)}}" class="button radius right tiny">&lt;&lt;返回</a>
+</h5>
+<hr>
+    <ul class="pricing-table">
+    {% for item in data %}
+         <li class="bullet-item">{{ item.created }}  {{ item.username }}  {% autoescape false %} {{ item.content }} {% endautoescape %}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,731 @@
+{% extends "ldapgroup/user_sudo.html" %}
+
+{% block mainsudo %}
+<input type="hidden" id="uname" value="{{ user_current.cn_name }}" name="{{ user_current.id }}"/>
+<d1 class="accordion" data-accordion>
+  <dd class="accordion-navigation">
+      <a href="#panel1a">用户&nbsp;&nbsp;{{ user_current.cn_name }}&nbsp;&nbsp;命令列表</a>
+       <div id="panel1a" class="content active">
+            {% if show.add %}
+                <a href="javascript:void(0);" id="usaddbtn" class="button radius right tiny"> + 添加命令</a>
+            {% endif %}
+            {% if sudo %}
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th>cmd</th>
+                    <th>描述</th>
+                    <th>用户</th>
+                    {% if show.modify %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for dep in sudo %}
+                <tr>
+                    <td>
+                        {{ dep.sudo.cmd}}
+                    </td>
+                    <td>{{ dep.sudo.description}} </td>
+                    <td> {{ dep.user.name}}</td>
+                    <td>
+                        {% if show.delete %}
+                            <a href="javascript:void(0);" usersudo_id="{{ dep.id }}" class="dep_delete">删除</a>
+                        {% endif %}
+
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            <div id="depdiv" class="reveal-modal small" data-reveal>
+                <h3>添加用户命令</h3>
+                <div data-alert class="alert-box alert" id="usmsgtips" style="display: none;">
+                    This is an alert - alert that is rounded.
+                    <a href="javascript:void(0);" class="close">&times;</a>
+                </div>
+                <div class="row">
+                    <select id="sudo_id">
+                        <option selected="selected" value="0">请选择命令</option>
+                        {% for item in cmd_info %}
+                            <option value="{{ item.id }}">{{ item.cmd }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" id="primaryid"/>
+                    <a id="usadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+                </div>
+                <a class="close-reveal-modal" id="usclosebtn">&#215;</a>
+</div>
+       </div>
+  </dd>
+
+  <dd class="accordion-navigation">
+        <a href="#panel1ag4">用户&nbsp;&nbsp;{{ user_current.cn_name }}&nbsp;&nbsp;设备列表</a>
+        <div id="panel1ag4" class="content ">
+            {% if show.add %}
+            <a href="javascript:void(0);" id="devaddbtn" class="button radius right tiny"> + 添加设备</a>
+            {% endif %}
+            {% if hosts %}
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th>设备名称</th>
+                    <th>IP</th>
+                    {% if show.modify %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for dep in hosts %}
+                <tr>
+                    <td>
+                        {{ dep.hostname}}
+                    </td>
+                    <td>{{ dep.ip}} </td>
+                    <td>
+                        {% if show.delete %}
+                            <a href="javascript:void(0);" userdev_id="{{ dep.id }}" class="dev_delete">删除</a>
+                        {% endif %}
+
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            <div id="devdiv" class="reveal-modal small" data-reveal>
+                <h3>添加用户设备</h3>
+                <div data-alert class="alert-box alert" id="devmsgtips" style="display: none;">
+                    This is an alert - alert that is rounded.
+                    <a href="javascript:void(0);" class="close">&times;</a>
+                </div>
+                <div class="row">
+                    <div class="typeahead-container" style="text-align:center;margin:0 auto">
+                    <div class="typeahead-field" >
+
+                        <span class="typeahead-query" >
+                            <input id="devSearch"
+                                   name="q"
+                                   type="search"
+                                   placeholder="输入设备名称或IP"
+                                   autocomplete="off">
+
+                        </span>
+
+                    </div>
+                </div>
+                    <input type="hidden" id="primaryid"/>
+                    <a id="devadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+                </div>
+                <a class="close-reveal-modal" id="devclosebtn">&#215;</a>
+</div>
+        </div>
+  </dd>
+
+  <dd class="accordion-navigation">
+      <a href="#panel1ag2">用户&nbsp;&nbsp;{{ user_current.cn_name }}&nbsp;&nbsp;组列表</a>
+       <div id="panel1ag2" class="content ">
+            {% if show.add %}
+                <a href="javascript:void(0);" id="groupaddbtn" class="button radius right tiny"> + 添加组</a>
+            {% endif %}
+            {% if groups %}
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th>组</th>
+                    <th>描述</th>
+                    {% if show.modify %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for dep in groups %}
+                <tr>
+                    <td>
+                        {{ dep.group.name}}
+                    </td>
+                    <td>{{ dep.group.description}} </td>
+                    <td>
+                        {% if show.delete %}
+                            <a href="javascript:void(0);" usergroup_id="{{ dep.id }}" class="group_delete">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            <div id="groupdiv" class="reveal-modal small" data-reveal>
+                <h3>添加组</h3>
+                <div data-alert class="alert-box alert" id="groupmsgtips" style="display: none;">
+                    This is an alert - alert that is rounded.
+                    <a href="javascript:void(0);" class="close">&times;</a>
+                </div>
+                <div class="row">
+                    <select id="group_id">
+                        <option selected="selected" value="0">请选择组</option>
+                        {% for item in group_info %}
+                            <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" id="primaryid"/>
+                    <a id="groupadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+                </div>
+                <a class="close-reveal-modal" id="groupclosebtn">&#215;</a>
+</div>
+       </div>
+  </dd>
+
+  <dd class="accordion-navigation">
+      <a href="#panel1ag3">用户&nbsp;&nbsp;{{ user_current.cn_name }}&nbsp;&nbsp;Pool列表</a>
+       <div id="panel1ag3" class="content ">
+            {% if show.add %}
+                <a href="{{ url_for('ldapgroup.pickpool',id=user_current.id)}}" id="pooladdbtnxx" class="button radius right tiny"> + 添加Pool</a>
+            {% endif %}
+            {% if pools %}
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th>Pool</th>
+                    {% if show.modify %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for dep in pools %}
+                <tr>
+                    <td>
+                        {{ dep.pool.name}}
+                    </td>
+                    <td>
+                        {% if show.delete %}
+                            <a href="javascript:void(0);" userpool_id="{{ dep.id }}" class="pool_delete">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            <div id="pooldiv" class="reveal-modal large" data-reveal>
+                <h3>添加Pool</h3>
+                <div data-alert class="alert-box alert" id="poolmsgtips" style="display: none;">
+                    This is an alert - alert that is rounded.
+                    <a href="javascript:void(0);" class="close">&times;</a>
+                </div>
+                <div>
+                    <a id="pooladd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+                    <table style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th >ID</th>
+                                <th >Pool名称</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pool in pool_info %}
+                            <tr>
+                                <td><input value="{{ pool.id }}" type="checkbox" class="large-6 columns pools"></td>
+                                <td>{{ pool.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a class="close-reveal-modal" id="poolclosebtn">&#215;</a>
+            </div>
+       </div>
+  </dd>
+</d1>
+
+<script>
+var us = {
+    bindevents: function () {
+
+        $("#usaddbtn").click(function () {
+            var username=$.trim($("#uname").val());
+            $($("#depdiv h3").get(0)).html("添加"+username+"命令");
+
+
+            us.msgtips("");
+            $("#depdiv").foundation('reveal', 'open');
+
+            $("#usersearch").hide()
+        });
+
+        $("#usadd").click(function () {
+            var sudo_id = $.trim($("#sudo_id").val());
+            var user_id=$.trim($("#uname").attr('name'));
+            var primaryid = $.trim($("#primaryid").val());
+            if (sudo_id.length <= 0 || sudo_id <= 0) {
+                us.msgtips("请选择命令", 0);
+                return false;
+            } else {
+                us.msgtips("");
+            }
+            $.ajax({
+                'url': '/cmdb/ldapgroup/sudouseradd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {sudo_id:sudo_id,user_id:user_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        us.msgtips(res.msg, 0);
+                    } else {
+                        us.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        });
+
+        $(".dep_delete").click(function () {
+            us.usdelete($(this).attr("usersudo_id"));
+        });
+        $("#usclosebtn").click(function () {
+            $("#usersearch").show()
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#usmsgtips").removeClass("success");
+                $("#usmsgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#usmsgtips").removeClass("alert");
+                $("#usmsgtips").addClass("success");
+            }
+            $("#usmsgtips").html(msg);
+            $("#usmsgtips").show();
+        } else {
+            $("#usmsgtips").hide();
+        }
+
+    },
+
+    getDcDetail: function (id) {
+        $.ajax({
+            'url': '/cmdb/ldapgroup/group/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    $($("#depdiv h3").get(0)).html("编辑组");
+                    us.msgtips("");
+                    $("#name").val(res.name);
+                    $("#description").val(res.description_r);
+                    $("#primaryid").val(res.id);
+                    $("#dp_id").val(res.department.id);
+
+                    $("#depdiv").foundation('reveal', 'open');
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+    },
+
+    usdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/sudouserdelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        us.msgtips(res.msg, 0);
+                    } else {
+                        us.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+
+var dev={
+
+    data_dev:{hostname:[],ip:[]},
+
+    bindevents: function () {
+
+        $("#devaddbtn").click(function () {
+            var username=$.trim($("#uname").val());
+            $($("#devdiv h3").get(0)).html("添加"+username+"设备");
+
+            if(dev.data_dev.hostname.length>0){
+
+                $('#devSearch').typeahead({
+                            minLength: 1,
+                            order: "asc",
+                            group: true,
+                            hint: true,
+                            list: false,
+                            backdrop: false,
+                            source: {
+                                hostname: {
+                                    data: dev.data_dev.hostname
+                                },
+                                ip: {
+                                    data: dev.data_dev.ip
+                                }
+                            },
+
+                            debug: true
+                        });
+
+                        dev.msgtips("");
+
+
+                        $("#devdiv").foundation('reveal', 'open');
+            }
+
+            else {
+                dp.msgtips("正在加载机器设备列表..", 0);
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/sudouserdevices',
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {},
+                    success: function (res) {
+
+                        dev.data_dev = res
+
+                        $('#devSearch').typeahead({
+                            minLength: 1,
+                            order: "asc",
+                            group: true,
+                            hint: true,
+                            list: false,
+                            backdrop: false,
+                            source: {
+                                hostname: {
+                                    data: res.hostname
+                                },
+                                ip: {
+                                    data: res.ip
+                                }
+                            },
+
+                            debug: true
+                        });
+
+                        dev.msgtips("");
+
+                        $("#devdiv").foundation('reveal', 'open');
+                        dp.msgtips("");
+                    }
+                })
+            }
+
+
+            $("#usersearch").hide()
+        });
+
+        $("#devadd").click(function () {
+            var device = $.trim($("#devSearch").val());
+            var user_id=$.trim($("#uname").attr('name'));
+            var primaryid = $.trim($("#primaryid").val());
+            if (device.length <= 0 ) {
+                dev.msgtips("请输入设备", 0);
+                return false;
+            } else {
+                dev.msgtips("");
+            }
+            $.ajax({
+                'url': '/cmdb/ldapgroup/userdeviceadd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {device:device,user_id:user_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        dev.msgtips(res.msg, 0);
+                    } else {
+                        dev.msgtips(res.msg, 1);
+                        $("#devdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        });
+
+        $(".dev_delete").click(function () {
+            dev.devdelete($(this).attr("userdev_id"));
+        });
+        $("#devclosebtn").click(function () {
+            $("#usersearch").show()
+        });
+    },
+
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#devmsgtips").removeClass("success");
+                $("#devmsgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#devmsgtips").removeClass("alert");
+                $("#devmsgtips").addClass("success");
+            }
+            $("#devmsgtips").html(msg);
+            $("#devmsgtips").show();
+        } else {
+            $("#usmsgtips").hide();
+        }
+
+    },
+
+    devdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/userdevicedelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dev.msgtips(res.msg, 0);
+                    } else {
+                        dev.msgtips(res.msg, 1);
+                        $("#devdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+
+var group= {
+    bindevents: function () {
+
+        $("#groupaddbtn").click(function () {
+            var username=$.trim($("#uname").val());
+            $($("#groupdiv h3").get(0)).html("添加"+username+"组");
+
+
+            group.msgtips("");
+            $("#groupdiv").foundation('reveal', 'open');
+
+            $("#usersearch").hide()
+        });
+
+        $("#groupadd").click(function () {
+            var group_id = $.trim($("#group_id").val());
+            var user_id=$.trim($("#uname").attr('name'));
+            var primaryid = $.trim($("#primaryid").val());
+            if (group.length <= 0 || group <= 0) {
+                group.msgtips("请选择组", 0);
+                return false;
+            } else {
+                group.msgtips("");
+            }
+            $.ajax({
+                'url': '/cmdb/ldapgroup/usergroupadd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {group_id:group_id,user_id:user_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        group.msgtips(res.msg, 0);
+                    } else {
+                        group.msgtips(res.msg, 1);
+                        $("#groupdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        });
+
+        $(".group_delete").click(function () {
+            group.groupdelete($(this).attr("usergroup_id"));
+        });
+        $("#groupclosebtn").click(function () {
+            $("#usersearch").show()
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#groupmsgtips").removeClass("success");
+                $("#groupmsgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#groupmsgtips").removeClass("alert");
+                $("#groupmsgtips").addClass("success");
+            }
+            $("#groupmsgtips").html(msg);
+            $("#groupmsgtips").show();
+        } else {
+            $("#groupmsgtips").hide();
+        }
+
+    },
+
+    getDcDetail: function (id) {
+        $.ajax({
+            'url': '/cmdb/ldapgroup/group/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    $($("#depdiv h3").get(0)).html("编辑组");
+                    us.msgtips("");
+                    $("#name").val(res.name);
+                    $("#description").val(res.description_r);
+                    $("#primaryid").val(res.id);
+                    $("#dp_id").val(res.department.id);
+
+                    $("#depdiv").foundation('reveal', 'open');
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+    },
+
+    groupdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/usergroupdelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        group.msgtips(res.msg, 0);
+                    } else {
+                        group.msgtips(res.msg, 1);
+                        $("#groupdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+
+var pool={
+
+    bindevents: function () {
+           data_dev={}
+
+
+        $("#pooladdbtn").click(function () {
+            var username=$.trim($("#uname").val());
+            $($("#pooldiv h3").get(0)).html("添加"+username+"Pool");
+
+            $("#pooldiv").foundation('reveal', 'open');
+
+            $("#usersearch").hide()
+        });
+
+        $("#pooladd").click(function () {
+            var pool_name = $.trim($("#poolSearch").val());
+            var user_id=$.trim($("#uname").attr('name'));
+            var primaryid = $.trim($("#primaryid").val());
+            if (pool_name.length <= 0 ) {
+                pool.msgtips("请输入Pool", 0);
+                return false;
+            } else {
+                pool.msgtips("");
+
+            }
+            $.ajax({
+                'url': '/cmdb/ldapgroup/userpooladd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {pool:pool_name,user_id:user_id},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        pool.msgtips(res.msg, 0);
+                    } else {
+                        pool.msgtips(res.msg, 1);
+                        $("#pooldiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        });
+
+        $(".pool_delete").click(function () {
+            pool.devdelete($(this).attr("userpool_id"));
+        });
+        $("#poolclosebtn").click(function () {
+            $("#usersearch").show()
+        });
+    },
+
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#poolmsgtips").removeClass("success");
+                $("#poolmsgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#poolmsgtips").removeClass("alert");
+                $("#poolmsgtips").addClass("success");
+            }
+            $("#poolmsgtips").html(msg);
+            $("#poolmsgtips").show();
+        } else {
+            $("#usmsgtips").hide();
+        }
+
+    },
+
+    devdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/userpooldelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        pool.msgtips(res.msg, 0);
+                    } else {
+                        pool.msgtips(res.msg, 1);
+                        $("#pooldiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+
+$(document).ready(function () {
+    us.bindevents();
+    dev.bindevents()
+    group.bindevents()
+    pool.bindevents()
+});
+</script>
+{% endblock %}
+
+

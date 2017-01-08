@@ -1,0 +1,69 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>我的工单</span>
+    <a href="{{ url_for('tickets.add')}}" class="button radius right tiny">+ 新工单</a>
+</h5>
+<hr>
+{% if tickets %}
+<div class="tabs-content">
+    <table style="width: 100%">
+        <thead>
+        <tr>
+            <th>编号</th>
+            <th>工单分类</th>
+            <th>处理人</th>
+            <th>状态</th>
+            <th>时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in tickets %}
+        <tr>
+            <td>{{ item.idx }}</td>
+            <td><a href="{{ url_for('tickets.detail',id = item.id)}}" class="tooltip-display" data="{{ item.content }}">{% autoescape false %} {{ item.cat_name }} {% endautoescape %}</a></td>
+            <td>{% autoescape false %} {{ item.manage_name }} {% endautoescape %}</td>
+            <td>{{ item.status_desc }}</td>
+            <td>{{ item.created }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination-centered right">
+        <ul class="pagination">
+            <li class="arrow">当前{{ extend['cur_total'] }}条,共{{ extend['total'] }}条</li>
+            {% if p.previous %}
+                <li class="arrow"><a href="{{ url_for('user.tickets') }}?p=1">&laquo;</a></li>
+            {% endif %}
+            {% for page in p.pages %}
+                {% if page == p.current %}
+                    <li class="current"><a href="javascript:void(0);">{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('user.tickets',p = page) }}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if p.next %}
+                <li class="arrow"><a href="{{ url_for('user.tickets',p= p.page_num) }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/ucenter/user_tickets.js","js/sa/tickets/functions.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                common_ops.tooltips();
+            });
+        </script>
+{% endblock %}
+{% block customstyle %}
+<style type="text/css">
+    .tooltip-display{
+        	color: #0078a0;
+    }
+</style>
+{% endblock %}

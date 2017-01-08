@@ -1,0 +1,77 @@
+{% extends "public/layout.html" %}
+
+{% block customstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+    .ui-autocomplete {
+        z-index: 9000;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<dl class="tabs" data-tab>
+    {% if flag == 'query' %}
+      <dd class="active" ><a href="javascript:void(0);"  >请求统计</a></dd>
+      <dd><a id="list2" href="javascript:void(0);" data="{{ url_for('tools.lbip') }}" >IP统计</a></dd>
+    {% else %}
+     <dd><a id="list1" href="javascript:void(0);" data="{{ url_for('tools.lblog') }}" >请求统计</a></dd>
+     <dd class="active" ><a href="javascript:void(0);">IP统计</a></dd>
+    {% endif %}
+</dl>
+<div class="row collapse">
+    <form action="{{ url_for('tools.lblog') }}" method="post" id="searchForm" style="margin-top:15px">
+    <div class="row">
+
+        <div class="large-1 columns margin_custom">
+            <input type="submit" class="postfix radius button cmdb-tiny" value="查询" id="searchBtn">
+        </div>
+
+        <div class="large-2 columns margin_custom">
+            <select name="status">
+                <option value="0">请选择时间粒度</option>
+                <option value="1">5</option>
+                <option value="2">10</option>
+                <option value="3">15</option>
+            </select>
+        </div>
+
+        <div class="large-2 columns margin_custom">
+        <ul class="button-group [radius round] right" id = "time_button" >
+        <li><a data="1" href="javascript:void(0);" class=" tiny  button time ">今日</a></li>
+        <li><a data="90"  href="javascript:void(0);" class="tiny button time ">昨日</a></li>
+        </ul>
+        </div>
+        <div class="large-2 columns margin_custom">
+            <span><input  name="starttime" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"></span>
+        </div>
+         <div class="large-2 columns margin_custom">
+            <span><input  name="endtime" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"></span>
+            <b style="margin-left:5px">---</b>
+         </div>
+    </div>
+    </form>
+    <div class="row" style="margin:5px 0px 5px 0px;">
+        <div id="table-content">
+            加载中...
+        </div>
+        <div id="querycount" class="large-6 columns charts loading"></div>
+        <div id="errorcode" class="large-6 columns charts loading"></div>
+        <div id="flow" class="large-6 columns charts loading"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block customscript %}
+{% assets filters="jsmin", output="asset/lblog.js", "js/common-lib.js","js/highcharts.js","js/tools/mycharts.js","js/tools/lblog.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+    <script type="text/javascript" src="/static/js/tools/lblog.js"></script>
+    <script type="text/javascript" src="/static/js/tools/mycharts.js"></script>
+    <script type="text/javascript" src="/static/js/laydate/laydate.js"></script>
+{% endassets %}
+{% endblock %}

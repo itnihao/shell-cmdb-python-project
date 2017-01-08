@@ -1,0 +1,116 @@
+ {%if followdHost %}
+ <table class="table toggle-arrow-circle-filled" style="margin-bottom:0" >
+        <thead>
+            <tr>
+                <th data-toggle="true">
+                    主机名称
+                </th>
+                <th >Load
+                </th>
+                <th>
+                    满载率
+                </th>
+                <th data-sort-initial="true">内存
+                </th>
+                 <th>磁盘容量
+                 </th>
+                <th>IOWAIT(%) </th>
+                <th>磁盘(读/写) <span  style="border:none"  data-tooltip aria-haspopup="true" class="has-tip" data-options="show_on:large" title="单位:次/秒"> <img src="/static/img/tooltip.png" width="15" height="15"></span></th>
+                <th>网络(In/Out:Mb)</th>
+            </tr>
+        </thead>
+        <tbody id="monitor-grid">
+        {% for item in  followdHost %}
+             <tr>
+                <td><span class="footable-toggle"></span> <a title="查看主机流量图"  href="{{ url_for('monitor.details',host_id=item.id,id = target_id, type = type)}}" >{{ item.hostname }} ({{ item.ipv4 }})</a></td>
+                <td> 
+                    {% if  item.history.cpu_1 %}
+                    {{ item.history.cpu_1.value }}                    
+                    {% else %}
+                        0.0%
+                    {% endif %}
+                    /
+                   {% if  item.history.cpu_5 %}
+                    {{ item.history.cpu_5.value }}
+                    {% else %}
+                       0.0%
+                    {% endif %}
+                   /
+                   {% if  item.history.cpu_15 %}
+                   {{ item.history.cpu_15.value }}
+                    {% else %}
+                        0.0%
+                    {% endif %}
+
+                </td>
+                <td class="hostload hostload_{{ item.id }}">
+                    <a data-type="numeric" data-value="" href="{{ url_for('monitor.details',host_id = item.id)}}" class="tooltip-display" data="采集时间:未知">--</a>
+                </td>
+                <td>
+                    {% if item.history.available_mem_rate and  item.history.available_memory %}
+                     <div  class="progress round  {{ item.history.available_mem_rate.value < 30 and 'alert' or 'success' }} ">
+                        <span   class="tooltip-display" data=" 总容量: <font color='#0099cc'>{{ item.history.total_memory.value}} </font>GB,可用:<font color='red'>{{ item.history.available_memory.value}}</font> GB, <font color='yellow'>{{ item.history.available_mem_rate.value}}%</font> 可用">
+                            <span style="width:  {{ 100-item.history.available_mem_rate.value }}%" class="meter">
+                                 {{ 100-item.history.available_mem_rate.value}}%
+                            </span>
+                        </span>
+                    </div>      
+                    {% else %}
+                    0%
+                    {% endif %}         
+                </td>
+                <td>
+                    {% if item.history.total_disk_used %}
+                     <div class="progress round  {{ float(item.history.total_disk_used.value) > 70 and 'alert' or 'info' }} " >
+                        <span  class="tooltip-display"
+                        data='
+                            <div style="margin:3px 0 10px 0">
+                            总容量: <font color="#0099cc">{{item.history.total_disk_used.total}}</font>,已使用: <font color="red">{{item.history.total_disk_used.used}}</font>
+                            剩余: <font color="yellow">{{100-float(item.history.total_disk_used.value )}}%</font> 可用
+                            {% for diskItem in item.history.disk %}
+                            </div>
+                             <div style="clear:both;margin:0 0 10px 0;padding:2px;font-size:12px;font-weight:normal">
+                                <span style="float:left;margin-right:10px;min-width:190px">
+                                    <font color="white"><b>[{{diskItem}}]</b></font>:
+                                </span>
+
+                                <span style="margin-left:10px">
+                                    总:<font color="#0099cc"><b>{{item.history.disk[diskItem].total}}</b></font>G,已使用:<font color="red"><b>{{item.history.disk[diskItem].used}}</b></font>G,剩:<font color="yellow"><b>{{ float(item.history.disk[diskItem].total)-float(item.history.disk[diskItem].used) }}</b></font>G
+                                </span>
+                        </div>
+                            {% endfor %}
+                        '>
+                            <span style="width: {{float(item.history.total_disk_used.value)}}%" class="meter">
+                                 {{float(item.history.total_disk_used.value )}}%
+                            </span>
+                        </span>
+                    </div>   
+                    {%else%}
+                    0%
+                    {%endif%}
+                </td>
+                
+                <td>
+                    {% if item.history.iowait %}
+                    {{ item.history.iowait.value or '-' }}
+                    
+                    {% else %}
+                    0
+                    {% endif %}
+                </td>
+                <td>
+                        {{ item.history.sda_read and item.history.sda_read.value or '0' }} /
+                        {{ item.history.sda_write and item.history.sda_write.value or '0' }}
+                </td>
+                <td>
+                        {{ item.history.net_in and item.history.net_in.value or '0' }} /
+                        {{ item.history.net_out and item.history.net_out.value or '0' }}
+                    
+                </td>
+            </tr>
+{% endfor %}
+  </tbody>
+ </table>
+ {% else %}
+    <div style="padding:10px;font-size:13px;">您还没有关注任何主机,点击进入<a href="{{url_for('host.index')}}">主机列表</a>进行关注吧!</div>
+{% endif %}

@@ -1,0 +1,161 @@
+{% extends "orders/layout.html" %}
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+
+{% endblock %}
+{% block main %}
+    <ol class="breadcrumb">
+        <li>个人工作台</li>
+        <li class="active">工单列表</li>
+    </ol>
+    <form class="form">
+        <div class="fieldset mb20 pb15">
+            <div class="container-fluid" style="margin-top: 10px">
+                <div class="row">
+                    <div class="form-group col-md-2 pd0" style="position: relative;">
+                        <input  type="text" id="creater" class="form-control searchInput ui-autocomplete-input user"
+                                placeholder="请选择发起人" autocomplete="off">
+                    </div>
+
+                    <div class="form-group col-md-2 pd0" style="position: relative;">
+                        <input type="text" id="handler" class="form-control searchInput ui-autocomplete-input user"
+                               placeholder="请选择处理人" autocomplete="off">
+                    </div>
+                    <div class="form-group col-md-2 pd0">
+                        {#                        <input type="text" id="catname" class="form-control searchInput" placeholder="请输入分类名称">#}
+                        <select class="form-control" id="catname">
+                            <option value="">请选择工单分类</option>
+                            {% for item in category_info %}
+                                <option value="{{ loop.index }}">{{ item.name }}</option>
+                            {%  endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2 pd0" style="position: relative;">
+                        <select class="form-control small-text-center" id="state_select"
+                                style="font-size:14px;height: 33px;width: 100%;">
+                            <option value="100">请选择状态</option>
+                            <option value="2">已提交</option>
+                            <option value="3">处理中</option>
+                            <option value="5">驳回</option>
+                            <option value="4">完成</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <div class="text-left" style="margin-left: 5px">
+                            <button type="button" id="findBtn" class="btn btn-normal btn-default"><i
+                                    class="fa fa-search glyphicon glyphicon-search"></i> 查询
+                            </button>
+                            &nbsp;
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+                {#                <div class="row">#}
+                {#                        <div class="col-md-1 filter-label">创建时间</div>#}
+                {#                        <label class="filter-label"></label>#}
+                {#                        <div class="row">#}
+                {#                            <div class="col-md-3  columns">#}
+                {#                                <input type="test" name="date_s" id="start_time"#}
+                {#                                       class="form-control"#}
+                {#                                       placeholder="开始日期"  >#}
+                {#                            </div>#}
+                {#                            <div class="col-md-1 columns" style=" text-align:center;">#}
+                {#                                至#}
+                {#                            </div>#}
+                {#                            <div class="col-md-3 columns">#}
+                {#                                <input type="test" name="date_s" id="end_time"#}
+                {#                                       class="form-control"#}
+                {#                                       placeholder="更新日期"  >#}
+                {#                            </div>#}
+                {#                        </div>#}
+                {#                </div>#}
+            </div>
+        </div>
+    </form>
+    {% if tickets %}
+        <table id="list" class=" table table-bordered table-striped text-left" style="width: 100%;font-size: 14px;">
+            <thead class="text-center">
+            <tr style="background-color:#EAF2D3;">
+                <th>工单号</th>
+                <th>工单标题</th>
+                <th>工单分类</th>
+                <th>发起人</th>
+                <th>最终处理人</th>
+                <th>紧急度</th>
+                <th>发起时间</th>
+                <th>更新时间</th>
+                <th>状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in tickets %}
+                <tr id="{{ loop.index }}">
+                    <td>{{ item.id }}</td>
+                    <td><a href="{{ url_for('orders.detail', id = item.id) }}"
+                           class="link_blue">{{ item.title }}</a></td>
+                    <td>{{ cat_dic[item.category_id] }}</td>
+                    <td>{{ user_dic[item.applier_uid] }}</td>
+                    <td>{{ user_dic[item.approver_uid] }}</td>
+                    <td style="font-style: italic;font-weight: bold">
+                        {% if item.level  == 0 %}<font color="#337ab7;">{{ item.level_desc }}</font>{% endif %}
+                        {% if item.level  == 1 %}<font color="#f0ad4e;">{{ item.level_desc }}</font>{% endif %}
+                        {% if item.level  == 2 %}<font color="#d9534f;">{{ item.level_desc }}</font>{% endif %}
+                    </td>
+                    <td>{{ item.created }}</td>
+                    <td>{{ item.updated }}</td>
+                    <td><span class=" btn-xs badge" {% if item.status_desc=='驳回'%} style="background-color: #d9534f;"
+                    {% elif item.status_desc=='ops待认领'  or item.status_desc=='待认领'%} style="background-color: #62ab00;"
+                    {% elif item.status_desc=='处理中'or item.status_desc=='评估中'  %} style="background-color: #337ab7;"
+                    {% elif item.status_desc=='完成' %} style="background-color: #777;" {% endif %}>
+                              {{ item.status_desc }}</span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <div class="row" id="page">
+        <input id="put1" value="{{ current_page }}" hidden><input id="put2" value="{{ all_page }}" hidden>
+        <div class="col-sm-4 col-md-4 text-left">
+            <label  id="resultTable_info" style="margin-top: 20px">分页 {{ current_page }}/ {{ all_page }}</label>
+        </div>
+        <div class="col-sm-8 col-md-8  ">
+            <ul class="pagination pagination-sm">
+                <li class="paginate_button first " id="resultTable_first"><a href="#">|&lt;</a></li>
+                <li class="paginate_button previous" id="resultTable_previous"><a href="#">&lt;&lt;</a></li>
+                <li class="paginate_button"><input id="resultTable_input" type="number" min="1" class="inp" style="width:45px;height:30px;text-align:center;" value="{{ current_page }}"></li>
+                <li class="paginate_button next" id="resultTable_next"><a href="#" style="color: #777">&gt;&gt;</a></li>
+                <li class="paginate_button last" id="resultTable_last"><a href="#" style="color: #777">&gt;|</a></li>
+                <li class="paginate_button goto" id="resultTable_goto"><a href="#" style="color: #777">跳转</a></li>
+            </ul>
+        </div>
+        {#            <div id="p1" class="col-sm-5 col-md-5 text-right">#}
+        {#                <label id="resultTable_info"#}
+        {#                       style="margin-top: 20px">当前 {{ extend['current_page'] }}/{{ extend['total'] }}条</label>#}
+        {#            </div>#}
+        {#            <div id="p2" class="col-sm-7 col-md-7 text-right">#}
+        {#                <ul class="pagination ">#}
+        {#                    {% if p.previous %}#}
+        {#                        <li class="arrow"><a href="{{ url_for('orders.list',p = 1) }}">&laquo;</a></li>#}
+        {#                    {% endif %}#}
+        {#                    {% for page in p.pages %}#}
+        {#                        {% if page == p.current %}#}
+        {#                            <li class="current" style="background-color:#428bca; "><a#}
+        {#                                    href="javascript:void(0);">{{ page }}</a></li>#}
+        {#                        {% else %}#}
+        {#                            <li><a href="{{ url_for('orders.list',p = page) }}">{{ page }}</a></li>#}
+        {#                        {% endif %}#}
+        {#                    {% endfor %}#}
+        {#                    {% if p.next %}#}
+        {#                        <li class="arrow"><a href="{{ url_for('orders.list',p= p.page_num) }}">&raquo;</a></li>#}
+        {#                    {% endif %}#}
+        {#                </ul>#}
+        {#            </div>#}
+
+        {#        {% endif %}#}
+    </div>
+{% endblock %}
+{% block customscript %}
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/orders/order_list.js"></script>
+{% endblock %}

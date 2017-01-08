@@ -1,0 +1,82 @@
+<div class="tabs-content">
+    <div class="content active">
+        <div class="row collapse">
+            <form id="search" {% if flag=='in' %}{% if type=="mem" %} action="{{url_for("parts.in_history_memory")}}"{% else %}action="{{url_for("parts.in_history_disk")}}"{% endif %}{% else %}{% if type=="mem" %}action="{{url_for("parts.out_history_memory")}}"{% else %}action="{{url_for("parts.out_history_disk")}}"{% endif %}{% endif %} method="GET">
+                <div class="large-2 columns margin_custom right" style="margin-left: 15px;">
+                    <select id="model_select" name="model_select">
+                        <option value="0" {% if m_model == "0" %} selected="selected"{% endif %}>请选择型号</option>
+                        {% for item in model %}
+                        <option value="{{ item.id }}" {% if m_select == "%s"%item.id %}selected="selected" {% endif %}>{{ item.content }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if flag=="in" %}
+                <div class="large-2 columns margin_custom right">
+                    <select id="status_select" name="status_select">
+                        <option value="-1" {% if s_model == "-1" %} selected="selected"{% endif %}>请选择状态</option>
+                        <option value="0" {% if s_select == "0" %} selected="selected" {% endif %}>采购入库</option>
+                        <option value="1" {% if s_select == "1" %} selected="selected" {% endif %}>报废入库</option>
+                    </select>
+                </div>
+                {% endif %}
+            </form>
+            <table class="table" style="width: 100%">
+                <thead>
+                <tr>
+                    <th width="5%" data-sort-ignore="true">序号</th>
+                    {% if type=="mem" %}
+                        <th width="9%" data-type="numeric">型号</th>
+                        <th width="9%" data-type="numeric">容量</th>
+                        <th width="9%" data-type="numeric">频率</th>
+                    {% else %}
+                        <th width="6%" data-type="numeric">容量</th>
+                        <th width="7%" data-type="numeric">尺寸</th>
+                        <th width="5%" data-sort-ignore="true">接口</th>
+                        <th width="6%" data-type="numeric">转速</th>
+                        <th width="7%" data-sort-ignore="true">接口速率</th>
+                    {% endif %}
+                    {% if flag=="in" %}
+                    <th width="8%" data-sort-ignore="true">状态</th>
+                    {% endif %}
+                    <th width="15%" data-sort-ignore="true">资产编号</th>
+                    <th width="11%" data-sort-ignore="true">主机名</th>
+                    <th width="5%" data-sort-ignore="true">数量</th>
+                    <th width="15%" data-type="datetime">录入日期</th>
+                    <th width="6%" data-sort-ignore="true">录入人</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item['idx'] }}</td>
+                        {% if type=="mem" %}
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}" data-value="{{ item['model'] }}">{{ item['model'] }}</a></td>
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}" data-value="{{ item['mem_storage'] }}">{{ item['mem_storage'] }}</a></td>
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}" data-value="{{ item['frequency'] }}">{{ item['frequency'] }}</a></td>
+                        {% else %}
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}" data-value="{{ item['frequency'] }}">{{ item['disk_storage'] }}</a></td>
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}" data-value="{{ item['size'] }}">{{ item['size'] }}</a></td>
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}">{{ item['interface'] }}</a></td>
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}" data-value="{{ item['speed'] }}">{{ item['speed'] }}</a></td>
+                        <td><a href="{{ url_for('parts.history_detail',id=item['target_id'])}}">{{ item['if_rate'] }}</a></td>
+                        {% endif %}
+                        {% if flag=="in" %}
+                        <td>{{ item['status'] }}</td>
+                        {% endif %}
+                        {% if item['flag']==0 and item['type']==0 %}
+                        <td>--</td>
+                        <td>--</td>
+                        {% else %}
+                        <td>{% if item['device_id']>0 %}<a href="{{ url_for('device.detail',id=item['device_id']) }}">{{ item['device_label'] }}</a>{% else %}{{ item['device_label'] }}{% endif %}</td>
+                        <td>{% if item['host_id']>0 %}<a href="{{ url_for('host.host_detail',id=item['host_id']) }}">{{ item['hostname'] }}</a>{% else %}{{ item['hostname'] }}{% endif %}</td>
+                        {% endif %}
+                        <td>{{ item['cnt'] }}</td>
+                        <td data-value="{{ item['ts'] }}">{{ item['dt'] }}</td>
+                        <td>{{ item['person'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

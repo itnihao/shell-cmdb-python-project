@@ -1,0 +1,95 @@
+{% block customstyle %}
+    <link rel="stylesheet" href="/static/css/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="/static/css/token-input-facebook.css"/>
+{% endblock %}
+{% extends "orders/layout.html" %}
+{% block main %}
+{#    <div class="alert alert-info"><span>{{ category_name }}</span></div>#}
+    <ol class="breadcrumb">
+        <span>{{ category_name }}</span>
+    </ol>
+    <div class="alert" role="alert" id="msgtip" style="display: none;">
+        <span id="waining_text">....</span>
+    </div>
+    <div>
+        <div>
+            <span class="glyphicon glyphicon-th-list">&nbsp;<label>流程全局设置</label></span>
+        </div>
+        <div class="row" style="margin-top: 25px; margin-left: 35px;">
+                <div class="col-md-2">
+                    流程标题&nbsp;<span style="color: red;">*</span>
+                </div>
+                <div class="col-md-5">
+                    <input id="order_title" type="text" class="form-control" placeholder="{{ category_name }}">
+                    <input id="category" type="hidden" category_uid="{{ category_uid }}" category_id="{{ category_id }}">
+                </div>
+                <div class="col-md-3"></div>
+        </div>
+        <div class="row" style="margin-top: 25px; margin-left: 35px;">
+            <div class="col-md-2">
+                邮件通知&nbsp;<span class="glyphicon glyphicon-question-sign"></span>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="mail1" placeholder="" value="" id="select_mail" >
+                <span id="select_mail_hidden"></span>
+            </div>
+            <div>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 25px; margin-left: 35px;">
+                <div class="col-md-2">
+                    优先级&nbsp;<span style="color: red;">*</span>
+                </div>
+                <div class="col-md-2">
+                    <select id="order_level" class="form-control">
+                        <option value="0">默认</option>
+                        <option value="1">中</option>
+                        <option value="2">高</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <a id="level_show" href="#" style="color: #333;"><span class="glyphicon glyphicon-question-sign"></span></a>
+                    <span id="show_content"  style="display: none;">
+                        <span class=" btn-xs badge" style="background-color: #428bca;font-style: italic;">默认</span>&nbsp;8小时以内
+                        <span class="btn-xs badge" style="background-color: #f0ad4e;font-style: italic;">中</span>&nbsp;2小时以内
+                        <span class="btn-xs badge" style="background-color: #d9534f;font-style: italic;">高</span>&nbsp;30分钟以内
+                    </span>
+                </div>
+        </div>
+        <div style="margin-top: 40px;">
+            <div>
+                <span class="glyphicon glyphicon-th-list">&nbsp;<label>操作</label></span>
+            </div>
+            <input style="display: none" id="category_dec" value="{{ category_dec }}">
+            {% for item in category_dec %}
+                <div class="row" style="margin-top: 25px; margin-left: 35px;">
+                    <div name="label" data_label= "{{ item['label'] }}" class="col-md-2">{{ item['label'] }}&nbsp;<span style="color: red;">*</span></div>
+                    <div class="col-md-5">
+                        {% if item['input_type'] == "1" %}
+                            <input id="input{{ loop.index }}" name="" type="text" class="form-control data_content" placeholder="{{ item['content'] }}">
+                        {% elif item['input_type'] == "2" %}
+                            <textarea id="input{{ loop.index }}" name="" type="text" class="form-control data_content" placeholder="{{ item['content'] }}"></textarea>
+                        {% elif item['input_type'] == "3" %}
+                            <select id="input{{ loop.index }}" name="select" class="form-control data_content" >
+                            {% for opt in item['content'] %}
+                                <option value="{{ loop.index }}">{{ opt }}</option>
+                            {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row" style="margin-top: 50px; margin-bottom: 20px;">
+            <div class="col-md-4"></div>
+            <div class="col-md-6">
+                <button id="ok" type="button" class="btn btn-normal">提交</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block customscript %}
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/orders/order_detail.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
+{% endblock %}

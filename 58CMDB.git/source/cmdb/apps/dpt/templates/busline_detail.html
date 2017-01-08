@@ -1,0 +1,425 @@
+{%extends base%}
+{% block extra_head %}
+<script src="{{STATIC_URL}}js/fuelux.tree.min.js"></script>
+<script src="{{STATIC_URL}}js/tables.js"></script>
+<link rel="stylesheet" href="{{STATIC_URL}}css/proj/common.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/sweetalert/sweet-alert.css" />
+<link rel="stylesheet" href="{{STATIC_URL}}plugin/select2/select2.css"/>
+<script type="text/javascript" src="{{STATIC_URL}}plugin/select2/select2.min.js">  </script>
+
+<script src="{{STATIC_URL}}js/bootstrap-treeview.js"></script>
+
+<!-- page specific plugin scripts -->
+{% endblock %}
+{% block Hometitle %}组织信息管理 > <a href="{% url 'busline.index' %}"> 业务线管理 </a> {% endblock %}
+{% block actiontitle %}详情信息{% endblock %}
+{% block pagetitle %}{{busline.busline_name}}详情{% endblock %}
+
+{% block pagecontent %}
+
+<div class="main-container" id="main-container">
+<div class="page-content">
+
+<div class="row">
+  <div class="col-xs-12">
+    <div class="table-header" id="buslineListHeader">
+      编辑业务线
+      <button type="button" class="btn btn-default btn-lg" id="addBtn">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+      </button>
+      <!-- <button type="button" class="btn btn-default btn-lg" id="editBtn">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+      </button> -->
+      <button type="button" class="btn btn-default btn-lg" id="delBtn">
+        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<hr>
+<div class="row">
+  <label for="title">业务线名称<label>
+</div>
+<div class="row">
+  <div class="col-md-3">
+    <label for="input_id">ID</label>
+    <input type="text" class="form-control" id="input_id" readonly value={{ busline_id }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_code">代码</label>
+    <input type="text" class="form-control" id="input_code" readonly value={{ busline_code }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_name">名称</label>
+    <input type="text" class="form-control" id="input_name" readonly value={{ busline_name }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_op">部门</label>
+    <input type="text" class="form-control" id="input_op" readonly value={{ owner_op }}></input>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-3">
+    <label for="input_manager">管理员</label>
+    <input type="text" class="form-control" id="input_manager" readonly value={{ owner_biz }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_level">等级</label>
+    <input type="text" class="form-control" id="input_level" readonly value={{ busline_level }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_leaf">是否为叶子节点</label>
+    <input type="text" class="form-control" id="input_leaf" readonly value={{ is_leaf }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_fullpath">全路径</label>
+    <input type="text" class="form-control" id="input_fullpath" readonly value={{ fullpath }}></input>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-3">
+    <label for="input_desc">描述</label>
+    <input type="text" class="form-control" id="input_desc" readonly value={{ description }}></input>
+  </div>
+  <div class="col-md-3">
+    <label for="input_state">状态</label>
+    <input type="text" class="form-control" id="input_state" readonly value={{ state }}></input>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-3">
+    <label for="input_parent">父节点</label>
+    <input type="text" class="form-control" id="input_parent" onclick="setBuslineList()" readonly  placeholder={{ parent }} value={{ parent_name }}>
+      <!-- <span class="caret"></span> -->
+    </input>
+    <div id="parentDiv" class="treeview">
+      <ul class="list-group" id="treeULTap">
+      </ul>
+    </div>
+
+  </div>
+  <div class="col-md-4">
+    <label for="input_bsp">bsp_org</label>
+    <input type="text" class="form-control" id="input_bsporg" onclick="setBspOrgList()" readonly placeholder={{ bsporg }} value={{ bsporg_name }}>
+      <!-- <span class="caret"></span> -->
+    </input>
+    <div id="parentDiv1" class="treeview1">
+      <ul class="list-group1" id="treeULTap_bsp">
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-4">
+    <label for="op_owner">运维负责人</label>
+    <input id="searchName" class="user_name" style="width:90%;" name="searchName" value="">
+    </input>
+  </div>
+  <div class="col-sm-4">
+    <label for="busline_owner">业务线负责人</label>
+    <input id="searchName1" class="user_name1" style="width:90%;" name="searchName1" value="">
+    </input>
+  </div>
+</div>
+
+<div class="space-12"></div>
+
+<div class="col-md-3" style="display:none;" id="saveDiv">
+  <button type="button" class="btn btn-default btn-lg" id="saveBtn">
+    <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
+  </button>
+</div>
+
+</div>
+</div>
+
+
+<!-- Model -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="myModal">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Bsp_Org</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label for="title">业务线名称<label>
+        </div>
+        <div class="row">
+          <!-- <div class="col-md-3">
+            <label for="input_model_id">ID</label>
+            <input type="text" class="form-control" id="input_model_id" readonly placeholder={{ busline_id }}></input>
+          </div> -->
+          <div class="col-md-3">
+            <label for="input_model_code">代码</label>
+            <input type="text" class="form-control" id="input_model_code" placeholder={{ busline_code }}></input>
+          </div>
+          <div class="col-md-3">
+            <label for="input_model_name">名称</label>
+            <input type="text" class="form-control" id="input_model_name" placeholder={{ busline_name }}></input>
+          </div>
+          <!-- <div class="col-md-3">
+            <label for="input_model_op">部门</label>
+            <input type="text" class="form-control" id="input_model_op" placeholder={{ owner_op }}></input>
+          </div> -->
+          <!-- <div class="col-md-3">
+            <label for="input_model_manager">管理员</label>
+            <input type="text" class="form-control" id="input_model_manager" placeholder={{ owner_biz }}></input>
+          </div> -->
+          <div class="col-md-3">
+            <label for="input_model_desc">描述</label>
+            <input type="text" class="form-control" id="input_model_desc" placeholder={{ description }}></input>
+          </div>
+          <div class="col-md-3">
+            <label for="input_model_state">状态</label>
+            <input type="text" class="form-control" id="input_model_state" placeholder={{ state }}></input>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <label for="label_user">bsp_org</label>
+            <!-- <input type="text" class="form-control" id="input_user" placeholder={{ bsporg }}></input> -->
+            <input type="text" class="form-control" id="input_model_bsporg" readonly onclick="setModelBsporgList()" placeholder={{ bsporg }} value={{ bsporg_name }}>
+              <!-- <span class="caret"></span> -->
+            </input>
+            <div id="parentDiv1_model" class="treeview1_model">
+              <ul class="list-group1_model" id="treeULTap_bsp_model">
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <label for="op_owner_model">运维负责人</label>
+            <input id="searchName_model" class="user_name_model" style="width:100%;" name="searchName_model" value="">
+            </input>
+          </div>
+          <div class="col-sm-3">
+            <label for="busline_owner_model">业务线负责人</label>
+            <input id="searchName1_model" class="user_name1_model" style="width:100%;" name="searchName1_model" value="">
+            </input>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-lg" id="model_saveBtn">
+          <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+          添加
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="col-md-3">
+  <label for="input_parent">父节点</label>
+  <input type="text" class="form-control" id="input_parent" onclick="setBuslineList()" readonly value={{ parent_name }} placeholder={{ parent }}>
+  </input>
+  <div id="parentDiv">
+  </div>
+</div>
+<div class="col-md-4">
+  <label for="input_bsp">bsp_org</label>
+  <input type="text" class="form-control" id="input_bsporg" onclick="setBsporgList()" readonly value={{ bsporg_name }} placeholder={{ bsporg }}>
+  </input>
+  <div id="bsporgDiv">
+  </div>
+</div> -->
+
+</body>
+
+<script type="text/javascript">
+  jQuery(function($) {
+
+    $('#addBtn').on('click', function () {
+      // console.log('aaaaaaaaaa');
+      // AddReadonlyAttr();
+      $('#myModal').modal('show');
+
+    })
+
+    $('#editBtn').on('click', function () {
+
+      // $('#input_id').removeAttr('readonly');
+
+    })
+
+    function RemoveReadonly(){
+      $('#input_code').removeAttr('readonly');
+      $('#input_name').removeAttr('readonly');
+      $('#input_op').removeAttr('readonly');
+      $('#input_manager').removeAttr('readonly');
+      $('#input_level').removeAttr('readonly');
+      $('#input_desc').removeAttr('readonly');
+      $('#input_state').removeAttr('readonly');
+      $('#input_parent').removeAttr('readonly');
+      $('#input_bsp').removeAttr('readonly');
+
+      document.getElementById('saveDiv').style = 'display:block';
+    }
+    RemoveReadonly();
+
+    function resultFormatResult(medata) {
+
+        return medata.text;
+    }
+
+    function resultFormatSelection(medata) {
+        return medata.text;
+    }
+
+    function chooseParm(urls, placehold, initDic){
+            var choosebusline ={
+              allowClear:true,
+              model:true,
+              data:[],
+              placeholder: placehold,
+              // initSelection:function(element, callback){
+              //   callback(initDic);
+              // },
+              minimumInputLength: 1,
+              separator:',,',
+              ajax: {
+                url:urls,
+                data: function (term, page) {
+                        $("#select2-chosen-2").empty();
+                        var token = GetToken();
+                        if (token == 'error') {
+                            alert('Token过期');
+                            return false;
+                        }
+                        token = token.data.token;
+                        var postData = {
+                            'token': token,
+                            'q': term,
+                            'page_limit': 10,
+                            'uname':term,
+                        };
+                        postData = JSON.stringify(postData);
+                        return postData;
+                },
+                type: 'POST',
+                dataType: 'json',
+                results: function (data, page) {
+                  // console.log(data);
+                    return { results: data.data };
+                },
+                formatResult: resultFormatResult,
+                formatSelection: resultFormatSelection,
+                dropdownCssClass: "bigdrop",
+                escapeMarkup: function (m) { return m; }
+            }
+        };
+        // console.log(choosebusline);
+          return choosebusline;
+      };
+
+      $('.user_name').select2(chooseParm("/api/cluster/getuserdata/","请输入名称"));
+      $('.user_name1').select2(chooseParm("/api/cluster/getuserdata/","请输入名称"));
+
+      $.fn.modal.Constructor.prototype.enforceFocus = function() {};//此句作用是使在model上的select2可以获取焦点
+      $('.user_name_model').select2(chooseParm("/api/cluster/getuserdata/","请输入名称"));
+      $('.user_name1_model').select2(chooseParm("/api/cluster/getuserdata/","请输入名称"));
+
+    $('#delBtn').on('click', function () {
+
+      // AddReadonlyAttr();
+
+    })
+
+    $('#saveBtn').on('click', function(){
+
+      // AddReadonlyAttr();
+
+      try {
+        content = {
+          'input_id':$('#input_id').val(),
+          'input_code':$('#input_code').val(),
+          'input_name':$('#input_name').val(),
+          'input_op':$('#input_op').val(),
+          'input_manager':$('#input_manager').val(),
+          'input_level':$('#input_level').val(),
+          'input_desc':$('#input_desc').val(),
+          'input_state':$('#input_state').val(),
+          'input_parent':document.getElementById('input_parent').placeholder,
+          'input_bsp':document.getElementById('input_bsporg').placeholder,
+          'op_owner':$('.user_name').select2('data').id,
+          'busline_owner':$('.user_name1').select2('data').id
+        };
+        // console.log(content);
+        saveChange(content);
+      } catch (e) {
+        alert('请正确输入内容');
+      } finally {
+
+      }
+
+
+
+    })
+
+    $('#model_saveBtn').on('click', function(){
+
+      try {
+        content = {
+          'input_id':"",
+          'input_code':$('#input_model_code').val(),
+          'input_name':$('#input_model_name').val(),
+          'input_op':$('#input_model_op').val(),
+          'input_manager':$('#input_model_manager').val(),
+          'input_level':$('#input_level').val(),
+          'input_desc':$('#input_model_desc').val(),
+          'input_state':$('#input_model_state').val(),
+          'input_parent':document.getElementById('input_parent').placeholder,
+          'input_bsp':document.getElementById('input_model_bsporg').placeholder,
+          'op_owner':$('.user_name_model').select2('data').id,
+          'busline_owner':$('.user_name1_model').select2('data').id
+        };
+        console.log(content);
+        // saveChange(content);
+        $('#myModal').modal('hide');
+      } catch (e) {
+        alert('请正确输入内容');
+      } finally {
+
+      }
+
+    })
+
+    // $('#parentBtn').on('click', function(){
+    //
+    //   setBuslineList();
+    //
+    // })
+
+    // $('#bsporgBtn').on('click', function(){
+    //
+    //   setBsporgList();
+    //
+    // })
+
+    function AddReadonlyAttr(){
+
+      $('#input_code').attr('readonly', 'readonly');
+      $('#input_name').attr('readonly', 'readonly');
+      $('#input_op').attr('readonly', 'readonly');
+      $('#input_manager').attr('readonly', 'readonly');
+      $('#input_level').attr('readonly', 'readonly');
+      $('#input_desc').attr('readonly', 'readonly');
+      $('#input_state').attr('readonly', 'readonly');
+      $('#input_parent').attr('readonly', 'readonly');
+      $('#input_bsp').attr('readonly', 'readonly');
+
+      document.getElementById('saveDiv').style = 'display:none';
+
+    }
+
+
+  })
+
+</script>
+
+
+{% endblock %}

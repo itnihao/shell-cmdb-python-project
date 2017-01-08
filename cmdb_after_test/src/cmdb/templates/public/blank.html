@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}CMDB{% endblock %}</title>
+    {% assets "layout_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+    {% assets "layout_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% block customstyle %}{% endblock %}
+    <link rel="stylesheet" href="/static/plugins/footable/css/footable.core.css"/>
+
+</head>
+<body>
+<nav class="top-bar" data-topbar>
+      {% include 'public/header_nav_tpl.html' %}
+</nav>
+<div class="row">
+        <div class="content">
+            {% block main %}{% endblock %}
+        </div>
+
+</div>
+<div class="row">
+    <div class="medium-12 text-center footer">
+        <span class="copyright">Copyright © 2014 anjuke Inc 总部技术部运维团队</span>
+        <a href="http://gitlab.corp.anjuke.com/_infra/cmdb/issues/13" target="_blank">建议</a>
+        <a href="http://gitlab.corp.anjuke.com/_infra/cmdb/issues/16" target="_blank">ChangeLog</a>
+        <a href="http://wiki.corp.anjuke.com/OPS_Tech_Documentation" target="_blank">wiki</a>
+    </div>
+</div>
+<div class="tooltip-display-wrap">
+    <span class="content">
+
+    </span>
+    <span class="nub"></span>
+</div>
+{% block customscript %}{% endblock %}
+<script type="text/javascript">
+    $(document).foundation();
+    $(function(){
+        var path = location.pathname;
+        $(".side-nav >li >a").each(function(){
+            var href = $(this).attr("href");
+            var pos = href.lastIndexOf('/');
+            var basepath = href.substr(0,pos);
+            var idx = path.indexOf(basepath);
+            if((/publish/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/publish']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/lblog/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/lblog']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/lbip/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/lblog']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/apply\/add/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/host/']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/dns\/apply/).test(path)){
+                return false;
+            }
+            if((/\/apply/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/host/apply']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/deplist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/deplist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/grouplist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/grouplist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/sudouser/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/sudouser']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/sudolist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/ldapgroup/sudolist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/blacklist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/blacklist']").parent().addClass("active-nav");
+                return false;
+            }
+            if((/\/blacklist/).test(path)){
+                $(".side-nav >li").find("a[href='/cmdb/tools/blacklist']").parent().addClass("active-nav");
+                return false;
+            }
+            if(idx>=0){
+                $(this).parent().addClass("active-nav");
+                return false;
+            }
+        });
+    });
+    $(function () {
+        $(".side-nav").css("min-height", $(document.body).height() - 73);
+    })
+</script>
+<div style="display: none;">
+
+</div>
+</body>
+</html>

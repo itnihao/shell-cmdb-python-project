@@ -1,0 +1,71 @@
+{% extends "public/layout.html" %}
+{% block customstyle %}
+    <style type="text/css" >
+        table tr.even, table tr.alt, table tr:nth-of-type(even) {
+            background: #ffffff;
+        }
+        .url_label{
+            width: 20%;
+        }
+    </style>
+{% endblock %}
+{% block main %}
+    <div id="permission-breadcrumbs">
+        <ul class="breadcrumbs">
+            <li><a href={{ url_for('user.role') }} class="unavailable" style="color:#d35400"  >角色编辑</a></li>
+            <li><a href={{ url_for('user.urllist') }}>资源管理</a></li>
+            <li><a href={{ url_for('user.permission') }}>用户角色</a></li>
+        </ul>
+    </div>
+    <form action="{{ url_for('user.roleactionupdate') }}" method="post">
+        <div class="row collapse" >
+            <div class=" large columns left">
+                <p>角色名称: {{ role.name }}</p>
+                <input type="hidden" name="roleid" value="{{ role.id }}">
+        </div>
+        <table width="100%">
+            <thead>
+            <tr>
+                <th>业务</th>
+                <td>动作</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tab_info in tab %}
+                <tr>
+                    <td>
+                        <div class="row collapse">
+                        <div  class="large-6 columns left ">{{ tab_info.tag }}</div>
+                             <input id = {{ tab_info.tag }} name="select_all" data = {{ tab_info.tag }} type="checkbox" />
+                             <label class="url_label" for="{{ tab_info.tag }}">全选</label>
+                        </div>
+                    </td>
+                    <td>
+                        {% for items in tab_info.data %}
+                            {% for info in items %}
+                                <input name="actionid" class = "{{ tab_info.tag }}" value={{ info.actionid }}
+                                       type="checkbox" id="role_{{ info.actionid }}" {%  if role.id in info.roleids or role.id == tab_info.adminid%}CHECKED{% endif %}><label class="url_label" for="role_{{ info.actionid }}">{{ info.content }}</label>
+                            {% endfor %}
+                            <br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    <div class="row collapse" >
+            <div class="large-1 columns right">
+                <input type="submit" class="postfix radius button" value="确定">
+            </div>
+    </div>
+    </form>
+</div>
+{% endblock %}
+{% block customscript %}
+ {% assets filters="jsmin", output="asset/roleaction.js","js/roleaction.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+ {% endassets %}
+{% endblock %}
+
+<input id="role_1" class="机房管理" type="checkbox" checked="" value="1" name="actionid">
+<label class="url_label" for="role_1">添加机房</label>

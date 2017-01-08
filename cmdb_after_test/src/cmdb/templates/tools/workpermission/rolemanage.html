@@ -1,0 +1,212 @@
+{% extends "tools/workpermission/main.html" %}
+
+{% block mainsudo %}
+<div style="margin-left: 10px">
+<h3 class="content_title">
+角色配置
+</h3>
+<hr>
+<div class="row">
+    <a href="javascript:void(0)" id="bn_role_add">
+        <span class="badge pull-left" style="background-color:#337AB7">添加角色+</span>
+    </a>
+</div>
+<br>
+<div class="row">
+    <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered mt20 dataTable no-footer" id="resultTable" role="grid" aria-describedby="resultTable_info" >
+			<thead>
+				<tr role="row">
+                    <th class="text-left sorting_disabled"  >角色名称</th>
+                    <th class="text-left sorting_disabled" >描述</th>
+                    <th class="text-center sorting_disabled" >操作</th>
+                </tr>
+			</thead>
+            <tbody>
+                {% for w in roles %}
+                <tr role="row" class="odd">
+
+                    <td>{{ w.name }}</td>
+                    <td>{{ w.description }}</td>
+                    <td >
+                        <div class="btn-list btn-xs span7 text-center" >
+
+                            <button class="btn btn-primary btn-xs" onclick="getroleDetail({{ w.id }})">编辑</button>
+                            <span class="mr5" style="border-left:2px solid #bbb;padding:6px 0 8px 2px; "></span>
+                            <button class="btn btn-danger btn-xs" onclick="roledelete({{ w.id }})">删除</button>
+
+                        </div>
+                    </td >
+
+                </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+</div>
+</div>
+<div class="modal fade form-horizontal" style="height: auto;" id="mymodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
+				<h4 id="poptitle" class="modal-title">添加角色</h4>
+			</div>
+			<div class="modal-body">
+                <div style="padding: 0px 100px 10px;">
+                   <form class="bs-example bs-example-form" role="form">
+                      <div class="input-group">
+                         <span class="input-group-addon">&nbsp;&nbsp;&nbsp;名称&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                         <input id="name" type="text" class="form-control" placeholder="name">
+                      </div><br>
+
+                       <div class="input-group">
+                         <span class="input-group-addon">&nbsp;&nbsp;&nbsp;描述&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                         <input id="description" type="text" class="form-control" placeholder="description">
+                      </div><br>
+
+                      <input type="hidden" id="primaryid"/>
+                   </form>
+                </div>
+			</div>
+			<div class="modal-footer">
+                <div data-alert class="alert-box alert pull-left" id="msgtips" style="display: none;">
+                    This is an alert - alert that is rounded.<a class="close" href="#">x</a>
+{#                    <a href="javascript:void(0);" class="close">&times;</a>#}
+                </div>
+				<button type="button" class="btn btn-warning btn-lg" data-dismiss="modal">close</button>
+				<button id="ok_change" type="button" class="btn btn-primary btn-lg">确定</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+    $("#bn_role_add").click(function () {
+        $("#poptitle").html("添加角色");
+        $("#name").val("");
+        $("#description").val("");
+
+         msgtips("")
+        $("#mymodal").modal('show')
+     });
+
+    $("#ok_change").click(function () {
+        var name = $.trim($("#name").val());
+
+        var description = $.trim($("#description").val());
+
+        var primaryid = $.trim($("#primaryid").val());
+
+        if (name.length <= 0) {
+            msgtips("请输入名称", 0);
+            return false;
+        } else {
+            msgtips("");
+        }
+        if (primaryid && /^[1-9]\d*$/.test(primaryid)) {
+            $.ajax({
+                'url': '/cmdb/workpermission/rolemodify/'+primaryid,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {'name': name, 'description': description},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        msgtips(res.msg, 0);
+                    } else {
+                        msgtips(res.msg, 1);
+                         $("#mymodal").modal('hide');
+                         window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        }
+        else{
+            $.ajax({
+                'url': '/cmdb/workpermission/roleadd',
+                'type': 'post',
+                'dataType': 'json',
+                'data': {'name': name, 'description': description},
+                success: function (res) {
+                    if (res.code == 1) {
+
+                        msgtips(res.msg, 0);
+                    } else {
+                        msgtips(res.msg, 1);
+                         $("#mymodal").modal('hide');
+                         window.location.href = window.location.href;
+                    }
+                },
+                error:function (res) {
+                    console.log(res)
+                }
+            })
+        }
+    })
+
+    getroleDetail= function (id) {
+        $.ajax({
+            'url': '/cmdb/workpermission/roledetail/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+
+                    $("#poptitle").html("编辑角色");
+                    msgtips("");
+
+                    $("#name").val(res.name);
+                    $("#description").val(res.description);
+                    $("#primaryid").val(res.id);
+
+
+                    $("#mymodal").modal('show')
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+    }
+
+    roledelete=function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/workpermission/roledelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        alert('删除失败!')
+                    } else {
+
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+
+    msgtips=function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    }
+</script>
+{% endblock %}
+
+

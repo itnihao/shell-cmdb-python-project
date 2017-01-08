@@ -1,0 +1,68 @@
+{% extends "public/sa_layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>工单列表</span>
+</h5>
+<hr>
+{% if tickets %}
+<table style="width: 100%">
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>工单分类</th>
+        <th>需求方</th>
+        <th>处理人</th>
+        <th>状态</th>
+        <th>时间</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in tickets %}
+    <tr>
+        <td>{{ item.idx }}</td>
+        <td><a href="{{ url_for('tickets.detail', id = item.id) }}" class="tooltip-display" data="{{ item.content }}">{{ item.cat_name }}</a></td>
+        <td>{{ item.uid_cname }}</td>
+        <td>{{ item.manage_name }}</td>
+        <td>{{ item.status_desc }}</td>
+        <td>{{ item.created }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="pagination-centered right">
+        <ul class="pagination">
+            <li class="arrow">当前{{ extend['cur_total'] }}条,共{{ extend['total'] }}条</li>
+            {% if p.previous %}
+                <li class="arrow"><a href="{{ url_for('tickets.index') }}?p=1">&laquo;</a></li>
+            {% endif %}
+            {% for page in p.pages %}
+                {% if page == p.current %}
+                    <li class="current"><a href="javascript:void(0);">{{ page }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('tickets.index',p = page) }}">{{ page }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if p.next %}
+                <li class="arrow"><a href="{{ url_for('tickets.index',p= p.page_num) }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+</div>
+{% endif %}
+{% endblock %}
+{% block customscript %}
+    {% assets filters="jsmin", output="asset/sa/tickets/list.js","js/sa/tickets/functions.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                common_ops.tooltips();
+            });
+        </script>
+{% endblock %}
+{% block customstyle %}
+<style type="text/css">
+    .tooltip-display{
+        	color: #0078a0;
+    }
+</style>
+{% endblock %}

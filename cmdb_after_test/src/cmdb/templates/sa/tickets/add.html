@@ -1,0 +1,30 @@
+{% extends "public/layout.html" %}
+{% block main %}
+<h5 class="content_title">
+    <span>新工单</span>
+    <a id="add" href="javascript:void(0);" class="button radius right tiny">+ 任务</a>
+    <input type="hidden" value="{{ cats }}" id="cats"/>
+</h5>
+<hr>
+<div class="tabs-content">
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;"></div>
+    <form method="post" action="{{ url_for('tickets.add') }}">
+        <div class="row tasks">
+        </div>
+        <div class="row">
+            <a  href="javascript:void(0);" class="button  radius tiny right">确认</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block customstyle %}
+{% assets filters="cssmin", output="asset/tickets/add.css", "css/sa/tickets/add.css"%}
+<link rel="stylesheet" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block customscript %}
+{% assets filters="jsmin", output="asset/sa/tickets/add.js","js/kindeditor/kindeditor.js" ,"js/sa/tickets/add.js","js/sa/tickets/functions.js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% endblock %}

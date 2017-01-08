@@ -1,0 +1,207 @@
+{% extends "public/layout.html" %}
+
+{% block title %}CMDB - 组管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>组列表</span>
+    {% if show.add %}
+    <a href="javascript:void(0);" id="dpaddbtn" class="button radius right tiny"> + 添加组</a>
+    {% endif %}
+
+</h5>
+<hr>
+{% if group %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th>组名称</th>
+        <th>组描述</th>
+        <th>部门</th>
+        {% if show.modify %}
+        <th>操作</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for dep in group %}
+    <tr>
+        <td>
+            <a href="{{url_for('ldapgroup.groupdetail',id=dep.id)}}">{{ dep.name }}</a>
+        </td>
+        <td>{{ dep.description}}</td>
+        <td>{{ dep.department.name}}</td>
+        {% if show.modify %}
+        <td>
+            <a href="javascript:dp.getDcDetail({{ dep.id }});void(0);">修改</a>
+            {% if show.delete %}
+                <a href="javascript:void(0);" dep_id="{{ dep.id }}" class="dep_delete">删除</a>
+            {% endif %}
+            <a href="{{ url_for('ldapgroup.sudogroup',id=dep.id) }}">命令</a>
+
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<div id="depdiv" class="reveal-modal small" data-reveal>
+    <h3>添加组</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+    <div class="row">
+        <input type="text" id="name" placeholder="请输入组名称">
+        <input type="text" id="description" placeholder="请输入组描述">
+        <select id="dp_id">
+            <option selected="selected" value="0">请选择所属部门</option>
+            {% for item in department_info %}
+                <option value="{{ item.id }}">{{ item.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" id="primaryid"/>
+        <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    </div>
+    <a class="close-reveal-modal" id="closebtn">&#215;</a>
+</div>
+
+<script>
+;
+var dp = {
+    bindevents: function () {
+        $("#dpaddbtn").click(function () {
+            $($("#depdiv h3").get(0)).html("添加组");
+            $("#name").val("");
+            $("#description").val("");
+
+
+            dp.msgtips("");
+            $("#depdiv").foundation('reveal', 'open');
+        });
+        $("#doadd").click(function () {
+            var name = $.trim($("#name").val());
+            var description = $.trim($("#description").val());
+            var dc_id = $.trim($("#dp_id").val());
+            var primaryid = $.trim($("#primaryid").val());
+            if (name.length <= 0) {
+                dp.msgtips("请输入组名称", 0);
+                return false;
+            } else {
+                dp.msgtips("");
+            }
+            if (dc_id.length <= 0 || dc_id <= 0) {
+                dp.msgtips("请选择所属部门", 0);
+                return false;
+            } else {
+                dp.msgtips("");
+            }
+            if (primaryid && /^[1-9]\d*$/.test(primaryid)) {
+
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/groupmodify/' + primaryid,
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {'name': name, 'description': description,'id':dc_id},
+                    success: function (res) {
+                        if (res.code == 1) {
+                            dp.msgtips(res.msg, 0);
+                        } else {
+                            dp.msgtips(res.msg, 1);
+                            $("#depdiv").foundation('reveal', 'close');
+                            window.location.href = window.location.href;
+                        }
+                    }
+                })
+            } else {
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/groupadd',
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {'name': name, 'description': description,'id':dc_id},
+                    success: function (res) {
+                        if (res.code == 1) {
+
+                            dp.msgtips(res.msg, 0);
+                        } else {
+                            dp.msgtips(res.msg, 1);
+                            $("#depdiv").foundation('reveal', 'close');
+                            window.location.href = window.location.href;
+                        }
+                    },
+                    error:function (res) {
+                        console.log(res)
+                    }
+                })
+            }
+        });
+        $(".dep_delete").click(function () {
+            dp.dpdelete($(this).attr("dep_id"));
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    },
+    getDcDetail: function (id) {
+        $.ajax({
+            'url': '/cmdb/ldapgroup/group/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    $($("#depdiv h3").get(0)).html("编辑组");
+                    dp.msgtips("");
+                    $("#name").val(res.name);
+                    $("#description").val(res.description_r);
+                    $("#primaryid").val(res.id);
+                    $("#dp_id").val(res.department.id);
+
+                    $("#depdiv").foundation('reveal', 'open');
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+    },
+
+    dpdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/groupdelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+$(document).ready(function () {
+    dp.bindevents();
+});
+</script>
+{% endblock %}
+
+

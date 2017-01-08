@@ -1,0 +1,158 @@
+{% extends "public/layout.html" %}
+{%  block main %}
+<dl class="tabs" data-tab>
+    {% if flag == "host_apply" %}
+        <dd class="active" ><a href="javascript:void(0);">主机列表</a></dd>
+        <dd><a id="list2" href="javascript:void(0);" data="{{ url_for('bastion.allapply') }}">权限列表</a></dd>
+    {% else %}
+        <dd><a id="list1" href="javascript:void(0);" data="{{ url_for('host.host_apply') }}">主机列表</a></dd>
+        <dd class="active" ><a href="javascript:void(0);" >权限列表</a></dd>
+    {% endif %}
+</dl>
+<div class="tabs-content">
+    {% if flag == "host_apply" %}
+        <div class="content active">
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th width="6%">序号</th>
+                    <th width="8%">申请人</th>
+                    <th width="6%">机房</th>
+                    <th width="8%">类型</th>
+                    <th width="17%">POOL</th>
+                    <th width="13%">配置</th>
+                    <th width="12%">主机名</th>
+                    <th width="6%">数量</th>
+                    <th width="16%">申请时间</th>
+                    <th width="9%">状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in apply_host %}
+                <tr title="{{ item.content }}">
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.applier_name }}</td>
+                    <td>{{ item.idc_name }}</td>
+                    <td>{{ item.host_type }}</td>
+                    <td><a href="{{ url_for('pool.detail',id=item.pool_id) }}">{{ item.pool_name }}</a></td>
+                    <td>{{ item.cpu }}核/{{ item.mem }}G/{% if item.disk < 1000 %}{{ item.disk }}G{% else %}{{ item.disk/1000 }}T{% endif %}<br>{{ item.os }}</td>
+                    <td>
+                        {% for hostname in item.host_info %}
+                            <a href="{{ url_for('host.host_detail',id=hostname.values()[0]) }}">{{ hostname.keys()[0]|safe }}</a>
+                        {% endfor %}
+                    </td>
+                    <td>{{ item.num }}</td>
+                    <td>{{ item.created }}</td>
+                    <td>
+                        {% if item.status_id == 1 %}
+                            <span class="round regular label">{{ item.status }}</span>
+                        {% elif item.status_id == 2 %}
+                            <span class="round fail_warning warning label">{{ item.status }}</span>
+                        {% elif item.status_id == 3 %}
+                            <span class="round regular label">{{ item.status }}</span>
+                        {% elif item.status_id == 4 %}
+                            <span class="round success label">{{ item.status }}</span>
+                        {% elif item.status_id == 5 %}
+                            <span class="round fail_warning warning label">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="content active">
+            <table width="100%">
+                <thead>
+                <tr>
+                    <th width="5%">序号</th>
+                    <th width="10%">申请人</th>
+                    <th width="14%"><span data-tooltip aria-haspopup="true" class="has-tip" title="主机或POOL">名称</span></th>
+                    <th width="10%">权限</th>
+                    <th width="8%">期限</th>
+                    <th width="25%">描述</th>
+                    <th width="20%">申请时间</th>
+                    <th width="10%">状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in apply_list %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.cn_name }}</td>
+                    {% if item.type == 1 %}
+                    <td><a href="{{ url_for('host.host_detail',id=item.target_id) }}">{{ item.name }}</a></td>
+                    {% else %}
+                    <td><a href="{{ url_for('pool.detail',id=item.target_id) }}">{{ item.name }}</a></td>
+                    {% endif %}
+                    <td>{{ item.role }}</td>
+                    <td>{{ item.days }}天</td>
+                    <td title="{{ item.content_all }}">
+                        {% if item.content_len > 15 %}
+                            {{ item.content }}...
+                        {% else %}
+                            {{ item.content }}
+                        {% endif %}
+                    </td>
+                    <td>{{ item.created }}</td>
+                    <td>
+                        {% if item.status_id == 1 %}
+                            <span class="round regular label">{{ item.status }}</span>
+                        {% elif item.status_id == 2 %}
+                            <span class="round fail_warning warning label">{{ item.status }}</span>
+                        {% elif item.status_id == 3 %}
+                            <span class="round regular label">{{ item.status }}</span>
+                        {% elif item.status_id == 4 %}
+                            <span class="round success label">{{ item.status }}</span>
+                        {% elif item.status_id == 5 %}
+                            <span class="round fail_warning warning label">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+<div class="pagination-centered right">
+    <ul class="pagination">
+        {% if p.previous %}
+            {% if flag == "host_apply" %}
+                <li class="arrow"><a href="{{ url_for('host.host_apply') }}?p=1">&laquo;</a></li>
+            {% else %}
+                <li class="arrow"><a href="{{ url_for('bastion.allapply') }}?p=1">&laquo;</a></li>
+            {% endif %}
+        {% endif %}
+        {% for page in p.pages %}
+        {% if page == p.current %}
+        <li class="current"><a href="">{{ page }}</a></li>
+        {% else %}
+        <li>
+            {% if flag == "host_apply" %}
+                <a href="{{ url_for('host.host_apply') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% else %}
+                <a href="{{ url_for('bastion.allapply') }}?p={{ page }}&{{ url }}">{{ page }}</a>
+            {% endif %}
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if p.next %}
+            <li class="arrow">
+            {% if flag == "host_apply" %}
+                <a href="{{ url_for('host.host_apply') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% else %}
+                <a href="{{ url_for('bastion.allapply') }}?p={{ p.page_num }}&{{ url }}">&raquo;</a>
+            {% endif %}
+            </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock  %}
+
+{% block customscript %}
+{% assets filters="jsmin", output="asset/host.js","js/jquery-ui.min.js","js/host.js","js/follow.js","js/alarm.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}

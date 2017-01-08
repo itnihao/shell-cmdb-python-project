@@ -1,0 +1,188 @@
+{% extends "public/layout.html" %}
+
+{% block title %}CMDB - 命令管理{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>命令列表</span>
+    {% if show.add %}
+    <a href="javascript:void(0);" id="dpaddbtn" class="button radius right tiny"> + 添加命令</a>
+    {% endif %}
+
+</h5>
+<hr>
+{% if sudo %}
+<table width="100%">
+    <thead>
+    <tr>
+        <th>命令名称</th>
+        <th>命令描述</th>
+        {% if show.modify %}
+        <th>操作</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for dep in sudo %}
+    <tr>
+        <td>
+            <a href="url_for('ldapgroup.depdetail',id=dep.id)}}">{{ dep.cmd }}</a>
+        </td>
+        <td>{{ dep.description}}</td>
+        {% if show.modify %}
+        <td>
+            <a href="javascript:dp.getDcDetail({{ dep.id }});void(0);">修改</a>
+            {% if show.delete %}
+                <a href="javascript:void(0);" dep_id="{{ dep.id }}" class="dep_delete">删除</a>
+            {% endif %}
+
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+<div id="depdiv" class="reveal-modal small" data-reveal>
+    <h3>添加命令</h3>
+    <div data-alert class="alert-box alert" id="msgtips" style="display: none;">
+        This is an alert - alert that is rounded.
+        <a href="javascript:void(0);" class="close">&times;</a>
+    </div>
+    <div class="row">
+        <input type="text" id="name" placeholder="请输入命令名称">
+        <input type="text" id="description" placeholder="请输入命令描述">
+        <input type="hidden" id="primaryid"/>
+        <a id="doadd" href="javascript:void(0);" class="button  radius tiny right">确认</a>
+    </div>
+    <a class="close-reveal-modal" id="closebtn">&#215;</a>
+</div>
+
+<script>
+;
+var dp = {
+    bindevents: function () {
+        $("#dpaddbtn").click(function () {
+            $($("#depdiv h3").get(0)).html("添加命令");
+            $("#name").val("");
+            $("#description").val("");
+
+            dp.msgtips("");
+            $("#depdiv").foundation('reveal', 'open');
+        });
+        $("#doadd").click(function () {
+            var name = $.trim($("#name").val());
+            var description = $.trim($("#description").val());
+            var primaryid = $.trim($("#primaryid").val());
+            if (name.length <= 0) {
+                dp.msgtips("请输入命令名称", 0);
+                return false;
+            } else {
+                dp.msgtips("");
+            }
+
+            if (primaryid && /^[1-9]\d*$/.test(primaryid)) {
+
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/sudomodify/' + primaryid,
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {'name': name, 'description': description},
+                    success: function (res) {
+                        if (res.code == 1) {
+                            dp.msgtips(res.msg, 0);
+                        } else {
+                            dp.msgtips(res.msg, 1);
+                            $("#depdiv").foundation('reveal', 'close');
+                            window.location.href = window.location.href;
+                        }
+                    }
+                })
+            } else {
+                $.ajax({
+                    'url': '/cmdb/ldapgroup/sudoadd',
+                    'type': 'post',
+                    'dataType': 'json',
+                    'data': {'name': name, 'description': description},
+                    success: function (res) {
+                        console.log('2222')
+                        if (res.code == 1) {
+
+                            dp.msgtips(res.msg, 0);
+                        } else {
+                            dp.msgtips(res.msg, 1);
+                            $("#depdiv").foundation('reveal', 'close');
+                            window.location.href = window.location.href;
+                        }
+                    },
+                    error:function (res) {
+                        console.log(res)
+                    }
+                })
+            }
+        });
+        $(".dep_delete").click(function () {
+            dp.dpdelete($(this).attr("dep_id"));
+        });
+    },
+    msgtips: function (msg, type) {
+        if (msg) {
+            if (type == 0) {
+                $("#msgtips").removeClass("success");
+                $("#msgtips").addClass("alert");
+            } else if (type == 1) {
+                $("#msgtips").removeClass("alert");
+                $("#msgtips").addClass("success");
+            }
+            $("#msgtips").html(msg);
+            $("#msgtips").show();
+        } else {
+            $("#msgtips").hide();
+        }
+
+    },
+
+    getDcDetail: function (id) {
+        $.ajax({
+            'url': '/cmdb/ldapgroup/sudodetail/' + id,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    $($("#depdiv h3").get(0)).html("编辑命令");
+                    dp.msgtips("");
+                    $("#name").val(res.cmd);
+                    $("#description").val(res.description);
+                    $("#primaryid").val(res.id);
+                    $("#depdiv").foundation('reveal', 'open');
+                }
+
+            }
+        });
+    },
+
+    dpdelete:function(id){
+        if(confirm("确认删除吗?\r\n确认之后不可恢复数据")){
+            $.ajax({
+                'url': '/cmdb/ldapgroup/sudodelete/' + id,
+                'type': 'post',
+                'dataType': 'json',
+                'data': {},
+                success: function (res) {
+                    if (res.code == 1) {
+                        dp.msgtips(res.msg, 0);
+                    } else {
+                        dp.msgtips(res.msg, 1);
+                        $("#depdiv").foundation('reveal', 'close');
+                        window.location.href = window.location.href;
+                    }
+                }
+            })
+        }
+    }
+};
+$(document).ready(function () {
+    dp.bindevents();
+});
+</script>
+{% endblock %}
+
+

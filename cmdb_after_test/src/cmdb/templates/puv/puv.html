@@ -1,0 +1,2269 @@
+{% extends "public/blank.html" %}
+
+{% block customstyle %}
+    <link rel="stylesheet" href="/static/js/amcharts/plugins/export/export.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui.min.css">
+
+<style type="text/css">
+    .margin_custom {
+        margin-right: 8px;
+        float: right;
+    }
+</style>
+{% endblock %}
+
+{% block title %}CMDB - PUV {% endblock %}
+{% block main %}
+<div class="row">
+   <div class="medium-1 columns"></div>
+    <div class="medium-4  columns">
+        <input type="test" name="date_s" id="first_day" style="width: 100%;;height: 30px">
+    </div>
+    <div class="medium-1 columns" style=" text-align:center;">
+       <font size="6">至</font>
+    </div>
+     <div class="medium-4 columns">
+        <input type="test" name="date_s" id="last_day" style="width: 100%;height: 30px">
+    </div>
+    <div class="medium-1 columns"></div>
+    <div class="medium-1 columns" style=" text-align:center;">
+        <a href="javascript:void(0);" id="find" class="button radius right tiny"> 查找</a>
+    </div>
+</div>
+<div class="row" >
+   <div class="small-3 large-3 columns" style="">
+       <br>
+       <br>
+        选择对比数据：
+       <br>
+       <br>
+        <div style=" vertical-align: middle;line-height:35px;width: 90%">
+            <select id="dp_id">
+                <option value="pv_nospider">pv_nospider</option>
+                <option value="pv">pv_all</option>
+                <option value="pv_nospider_m">pv_nospider_mobile</option>
+                <option value="pv_nospider_p">pv_nospider_pc</option>
+                <option value="uv">uv</option>
+                <option value="uv_m">uv_mobile</option>
+                <option value="uv_p">uv_pc</option>
+                <option value="pv_uv">pv/uv</option>
+                <option value="pv_u">pv_true_user</option>
+                <option value="pv_u_m">pv_true_user_mobile</option>
+                <option value="pv_u_p">pv_true_user_pc</option>
+                <option value="pv_office">pv_office</option>
+                <option value="pv_office_m">pv_office_mobile</option>
+                <option value="pv_office_p">pv_office_pc</option>
+                <option value="pv_whitelist">pv_whitelist</option>
+                <option value="pv_whitelist_m">pv_whitelist_mobile</option>
+                <option value="pv_whitelist_p">pv_whitelist_pc</option>
+                <option value="request_time">request_time</option>
+                <option value="response_time">response_time</option>
+
+            </select>
+        </div>
+        选择对比日期：
+        <br>
+        <br>
+        <div style=" text-align:center;">
+            <div class="row">
+                 <div class="small-2 columns" style=" text-align:center;line-height:35px;">
+                    <font size="2" color="#FDD400">日期1:</font>
+                 </div>
+                 <div class="small-4 columns" style=" text-align:center;">
+                    <input type="text" name="date_s" id="first_day_1" style="width: 100%">
+                 </div>
+                 <div class="small-1 columns" style=" text-align:center;line-height:35px;">
+                    <font size="2">至</font>
+                 </div>
+                 <div class="small-4 columns" style=" text-align:center;">
+                    <input type="text" name="date_s" id="last_day_1" style="width: 100%">
+                 </div>
+                 <div class="small-1 columns" style=" text-align:center;line-height:35px;">
+
+                 </div>
+            </div>
+        </div>
+
+        <div style=" text-align:center;">
+            <div class="row">
+                 <div class="small-2 columns" style=" text-align:center;line-height:35px;">
+                    <font size="2" color="green">日期2:</font>
+                 </div>
+                 <div class="small-4 columns" style=" text-align:center;">
+                    <input type="text" name="date_s" id="first_day_2" style="width: 100%">
+                 </div>
+                 <div class="small-1 columns" style=" text-align:center;line-height:35px;">
+                    <font size="2">至</font>
+                 </div>
+                 <div class="small-4 columns" style=" text-align:center;">
+                    <input type="text" name="date_s" id="last_day_2" style="width: 100%">
+                 </div>
+                 <div class="small-1 columns " style=" text-align:center;line-height:35px;">
+
+                 </div>
+            </div>
+        </div>
+
+        <div  style=" text-align:center;">
+            <div class="row">
+                 <div class="small-2 columns" style=" text-align:center;line-height:35px;">
+                    <font size="2" color="red">日期3:</font>
+                 </div>
+                 <div class="small-4 columns" style=" text-align:center;">
+                    <input type="text" name="date_s" id="first_day_3" style="width: 100%">
+                 </div>
+                 <div class="small-1 columns" style=" text-align:center;line-height:35px;">
+                    <font size="2">至</font>
+                 </div>
+                 <div class="small-4 columns" style=" text-align:center;">
+                    <input type="text" name="date_s" id="last_day_3" style="width: 100%">
+                 </div>
+                 <div class="small-1 columns" style=" text-align:center;line-height:35px;">
+
+                 </div>
+            </div>
+        </div>
+
+        <div style=" text-align:center;">
+            <a href="javascript:void(0);" id="compare" class="button radius center tiny">对比</a>
+        </div>
+   </div>
+    <div class="small-9 large-9 columns">
+        <div id="chartdiv_compare" style="height: 500px;width: 100%"></div>
+    </div>
+</div>
+
+<div id="chartdiv_pv" style="width: 100%;height: 500px"></div>
+<div id="chartdiv_pv_u" style="width: 100%;height: 500px"></div>
+<div id="chartdiv_pv_uv" style="width: 100%;height: 500px"></div>
+<div id="chartdiv_uv" style="width: 100%;height: 500px"></div>
+<div id="chartdiv_pv_whitelist" style="width: 100%;height: 500px"></div>
+<div id="chartdiv_pv_office" style="width: 100%;height: 500px"></div>
+<div id="chartdiv_time" style="width: 100%;height: 500px"></div>
+
+
+{% block customscript %}
+<script type="text/javascript" src="/static/js/amcharts/amcharts.js"></script>
+<script type="text/javascript" src="/static/js/amcharts/amstock.js"></script>
+<script type="text/javascript" src="/static/js/amcharts/serial.js"></script>
+<script type="text/javascript" src="/static/js/amcharts/themes/light.js"></script>
+<script type="text/javascript" src="/static/js/amcharts/plugins/export/export.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+
+{% endblock %}
+
+<script type="text/javascript">
+    var chart;
+    chartData=[]
+    var chart_pv_u=''
+    var chart_pv_uv=''
+    var chart_uv=''
+    var chart_pv=''
+    var chart_compare=''
+    var chart_time=''
+
+    var compareValuename=''
+    var compare_first_1=''
+    var compare_last_1=''
+    var compare_first_2=''
+    var compare_last_2=''
+    var compare_first_3=''
+    var compare_last_3=''
+
+    var date_compare_1=''
+    var date_compare_2=''
+    var date_compare_3=''
+
+    $(function(){
+        if ( $('[name="date_s"]').prop('name') == 'date_s' ) {
+            $('[name="date_s"]').datepicker();
+        }
+    })
+
+
+    $.ajax({
+            'url': '/cmdb/puv/getinit',
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+                    chartData=res.data
+                    compareValuename= $.trim($("#dp_id").val());
+                    setcharm()
+                    setcomparechart()
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+
+    $("#find").click(function () {
+         var first_day = changeDate($.trim($("#first_day").val()));
+         var last_day = changeDate($.trim($("#last_day").val()));
+         if (first_day.length <= 0) {
+                alert('input error')
+                return false;
+            }
+            if (last_day.length <= 0 ) {
+                alert('input error')
+                return false;
+            }
+         $.ajax({
+            'url': '/cmdb/puv/get_puv/'+first_day+'&'+last_day,
+            'dataType': 'json',
+            success: function (res) {
+                if (res) {
+
+                    chartData=res.data
+
+                    setcharmdatenull()
+                    setcharm()
+                    setcomparechart()
+                }
+
+            },
+            error: function (res) {
+                console.log(res)
+            }
+        });
+     })
+
+    $("#compare").click(function (){
+         var first_day = changeDate($.trim($("#first_day").val()));
+         var last_day = changeDate($.trim($("#last_day").val()));
+         if (first_day.length <=0 || last_day.length<=0){
+             alert('请选择原始对比日期')
+             return
+         }
+         jiange_date=DateDiff(first_day,last_day)
+
+         ishave_compare=false
+
+         var first_day_1 = changeDate($.trim($("#first_day_1").val()));
+         var last_day_1 = changeDate($.trim($("#last_day_1").val()));
+         var first_day_2 = changeDate($.trim($("#first_day_2").val()));
+         var last_day_2 = changeDate($.trim($("#last_day_2").val()));
+         var first_day_3 = changeDate($.trim($("#first_day_3").val()));
+         var last_day_3 = changeDate($.trim($("#last_day_3").val()));
+
+         date_send={'c1':'','c2':'','c3':'',source:{f:first_day,l:last_day}}
+         if(first_day_1.length >0 || last_day_1.length>0){
+             ishave_compare=true
+             jiange_date_1=DateDiff(first_day_1,last_day_1)
+             if (jiange_date!=jiange_date_1){
+                 alert('日期区间选择错误')
+                 return
+             }
+             date_send.c1={f:first_day_1,l:last_day_1}
+         }
+         if(first_day_2.length >0 || last_day_2.length>0){
+             ishave_compare=true
+             jiange_date_2=DateDiff(first_day_2,last_day_2)
+             if (jiange_date!=jiange_date_2){
+                 alert('日期区间选择错误')
+                 return
+             }
+             date_send.c2={f:first_day_2,l:last_day_2}
+         }
+         if(first_day_3.length >0 || last_day_3.length>0){
+             ishave_compare=true
+             jiange_date_3=DateDiff(first_day_3,last_day_3)
+             if (jiange_date!=jiange_date_3){
+                 alert('日期区间选择错误')
+                 return
+             }
+             date_send.c3={f:first_day_3,l:last_day_3}
+         }
+         if (!ishave_compare){
+             alert('无相关对比时间')
+             return
+         }
+
+         $.ajax({
+            'url': '/cmdb/puv/compare',
+            'type': 'post',
+            'dataType': 'json',
+            'data': {sdate:JSON.stringify(date_send)},
+            success: function (res) {
+                if(res.code==1) {
+
+                    chartData = res.data
+
+                    setcharmdatenull()
+                    compareValuename = $.trim($("#dp_id").val());
+                    date_compare_1 = res.c1
+                    date_compare_2 = res.c2
+                    date_compare_3 = res.c3
+                    setcharm()
+                    setcomparechart()
+                }
+                else{
+                    alert('选择的日期有数据缺失')
+                }
+            }
+         })
+
+
+
+     })
+
+    $("#dp_id").change(function () {
+
+        compareValuename = $.trim($("#dp_id").val());
+        chart_compare=''
+        setcomparechart()
+
+    });
+
+    var setcharmdatenull=function(){
+        var chart_pv_u=''
+        var chart_pv_uv=''
+        var chart_uv=''
+        var chart_pv=''
+        var chart_compare=''
+
+        var date_compare_1=''
+        var date_compare_2=''
+        var date_compare_3=''
+    }
+
+    var setcharm =function (){
+
+        chart_pv=AmCharts.makeChart('chartdiv_pv',{
+        'type':'serial',
+        'theme':'light',
+        'dataProvider':chartData,
+        'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+        'categoryField':"date",
+        'legend':{'useGraphSettings':true},
+        "export": {
+                "enabled": true,
+              },
+        'categoryAxis':{
+            'parseDates': true ,// as our data is date-based, we set parseDates to true
+            'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+            'gridAlpha' : 0.1,
+            'minorGridAlpha' : 0.1,
+            'axisAlpha' : 0,
+            'minorGridEnabled' : true,
+            'inside' : true,
+        },
+        "titles": [
+                {
+                  "size": 20,
+                  "text": "PV（所有的未过滤的PV总量和去爬的总量、手机端总量、PC端总量）"
+                }
+            ],
+        'valueAxes':[
+            {
+                'id':'pc-pv',
+                'axisColor':'#FF6600',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left'
+            },
+            {
+                'id':'m-pv',
+                'axisColor':'blue',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left',
+                 'offset':50
+            },
+        ],
+        'graphs':[
+             {
+                 id:'g1',
+                //graph.dashLength = 3;
+               'lineColor': "#b8860b",
+                'valueField': "pv",
+                //'valueField': "value",
+                'title':'pv_all',
+                'valueAxis':'pc-pv',
+                'dashLength':3,
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "#b8860b",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+               'lineColor': "purple",
+                'valueField': "pv_nospider",
+                //'valueField': "value",
+                'title':'pv_nospider',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "purple",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+
+            {
+                //graph.dashLength = 3;
+               'lineColor': "#FF6600",
+                'valueField': "pv_nospider_p",
+                //'valueField': "value",
+                'title':'pv_nospider_pc',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "#FF6600",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+                'lineColor': "blue",
+                //'valueField': "value2",
+                'valueField': "pv_nospider_m",
+                'title':'pv_nospider_mobile',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "blue",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+        ],
+        'chartCursor':{},
+         'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+        "export": {
+            "enabled": true
+
+            },
+        'guides':[
+            {
+                'value': 0.26,
+                'toValue':0.32,
+                'fillColor':"#00CC00",
+                'inside': true,
+                'fillAlpha': 0.2,
+                'lineAlpha': 0,
+            }],
+        'TrendLine':{
+            'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+            'finalDate': new Date(2012, 0, 23, 24),
+            'initialValue': 0.28,
+            'finalValue':0.28,
+            'lineColor':"#CC0000",
+        },
+
+
+
+    })
+
+        chart_pv_u=AmCharts.makeChart('chartdiv_pv_u',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            "export": {
+                "enabled": true,
+
+              },
+
+            "titles": [
+                {
+                  "size": 20,
+                  "text": "PV True User（所有的去除办公司、爬、白名单的PV访问量，以及手机端和PC端的访问量）"
+                }
+            ],
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    'id':'g1',
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_u",
+                    //'valueField': "value",
+                    'title':'true_pv',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "pv_u_m",
+                    //'valueField': "value",
+                    'title':'true_pv_mobile',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                    'lineColor': "blue",
+                    //'valueField': "value2",
+                    'valueField': "pv_u_p",
+                    'title':'true_pv_pc',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "blue",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+             'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_pv_uv=AmCharts.makeChart('chartdiv_pv_uv',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            "export": {
+                "enabled": true,
+              },
+            "titles": [
+                {
+                  "size": 20,
+                  "text": "PV/UV（所有真实的PV量除以UV的值）"
+                }
+            ],
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    id:'g1',
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_uv",
+                    //'valueField': "value",
+                    'title':'true_pv/uv',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+
+
+            ],
+            'chartCursor':{},
+             'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_uv=AmCharts.makeChart('chartdiv_uv',{
+        'type':'serial',
+        'theme':'light',
+        'dataProvider':chartData,
+        'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+        'categoryField':"date",
+        'legend':{'useGraphSettings':true},
+        "export": {
+            "enabled": true,
+          },
+        'categoryAxis':{
+            'parseDates': true ,// as our data is date-based, we set parseDates to true
+            'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+            'gridAlpha' : 0.1,
+            'minorGridAlpha' : 0.1,
+            'axisAlpha' : 0,
+            'minorGridEnabled' : true,
+            'inside' : true,
+        },
+        "titles": [
+            {
+              "size": 20,
+              "text": "UV（所有UV的总量，以及手机端和PC端的总量）"
+            }
+        ],
+        'valueAxes':[
+            {
+                'id':'pc-pv',
+                'axisColor':'#FF6600',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left'
+            },
+            {
+                'id':'m-pv',
+                'axisColor':'blue',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left',
+                 'offset':50
+            },
+        ],
+        'graphs':[
+            {
+                id:'g1',
+                //graph.dashLength = 3;
+               'lineColor': "purple",
+                'valueField': "uv",
+                //'valueField': "value",
+                'title':'uv',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "purple",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+               'lineColor': "#FF6600",
+                'valueField': "uv_m",
+                //'valueField': "value",
+                'title':'uv_mobile',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "#FF6600",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+                'lineColor': "blue",
+                //'valueField': "value2",
+                'valueField': "uv_p",
+                'title':'uv_pc',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "blue",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+        ],
+        'chartCursor':{},
+         'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+        "export": {
+            "enabled": true
+
+            },
+        'guides':[
+            {
+                'value': 0.26,
+                'toValue':0.32,
+                'fillColor':"#00CC00",
+                'inside': true,
+                'fillAlpha': 0.2,
+                'lineAlpha': 0,
+            }],
+        'TrendLine':{
+            'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+            'finalDate': new Date(2012, 0, 23, 24),
+            'initialValue': 0.28,
+            'finalValue':0.28,
+            'lineColor':"#CC0000",
+        },
+
+
+
+    })
+
+        chart_pv_office=AmCharts.makeChart('chartdiv_pv_office',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            "export": {
+                "enabled": true,
+              },
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+            "titles": [
+                {
+                  "size": 20,
+                  "text": "PV Office（所有办公司PV的总量，以及手机端和PC端的总量）"
+                }
+            ],
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    id:'g1',
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_office",
+                    //'valueField': "value",
+                    'title':'pv_office',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "pv_office_m",
+                    //'valueField': "value",
+                    'title':'pv_office_mobile',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                    'lineColor': "blue",
+                    //'valueField': "value2",
+                    'valueField': "pv_office_p",
+                    'title':'pv_office_pc',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "blue",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+             'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_pv_whitelist=AmCharts.makeChart('chartdiv_pv_whitelist',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+             "export": {
+                "enabled": true,
+              },
+           "titles": [
+                {
+                  "size": 20,
+                  "text": "PV Whitelist（所有白名单PV的总量，以及手机端和PC端的总量）"
+                }
+            ],
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    "id": "g1",
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_whitelist",
+                    //'valueField': "value",
+                    'title':'pv_whitelist',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "pv_whitelist_m",
+                    //'valueField': "value",
+                    'title':'pv_whitelist_mobile',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                    'lineColor': "blue",
+                    //'valueField': "value2",
+                    'valueField': "pv_whitelist_p",
+                    'title':'pv_whitelist_pc',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "blue",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+            'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_time=AmCharts.makeChart('chartdiv_time',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+             "export": {
+                "enabled": true,
+              },
+           "titles": [
+                {
+                  "size": 20,
+                  "text": "request/response time（请求时间和响应时间 单位：毫秒）"
+                }
+            ],
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    "id": "g1",
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "request_time",
+                    //'valueField': "value",
+                    'title':'request_time',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "response_time",
+                    //'valueField': "value",
+                    'title':'response_time',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+            'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+    }
+
+    var setcomparechart=function(){
+        chart_compare = AmCharts.makeChart( "chartdiv_compare", {
+              type: "stock",
+              "theme": "light",
+
+              categoryAxesSettings: {
+                minPeriod: "hh"
+                },
+
+
+              dataSets: [
+                  {
+                  title: "当前日期",
+                  fieldMappings: [ {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  }, {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  } ],
+                  dataProvider: chartData,
+                  categoryField: "date",
+                  //compared:true,
+                },
+
+                {
+                  title: "对比日期1",
+                  fieldMappings: [ {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  }, {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  } ],
+                  dataProvider: date_compare_1,
+                  categoryField: "date",
+                  compared:true,
+                },
+
+                {
+                  title: "对比日期2",
+                  fieldMappings: [ {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  }, {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  } ],
+                  dataProvider: date_compare_2,
+                  categoryField: "date",
+                  compared:true,
+                },
+
+                {
+                  title: "对比日期3",
+                  fieldMappings: [ {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  }, {
+                    fromField: compareValuename,
+                    toField: compareValuename
+                  } ],
+                  dataProvider: date_compare_3,
+                  categoryField: "date",
+                  compared:true,
+
+                }
+              ],
+
+              panels: [ {
+                  showCategoryAxis: false,
+                  title: compareValuename,
+                  percentHeight: 70,
+
+
+                  stockGraphs: [ {
+                    id: "g1",
+
+                    valueField: compareValuename,
+                      //"fillAlphas": 0.4,
+                    comparable: true,
+                    compareField: compareValuename,
+                    balloonText: "[[title]]:<b>[[value]]</b>",
+                    compareGraphBalloonText: "[[title]]:<b>[[value]]</b>",
+
+                  } ],
+
+                  stockLegend: {
+{#                    periodValueTextComparing: "[[percents.value.close]]%",#}
+{#                    periodValueTextRegular: "[[value.close]]"#}
+                      valueTextComparing: "[[value]]",
+                    periodValueTextComparing: "[[value.close]]",
+                    periodValueTextRegular: "[[value.close]]"
+                  }
+                },
+
+                {
+                  title: compareValuename,
+                  percentHeight: 30,
+                  stockGraphs: [ {
+                    valueField: compareValuename,
+                    type: "column",
+                    showBalloon: false,
+                    fillAlphas: 1
+                  } ],
+
+
+                  stockLegend: {
+                    periodValueTextRegular: "[[value.close]]"
+                  }
+                }
+              ],
+
+              chartScrollbarSettings: {
+                graph: "g1",
+                "autoGridCount": true,
+              },
+
+              chartCursorSettings: {
+                valueBalloonsEnabled: true,
+                fullWidth: true,
+                cursorAlpha: 0.1,
+                valueLineBalloonEnabled: true,
+                valueLineEnabled: true,
+                valueLineAlpha: 0.5
+              },
+
+            //不以百分比显示
+            panelsSettings: {
+                recalculateToPercents: "never"
+            },
+
+              periodSelector: {
+              dateFormat: "YYYY/MM/DD JJ:NN:SS",
+              position: "right",
+              periods: [
+                    {
+              period: "hh",
+
+              count: 1,
+              label: "1 小时"
+            },
+                    {
+              period: "DD",
+              count: 1,
+              label: "1 天"
+            },
+                {
+              period: "MM",
+              count: 1,
+              label: "1 month"
+            }, {
+              period: "YYYY",
+              count: 1,
+              label: "1 year"
+            }, {
+              period: "MAX",
+               selected: true,
+              label: "最大"
+            } ]
+          },
+
+              dataSetSelector: {
+                position: "right",
+              },
+
+              "export": {
+                "enabled": true
+              }
+            } );
+    }
+
+    var set95charm=function (){
+
+        chart_pv=AmCharts.makeChart('chartdiv_pv',{
+        'type':'serial',
+        'theme':'light',
+        'dataProvider':chartData,
+        'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+        'categoryField':"date",
+        'legend':{'useGraphSettings':true},
+        "export": {
+                "enabled": true,
+              },
+        'categoryAxis':{
+            'parseDates': true ,// as our data is date-based, we set parseDates to true
+            'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+            'gridAlpha' : 0.1,
+            'minorGridAlpha' : 0.1,
+            'axisAlpha' : 0,
+            'minorGridEnabled' : true,
+            'inside' : true,
+        },
+        "titles": [
+                {
+                  "size": 20,
+                  "text": "PV（所有的未过滤的PV总量和去爬的总量、手机端总量、PC端总量）"
+                }
+            ],
+        'valueAxes':[
+            {
+                'id':'pc-pv',
+                'axisColor':'#FF6600',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left'
+            },
+            {
+                'id':'m-pv',
+                'axisColor':'blue',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left',
+                 'offset':50
+            },
+        ],
+        'graphs':[
+             {
+                 id:'g1',
+                //graph.dashLength = 3;
+               'lineColor': "#b8860b",
+                'valueField': "pv",
+                //'valueField': "value",
+                'title':'pv_all',
+                'valueAxis':'pc-pv',
+                'dashLength':3,
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "#b8860b",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+               'lineColor': "purple",
+                'valueField': "pv_nospider",
+                //'valueField': "value",
+                'title':'pv_nospider',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "purple",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+
+            {
+                //graph.dashLength = 3;
+               'lineColor': "#FF6600",
+                'valueField': "pv_nospider_p",
+                //'valueField': "value",
+                'title':'pv_nospider_pc',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "#FF6600",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+                'lineColor': "blue",
+                //'valueField': "value2",
+                'valueField': "pv_nospider_m",
+                'title':'pv_nospider_mobile',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "blue",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+        ],
+        'chartCursor':{},
+         'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+        "export": {
+            "enabled": true
+
+            },
+        'guides':[
+            {
+                'value': 0.26,
+                'toValue':0.32,
+                'fillColor':"#00CC00",
+                'inside': true,
+                'fillAlpha': 0.2,
+                'lineAlpha': 0,
+            }],
+        'TrendLine':{
+            'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+            'finalDate': new Date(2012, 0, 23, 24),
+            'initialValue': 0.28,
+            'finalValue':0.28,
+            'lineColor':"#CC0000",
+        },
+
+
+
+    })
+
+        chart_pv_u=AmCharts.makeChart('chartdiv_pv_u',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            "export": {
+                "enabled": true,
+
+              },
+
+            "titles": [
+                {
+                  "size": 20,
+                  "text": "PV True User（所有的去除办公司、爬、白名单的PV访问量，以及手机端和PC端的访问量）"
+                }
+            ],
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    'id':'g1',
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_u",
+                    //'valueField': "value",
+                    'title':'true_pv',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "pv_u_m",
+                    //'valueField': "value",
+                    'title':'true_pv_mobile',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                    'lineColor': "blue",
+                    //'valueField': "value2",
+                    'valueField': "pv_u_p",
+                    'title':'true_pv_pc',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "blue",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+             'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_pv_uv=AmCharts.makeChart('chartdiv_pv_uv',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            "export": {
+                "enabled": true,
+              },
+            "titles": [
+                {
+                  "size": 20,
+                  "text": "PV/UV（所有真实的PV量除以UV的值）"
+                }
+            ],
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    id:'g1',
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_uv",
+                    //'valueField': "value",
+                    'title':'true_pv/uv',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+
+
+            ],
+            'chartCursor':{},
+             'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_uv=AmCharts.makeChart('chartdiv_uv',{
+        'type':'serial',
+        'theme':'light',
+        'dataProvider':chartData,
+        'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+        'categoryField':"date",
+        'legend':{'useGraphSettings':true},
+        "export": {
+            "enabled": true,
+          },
+        'categoryAxis':{
+            'parseDates': true ,// as our data is date-based, we set parseDates to true
+            'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+            'gridAlpha' : 0.1,
+            'minorGridAlpha' : 0.1,
+            'axisAlpha' : 0,
+            'minorGridEnabled' : true,
+            'inside' : true,
+        },
+        "titles": [
+            {
+              "size": 20,
+              "text": "UV（所有UV的总量，以及手机端和PC端的总量）"
+            }
+        ],
+        'valueAxes':[
+            {
+                'id':'pc-pv',
+                'axisColor':'#FF6600',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left'
+            },
+            {
+                'id':'m-pv',
+                'axisColor':'blue',
+                'axisThickness':2,
+                'axisAlpha':1,
+                'gridAlpha':0,
+                'position':'left',
+                 'offset':50
+            },
+        ],
+        'graphs':[
+            {
+                id:'g1',
+                //graph.dashLength = 3;
+               'lineColor': "purple",
+                'valueField': "uv",
+                //'valueField': "value",
+                'title':'uv',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "purple",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+               'lineColor': "#FF6600",
+                'valueField': "uv_m",
+                //'valueField': "value",
+                'title':'uv_mobile',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "#FF6600",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+            {
+                //graph.dashLength = 3;
+                'lineColor': "blue",
+                //'valueField': "value2",
+                'valueField': "uv_p",
+                'title':'uv_pc',
+                'valueAxis':'pc-pv',
+                //graph.dashLength = 3;
+                'bullet':"round",
+                'hideBulletsCount=':50,
+                'bulletBorderAlpha':1,
+                'bulletColor': "blue",
+
+                //graph.lineThickness = 1;
+                'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+            },
+        ],
+        'chartCursor':{},
+         'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+        "export": {
+            "enabled": true
+
+            },
+        'guides':[
+            {
+                'value': 0.26,
+                'toValue':0.32,
+                'fillColor':"#00CC00",
+                'inside': true,
+                'fillAlpha': 0.2,
+                'lineAlpha': 0,
+            }],
+        'TrendLine':{
+            'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+            'finalDate': new Date(2012, 0, 23, 24),
+            'initialValue': 0.28,
+            'finalValue':0.28,
+            'lineColor':"#CC0000",
+        },
+
+
+
+    })
+
+        chart_pv_office=AmCharts.makeChart('chartdiv_pv_office',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            "export": {
+                "enabled": true,
+              },
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+            "titles": [
+                {
+                  "size": 20,
+                  "text": "PV Office（所有办公司PV的总量，以及手机端和PC端的总量）"
+                }
+            ],
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    id:'g1',
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_office",
+                    //'valueField': "value",
+                    'title':'pv_office',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "pv_office_m",
+                    //'valueField': "value",
+                    'title':'pv_office_mobile',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                    'lineColor': "blue",
+                    //'valueField': "value2",
+                    'valueField': "pv_office_p",
+                    'title':'pv_office_pc',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "blue",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+             'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_pv_whitelist=AmCharts.makeChart('chartdiv_pv_whitelist',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+             "export": {
+                "enabled": true,
+              },
+           "titles": [
+                {
+                  "size": 20,
+                  "text": "PV Whitelist（所有白名单PV的总量，以及手机端和PC端的总量）"
+                }
+            ],
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    "id": "g1",
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "pv_whitelist",
+                    //'valueField': "value",
+                    'title':'pv_whitelist',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "pv_whitelist_m",
+                    //'valueField': "value",
+                    'title':'pv_whitelist_mobile',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                    'lineColor': "blue",
+                    //'valueField': "value2",
+                    'valueField': "pv_whitelist_p",
+                    'title':'pv_whitelist_pc',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "blue",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+            'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+
+        chart_time=AmCharts.makeChart('chartdiv_time',{
+            'type':'serial',
+            'theme':'light',
+            'dataProvider':chartData,
+            'dataDateFormat':"YYYY-MM-DD,JJ:NN:SS",
+            'categoryField':"date",
+            'legend':{'useGraphSettings':true},
+            'categoryAxis':{
+                'parseDates': true ,// as our data is date-based, we set parseDates to true
+                'minPeriod' : "hh", // our data is daily, so we set minPeriod to DD
+                'gridAlpha' : 0.1,
+                'minorGridAlpha' : 0.1,
+                'axisAlpha' : 0,
+                'minorGridEnabled' : true,
+                'inside' : true,
+            },
+             "export": {
+                "enabled": true,
+              },
+           "titles": [
+                {
+                  "size": 20,
+                  "text": "request/response time（请求时间和响应时间 单位：毫秒）"
+                }
+            ],
+            'valueAxes':[
+                {
+                    'id':'pc-pv',
+                    'axisColor':'#FF6600',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left'
+                },
+                {
+                    'id':'m-pv',
+                    'axisColor':'blue',
+                    'axisThickness':2,
+                    'axisAlpha':1,
+                    'gridAlpha':0,
+                    'position':'left',
+                     'offset':50
+                },
+            ],
+            'graphs':[
+                {
+                    "id": "g1",
+                    //graph.dashLength = 3;
+                   'lineColor': "purple",
+                    'valueField': "request_time",
+                    //'valueField': "value",
+                    'title':'request_time',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "purple",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+                {
+                    //graph.dashLength = 3;
+                   'lineColor': "#FF6600",
+                    'valueField': "response_time",
+                    //'valueField': "value",
+                    'title':'response_time',
+                    'valueAxis':'pc-pv',
+                    //graph.dashLength = 3;
+                    'bullet':"round",
+                    'hideBulletsCount=':50,
+                    'bulletBorderAlpha':1,
+                    'bulletColor': "#FF6600",
+
+                    //graph.lineThickness = 1;
+                    'balloonText': "[[category]]<br><b><span style='fonts-size:14px;'>value:[[value]]</span></b>"
+                },
+            ],
+            'chartCursor':{},
+            'chartScrollbar':{
+                "autoGridCount": true,
+                "graph": "g1",
+                "scrollbarHeight": 40
+            },
+
+            "export": {
+                "enabled": true
+
+                },
+            'guides':[
+                {
+                    'value': 0.26,
+                    'toValue':0.32,
+                    'fillColor':"#00CC00",
+                    'inside': true,
+                    'fillAlpha': 0.2,
+                    'lineAlpha': 0,
+                }],
+            'TrendLine':{
+                'initialDate':new Date(2012, 0, 1, 0,59),// 12 is hour - to start trend line in the middle of the day
+                'finalDate': new Date(2012, 0, 23, 24),
+                'initialValue': 0.28,
+                'finalValue':0.28,
+                'lineColor':"#CC0000",
+            },
+
+
+
+        })
+    }
+
+    function changeDate(date1){
+        spls=date1.split('/')
+        if (spls.length>1){
+            return spls[2]+'-'+spls[0]+'-'+spls[1]
+        }
+        return date1
+    }
+
+    function DateDiff(d2,d1) {
+        var day = 24 * 60 * 60 * 1000;
+        try {
+            var dateArr = d1.split("-");
+            var checkDate = new Date();
+            checkDate.setFullYear(dateArr[0], dateArr[1] - 1, dateArr[2]);
+            var checkTime = checkDate.getTime();
+
+            var dateArr2 = d2.split("-");
+            var checkDate2 = new Date();
+            checkDate2.setFullYear(dateArr2[0], dateArr2[1] - 1, dateArr2[2]);
+            var checkTime2 = checkDate2.getTime();
+
+            var cha = (checkTime - checkTime2) / day;
+            return cha;
+        } catch (e) {
+            return false;
+        }
+    }
+
+</script>
+
+{% endblock %}
+
+
+
+

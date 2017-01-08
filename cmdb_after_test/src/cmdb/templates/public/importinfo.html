@@ -1,0 +1,16 @@
+{% extends "public/layout.html" %}
+
+{% block title %}CMDB - 导入信息{% endblock %}
+{% block main %}
+<h5 class="content_title">
+    <span>导入信息</span>
+</h5>
+<hr>
+<ul>
+{% for item in datas %}
+    <li>{{ item }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
+
+

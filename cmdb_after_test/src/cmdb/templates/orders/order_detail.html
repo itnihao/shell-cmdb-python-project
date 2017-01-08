@@ -1,0 +1,271 @@
+{% extends "orders/layout.html" %}
+{% block customstyle %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}"/>
+{% endblock %}
+{% block main %}
+    <ol class="breadcrumb">
+        <li>个人工作台</li>
+        <li><a href="{{ url_for('orders.list') }}">工单列表</a></li>
+        <li class="active">工单详情</li>
+    </ol>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list">&nbsp;<label>工单内容</label></span>
+        </div>
+        <div class="row panel-body">
+            <div class="col-md-6">
+                <dl class="dl-horizontal">
+                    <dt>工单分类:</dt>
+                    <dd>{{ info_dic['cname'] }}</dd>
+                </dl>
+            </div>
+            <div class="col-md-4">
+                <dl class="dl-horizontal">
+                    <dt>紧急度:</dt>
+                    <dd>
+                        <span class=" btn-xs badge" {% if info_dic.level=='默认' %}
+                              style="background-color: #428bca;font-style: italic;"
+                        {% elif info_dic.level=='中' %} style="background-color: #f0ad4e;font-style: italic;"
+                        {% elif info_dic.level=='高' %} style="background-color: #d9534f;font-style: italic;"
+                              {% else %}style="background-color:  #d9534f;font-style: italic;"{% endif %}>
+                          {{ info_dic.level }}
+                        </span>
+                    </dd>
+                </dl>
+            </div>
+            <div class="col-md-2">
+                {% if current_user.identity=='leader' %}
+                    {% if info_dic.status=="待认领" %}
+                         <button type="button" class="btn btn-normal claim">认领</button>
+                    {% elif info_dic.status=="评估中" %}
+                        <button id="sub" type="button" class="btn btn-normal ">提交</button>
+                        <button type="button" class="btn btn-danger reject">驳回</button>
+                    {% endif %}
+                {% endif %}
+                {% if current_user.identity=='ops' %}
+                    {% if info_dic.status=="ops待认领" %}
+                         <button type="button" class="btn btn-normal claim">认领</button>
+                    {% elif info_dic.status=="处理中"  %}
+                        <button id="close" type="button" class="btn btn-normal ">完成</button>
+                        <button type="button" class="btn btn-danger reject">驳回</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% for item in cont_dic %}
+                <div class=" col-md-6">
+                    <dl class="dl-horizontal">
+                        <dt>{{ item }}:</dt>
+                        <dd>{{ cont_dic[item] }}</dd>
+                    </dl>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list">&nbsp;<label>变更详情</label>&nbsp;<a id="list_change" href="#"><span
+                    class="glyphicon glyphicon-sort" style="color: #333;"></span></a></span>
+        </div>
+        <div id="change_content" class="row panel-body">
+            {% if task %}
+                {% for item in task %}
+                    <div class=" col-md-12">
+                        <dl class="dl-horizontal">
+                            <dt> {{ id_name[item.uid] }}</dt>
+                            <dd>{{ item.operation }} &nbsp;&nbsp; &nbsp;&nbsp; {{ item.created }}</dd>
+                        </dl>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class=" col-md-12">
+                    <dl class="dl-horizontal">
+                        <dt>{{ info_dic.hander_name }} </dt>
+                        <dd>  {{ info_dic.status }}&nbsp;&nbsp; &nbsp;&nbsp; {{ info_dic['update'] }}</dd>
+                    </dl>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list">&nbsp;<label>工单评论</label>&nbsp;<a id="list_comment" href="#"><span
+                    class="glyphicon glyphicon-sort" style="color: #333;"></span></a></span>
+        </div>
+        <div id="comment_content" class="row panel-body">
+            {% if comment %}
+                {% for item in comment %}
+                    <div class=" col-md-12">
+                        <dl class="dl-horizontal">
+                            <dt> {{ id_name[item.uid] }}</dt>
+                            <dd>发表于&nbsp;&nbsp;{{ item.created }}</dd>
+                            <dd> {{ item.content }}</dd>
+                        </dl>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class=" col-md-12">
+                    <dl class="dl-horizontal">
+                        <dt></dt>
+                        <dd>该工单暂无评论</dd>
+                    </dl>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list">&nbsp;<label>发表评论</label>&nbsp;<a id="add_comment" href="#"><span
+                    class="glyphicon glyphicon-edit" style="color: #333;"></span></a></span>
+        </div>
+        <div id="do_ok" class="row panel-body" style="display: none;">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <textarea id="content" style="resize: none;margin-left: 10px" rows="5" cols="90"></textarea><br/>
+            </div>
+            <div class="col-md-12" style="margin-top: 20px;">
+                <button id="docomment" type="button" class="btn btn-normal" data-dismiss="modal"
+                        style="margin-left: 400px;">确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var tid = "{{ info_dic.id }}";
+
+        $("#back").click(function () {
+            window.location.href = '/cmdb/orders/my';
+        });
+
+        $("#chg").click(function () {
+            window.location.href = '/cmdb/orders/chg/' + tid;
+        });
+
+        $("#del").click(function () {
+            if (confirm("忠告提示：\r\n\r\n确认删除任务?")) {
+                $.ajax({
+                    'url': '/cmdb/orders/mod',
+                    'type': 'POST',
+                    'dataType': 'json',
+                    'data': {'type': 'del', 'tic_id': tid},
+                    success: function (msg) {
+                        alert(msg);
+                        if (msg == '此任务不存在') {
+                            location.replace(location.href);
+                        }
+                        else {
+                            window.location.href = '/cmdb/orders/my';
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#add_comment").click(function () {
+            $("#do_ok").toggle();
+        });
+
+        $("#list_comment").click(function () {
+            $("#comment_content").toggle();
+        });
+
+        $("#list_change").click(function () {
+            $("#change_content").toggle();
+        });
+
+        $('#docomment').click(function () {
+            var content = $("#content").val();
+            $.ajax({
+                'url': '/cmdb/orders/mod',
+                'type': 'POST',
+                'datatype': 'json',
+                'data': {'type': 'comment', 'tic_id': tid, 'content': content},
+                success: function (msg) {
+                    $("#do_ok").hide();
+                    window.location.reload();
+                    if (msg == '此任务不存在') {
+                        location.replace(location.href);
+                    }
+                    else {
+                        location.replace(location.href);
+                    }
+                }
+            });
+        });
+
+        $(".claim").click(function () {
+                $.ajax({
+                    'url': '/cmdb/orders/mod',
+                    'type': 'POST',
+                    'dataType': 'json',
+                    'data': {'type': 'claim', 'tic_id': tid},
+                    success: function (msg) {
+                        alert(msg);
+                        if (msg == '此任务不存在') {
+                            location.replace(location.href);
+                        }
+                        else {
+                            window.location.href = '/cmdb/orders/order_claim';
+                        }
+                    }
+                });
+        });
+        $(".reject").click(function () {
+            if (confirm("忠告提示：\r\n\r\n确认驳回任务?")) {
+                $.ajax({
+                    'url': '/cmdb/orders/mod',
+                    'type': 'POST',
+                    'dataType': 'json',
+                    'data': {'type': 'reject', 'tic_id': tid},
+                    success: function (msg) {
+                        alert(msg);
+                        if (msg == '此任务不存在') {
+                            location.replace(location.href);
+                        }
+                        else {
+                            window.location.href = '/cmdb/orders/handling';
+                        }
+                    }
+                });
+            }
+        });
+        $("#sub").click(function () {
+                $.ajax({
+                    'url': '/cmdb/orders/mod',
+                    'type': 'POST',
+                    'dataType': 'json',
+                    'data': {'type': 'sub', 'tic_id': tid},
+                    success: function (msg) {
+                        alert(msg);
+                        if (msg == '此任务不存在') {
+                            location.replace(location.href);
+                        }
+                        else {
+                            window.location.href = '/cmdb/orders/handling';
+                        }
+                    }
+                });
+        });
+        $("#close").click(function () {
+                $.ajax({
+                    'url': '/cmdb/orders/mod',
+                    'type': 'POST',
+                    'dataType': 'json',
+                    'data': {'type': 'close', 'tic_id': tid},
+                    success: function (msg) {
+                        alert(msg);
+                        if (msg == '此任务不存在') {
+                            location.replace(location.href);
+                        }
+                        else {
+                            window.location.href = '/cmdb/orders/handling';
+                        }
+                    }
+                });
+        });
+    </script>
+
+{% endblock %}
+

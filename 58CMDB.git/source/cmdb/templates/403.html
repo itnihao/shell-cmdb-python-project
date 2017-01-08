@@ -1,0 +1,52 @@
+{%extends "base.html"%}
+{% block extra_head %}
+{% endblock %}
+
+{% block Hometitle %}403{% endblock %}
+{% block actiontitle %}{% endblock %}
+
+{% block pagetitle %}{% endblock %}
+
+{% block pagecontent %}
+
+	<body class="no-skin">
+					<div class="page-content">
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+
+								<div class="error-container">
+									<div class="well">
+										<h1 class="grey lighter smaller">
+											<span class="blue bigger-125">
+												<i class="ace-icon fa fa-sitemap"></i>
+												403
+											</span>
+											您访问的页面没有权限哦~
+										</h1>
+
+										<hr />
+										<h3 class="lighter smaller">请联系管理员增加权限哦~</h3>
+
+										<hr />
+										<div class="space"></div>
+
+										<div class="center">
+											<a href="javascript:history.back()" class="btn btn-grey">
+												<i class="ace-icon fa fa-arrow-left"></i>
+												返回
+											</a>
+
+											<a href="{% url 'home' %}" class="btn btn-primary">
+												<i class="ace-icon fa fa-tachometer"></i>
+												主页
+											</a>
+										</div>
+									</div>
+								</div>
+
+								<!-- PAGE CONTENT ENDS -->
+							</div><!-- /.col -->
+						</div><!-- /.row -->
+					</div><!-- /.page-content -->
+{% endblock %}

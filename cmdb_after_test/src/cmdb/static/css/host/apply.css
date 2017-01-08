@@ -1,0 +1,289 @@
+body {
+	font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+	font-size: 62.5%;
+}
+.cpu {
+    background: url("../../../static/img/cloud_prodcuts_panel_drag_font.gif") repeat-x scroll 50% 50% rgba(0, 0, 0, 0);
+    height: 30px;
+}
+
+.cpu h2 {
+    background: none repeat scroll 0 0 #fbfbfb;
+    cursor: pointer;
+    display: inline;
+    float: left;
+    font-size: 12px;
+    height: 30px;
+    padding: 7px 3px 0;
+    text-align: center;
+}
+
+.cpu h2.cpu_local {
+    color: #ff3600;
+}
+
+.cpu h2#cpu_two {
+    margin-left: 29%;
+}
+
+.cpu h2#cpu_three {
+    margin-left: 29%;
+}
+
+.cpu h2#cpu_four {
+    float: right;
+    margin-left: auto;
+}
+
+.cpu h2.physical_cpu_local {
+    color: #ff3600;
+}
+
+.cpu h2#physical_cpu_two {
+    margin-left: 44%;
+}
+
+.cpu h2#physical_cpu_three {
+    float: right;
+    margin-left: auto;
+}
+
+
+
+.mem {
+    background: url("../../../static/img/cloud_prodcuts_panel_drag_font.gif") repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    height: 30px;
+}
+
+.mem h2 {
+    background: none repeat scroll 0 0 #fbfbfb;
+    cursor: pointer;
+    display: inline;
+    float: left;
+    font-size: 12px;
+    height: 30px;
+    padding: 7px 3px 0;
+    text-align: center;
+}
+
+.mem h2.mem_local {
+    color: #ff3600;
+}
+
+.mem h2#mem_two {
+    margin-left: 30%;
+}
+
+.mem h2#mem_three {
+    margin-left: 29%;
+}
+
+.mem h2#mem_four {
+    float: right;
+    margin-left: auto;
+}
+
+.mem h2.physical_mem_local {
+    color: #ff3600;
+}
+
+.mem h2#physical_mem_two {
+    margin-left: 28%;
+}
+
+.mem h2#physical_mem_three {
+    margin-left: 29%;
+}
+
+.mem h2#physical_mem_four {
+    float: right;
+    margin-left: auto;
+}
+
+.disk {
+    background: url("../../../static/img/cloud_prodcuts_panel_drag_font.gif") repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    height: 30px;
+}
+
+.disk h2 {
+    background: none repeat scroll 0 0 #fbfbfb;
+    cursor: pointer;
+    display: inline;
+    float: left;
+    font-size: 12px;
+    height: 30px;
+    padding: 7px 3px 0;
+    text-align: center;
+}
+
+.disk h2.disk_local {
+    color: #ff3600;
+}
+
+.disk h2#disk_two {
+    margin-left: 28%;
+}
+
+.disk h2#disk_three {
+    margin-left: 27%;
+}
+
+.disk h2#disk_four {
+    float: right;
+    margin-left: auto;
+}
+
+.disk h2.physical_disk_local {
+    color: #ff3600;
+}
+
+.disk h2#physical_disk_two {
+    margin-left: 27%;
+}
+
+.disk h2#physical_disk_three {
+    margin-left: 28%;
+}
+
+.disk h2#physical_disk_four {
+    float: right;
+    margin-left: auto;
+}
+
+.ok {
+    display: none;
+}
+
+.ui-slider-horizontal .ui-slider-handle {
+}
+
+
+.ui-slider-handle {
+    position: absolute;
+    z-index: 2;
+}
+
+#cpu_slider {
+    background: url("../../img/cloud_background.jpg") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    float: left;
+    height: 35px;
+    padding: 0 3px;
+    position: relative;
+    width: 100%;
+    background-size:cover;
+}
+#mem_slider {
+    background: url("../../img/cloud_background.jpg") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    float: left;
+    height: 35px;
+    padding: 0 3px;
+    position: relative;
+    width: 100%;
+    background-size:cover;
+}
+#disk_slider {
+    background: url("../../img/cloud_background.jpg") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    float: left;
+    height: 35px;
+    padding: 0 3px;
+    position: relative;
+    width: 100%;
+    background-size:cover;
+}
+
+#cpu_slider .ui-state-default {
+    background: url("../../img/cloud_prodcuts_panel_drag_bar_02.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: inline-block;
+    height: 35px;
+    margin-left: 0;
+    position: absolute;
+    top: 0;
+    width: 16px;
+}
+
+#mem_slider .ui-state-default {
+    background: url("../../img/cloud_prodcuts_panel_drag_bar_02.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: inline-block;
+    height: 35px;
+    margin-left: 0;
+    position: absolute;
+    top: 0;
+    width: 16px;
+}
+#disk_slider .ui-state-default {
+    background: url("../../img/cloud_prodcuts_panel_drag_bar_02.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: inline-block;
+    height: 35px;
+    margin-left: 0;
+    position: absolute;
+    top: 0;
+    width: 16px;
+}
+
+.ui-slider-horizontal .ui-slider-range {
+    height: 15%;
+    margin-top: 16px;
+}
+
+#physical_cpu_slider {
+    background: url("../../img/cloud_background.jpg") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    float: left;
+    height: 35px;
+    padding: 0 3px;
+    position: relative;
+    width: 100%;
+    background-size:cover;
+}
+#physical_mem_slider {
+    background: url("../../img/cloud_background.jpg") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    float: left;
+    height: 35px;
+    padding: 0 3px;
+    position: relative;
+    width: 100%;
+    background-size:cover;
+}
+#physical_disk_slider {
+    background: url("../../img/cloud_background.jpg") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    float: left;
+    height: 35px;
+    padding: 0 3px;
+    position: relative;
+    width: 100%;
+    background-size:cover;
+}
+
+#physical_cpu_slider .ui-state-default {
+    background: url("../../img/cloud_prodcuts_panel_drag_bar_02.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: inline-block;
+    height: 35px;
+    margin-left: 0;
+    position: absolute;
+    top: 0;
+    width: 16px;
+}
+
+#physical_mem_slider .ui-state-default {
+    background: url("../../img/cloud_prodcuts_panel_drag_bar_02.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: inline-block;
+    height: 35px;
+    margin-left: 0;
+    position: absolute;
+    top: 0;
+    width: 16px;
+}
+#physical_disk_slider .ui-state-default {
+    background: url("../../img/cloud_prodcuts_panel_drag_bar_02.png") no-repeat scroll 50% 50% rgba(0, 0, 0, 0);
+    cursor: pointer;
+    display: inline-block;
+    height: 35px;
+    margin-left: 0;
+    position: absolute;
+    top: 0;
+    width: 16px;
+}
